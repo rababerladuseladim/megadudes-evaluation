@@ -13,5 +13,6 @@ analysis/*
 !.editorconfig
 !.travis.yml
 !.test
+!.test/**
 !LICENSE
 !README.md
