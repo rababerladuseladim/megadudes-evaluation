@@ -31,4 +31,5 @@ def do_something(peptide_file, out_path, log_path):
         json.dump(pep2prot, outfile)
 
 
-do_something(snakemake.input[0], snakemake.output[0], snakemake.log)
+if "snakemake" in globals():
+    do_something(snakemake.input[0], snakemake.output[0], snakemake.log)

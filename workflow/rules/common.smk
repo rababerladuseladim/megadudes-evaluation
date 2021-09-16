@@ -7,6 +7,9 @@ container: "docker://continuumio/miniconda3"
 
 ##### load config and sample sheets #####
 
+import os
+print(os.getcwd())
+print(list(os.walk(".")))
 configfile: "config/config.yaml"
 validate(config, schema="../schemas/config.schema.yaml")
 
