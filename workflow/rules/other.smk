@@ -17,7 +17,6 @@ rule map_peptides_to_uniprot_ids:
                 if content:
                     trypticPeptides.append(content)
 
-        print(trypticPeptides)
         post_data = [('equate_il', 'true')]
         post_data += [('input[]', x) for x in trypticPeptides]
         data = urllib.parse.urlencode(post_data).encode()
