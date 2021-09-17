@@ -17,3 +17,4 @@ rule all:
 
 include: "rules/common.smk"
 include: "rules/other.smk"
+include: "rules/sample_taxons.smk"

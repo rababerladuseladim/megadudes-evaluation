@@ -1,0 +1,170 @@
+----------------------------------------------------------------------------
+        UniProt Knowledgebase:
+          Swiss-Prot Protein Knowledgebase
+          TrEMBL Protein Database
+        SIB Swiss Institute of Bioinformatics; Geneva, Switzerland
+        European Bioinformatics Institute (EBI); Hinxton, United Kingdom
+        Protein Information Resource (PIR); Washington DC, USA
+----------------------------------------------------------------------------
+
+Description: Controlled vocabulary of species
+Name:        speclist.txt
+Release:     2021_03 of 02-Jun-2021
+
+----------------------------------------------------------------------------
+
+See the UniProtKB user manual for a description of the rules followed for
+the creation of the organism (species) identification codes.
+
+- The letter which follows each code indicates which taxonomic 'kingdom' an
+  organism belongs to. It can be one of the following:
+
+  'A' for archaea (=archaebacteria)
+  'B' for bacteria (=prokaryota or eubacteria)
+  'E' for eukaryota (=eukarya)
+  'V' for viruses and phages (=viridae)
+  'O' for others (such as artificial sequences)
+
+- The one to seven-digit number is used to indicate to which taxonomic node
+  in the NCBI taxonomy an organism is assigned.
+
+- This document contains two sublists:
+
+  1) "Real" organism codes
+
+   These codes are used in both UniProtKB/Swiss-Prot and UniProtKB/TrEMBL.
+   They correspond to a specific and specified organism.
+   They are assigned specific official (scientific) names and optionally
+   common names and synonyms.
+
+  2) "Virtual" codes that regroup organisms at a certain taxonomic level
+
+   These codes are used only in UniProtKB/TrEMBL.
+   They generally correspond to a 'pool' of organisms, which may be as wide
+   as a kingdom.
+   They are assigned a specific official or semi-official name of that
+   group of organism. Examples: Amphibia, Coleoptera, Orthomyxoviridae,
+   Zygomycetes, etc.
+
+- Total number of identification codes currently defined: 26658.
+
+
+=======================
+(1) Real organism codes
+=======================
+
+Code    Taxon    N=Official (scientific) name
+        Node     C=Common name
+                 S=Synonym
+_____ _ _______  ____________________________________________________________
+AADNV V  648330: N=Aedes albopictus densovirus (isolate Boublik/1994)
+                 C=AalDNV
+AAV2  V   10804: N=Adeno-associated virus 2
+                 C=AAV-2
+AAV2S V  648242: N=Adeno-associated virus 2 (isolate Srivastava/1982)
+                 C=AAV-2
+ABAMA E  118452: N=Abacion magnum
+                 C=Millipede
+ABANI E   72259: N=Abaeis nicippe
+                 C=Sleepy orange butterfly
+                 S=Eurema nicippe
+ABAPA E  102642: N=Abax parallelepipedus
+                 C=Ground beetle
+ABAST E  392897: N=Abalistes stellaris
+                 C=Starry triggerfish
+                 S=Balistes stellaris
+ABBRI E   75332: N=Abbottina rivularis
+                 C=Chinese false gudgeon
+                 S=Gobio rivularis
+ABDAC E  515833: N=Abdopus aculeatus
+                 C=Algae octopus
+                 S=Octopus aculeatus
+ABDS2 B   56673: N=Antarctic bacterium DS2-3R
+ABECH E  180068: N=Abelia chinensis
+                 C=Chinese abelia
+ABEFI E  183219: N=Abelmoschus ficulneus
+                 C=Native rosella
+ABEGR E  105883: N=Abelia grandiflora
+                 C=Glossy abelia
+                 S=Abelia chinensis x Abelia uniflora
+ABEMA E  183220: N=Abelmoschus manihot
+                 C=Sweet hibiscus
+                 S=Hibiscus manihot
+ABHV  V 1241371: N=Abalone herpesvirus (isolate Abalone/Australia/Victoria/2009)
+                 C=AbHV
+ABIAL E   45372: N=Abies alba
+                 C=Edeltanne
+                 S=European silver fir
+ABIBA E   90345: N=Abies balsamea
+                 C=Balsam fir
+                 S=Pinus balsamea
+ABIBE E  123605: N=Abies beshanzuensis
+                 C=Baishan fir
+ABIBR E   66168: N=Abies bracteata
+                 C=Bristle-cone fir
+                 S=Pinus bracteata
+ABICO E   97173: N=Abies concolor
+                 C=White fir
+                 S=Picea concolor
+ABIDE B   46125: N=Abiotrophia defectiva
+                 S=Streptococcus defectivus
+ABIFI E   78260: N=Abies firma
+                 C=Momi fir
+ABIFR E   97172: N=Abies fraseri
+                 C=Fraser fir
+                 S=Pinus fraseri
+ABIFY E  473868: N=Abisara fylloides
+                 C=Judy butterfly
+ABIGR E   46611: N=Abies grandis
+                 C=Grand fir
+                 S=Pinus grandis
+ABIHL E   97168: N=Abies holophylla
+                 C=Neddle fir
+                 S=Manchurian fir
+ABIHO E   78261: N=Abies homolepis
+                 C=Nikko fir
+ABIKO E   97170: N=Abies koreana
+                 C=Korean fir
+ABILA E   34340: N=Abies lasiocarpa
+                 C=Subalpine fir
+                 S=Pinus lasiocarpa
+ABIMA E    3320: N=Abies magnifica
+                 C=Red fir
+ABIMR E   78263: N=Abies mariesii
+                 C=Marie's fir
+ABINE E   97176: N=Abies nebrodensis
+                 C=Sicilian fir
+ABINO E   97177: N=Abies nordmanniana
+                 C=Caucasian fir
+                 S=Pinus nordmanniana
+ABISA E   78264: N=Abies sachalinensis
+                 C=Sakhalin fir
+                 S=Abies veitchii var. sachalinensis
+ABIVE E   78262: N=Abies veitchii
+                 C=Veitch fir
+ABLBU E  283347: N=Ablepharus budaki
+                 C=Budak's snake-eyed skink
+                 S=Ablepharus kitaibellii subsp. budaki
+ABLHI E  129035: N=Ablennes hians
+                 C=Flat needlefish
+                 S=Belone hians
+ABLKI E  245592: N=Ablepharus kitaibelii
+                 C=Snake-eyed skink
+ABLVB V  446561: N=Australian bat lyssavirus (isolate Bat/AUS/1996)
+                 C=ABLV
+ABLVH V  446562: N=Australian bat lyssavirus (isolate Human/AUS/1998)
+                 C=ABLV
+
+=======================================================================
+(2) "Virtual" codes that regroup organisms at a certain taxonomic level
+=======================================================================
+
+9ABAC V  558016: N=Alphabaculovirus
+9ACAR E    6933: N=Acari
+9ACTI E    7898: N=Actinopterygii
+9ACTN B  201174: N=Actinobacteria
+
+-----------------------------------------------------------------------
+Copyrighted by the UniProt Consortium, see https://www.uniprot.org/terms
+Distributed under the Creative Commons Attribution (CC BY 4.0) License
+-----------------------------------------------------------------------
