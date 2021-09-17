@@ -11,25 +11,25 @@ sys.path.insert(0, os.path.dirname(__file__))
 import common
 
 
-def test_all():
+def test_map_peptides_to_uniprot_ids():
 
     with TemporaryDirectory() as tmpdir:
         workdir = Path(tmpdir) / "workdir"
-        data_path = PurePosixPath(".test/all/data")
-        expected_path = PurePosixPath(".test/all/expected")
+        data_path = PurePosixPath(".test/unit/map_peptides_to_uniprot_ids/data")
+        expected_path = PurePosixPath(".test/unit/map_peptides_to_uniprot_ids/expected")
 
         # Copy data to the temporary workdir.
         shutil.copytree(data_path, workdir)
 
         # dbg
-        print("all", file=sys.stderr)
+        print("results/map_peptides_to_uniprot_ids/pep2uniprot_ids.json", file=sys.stderr)
 
         # Run the test job.
         sp.check_output([
             "python",
             "-m",
             "snakemake", 
-            "all",
+            "results/map_peptides_to_uniprot_ids/pep2uniprot_ids.json",
             "-F", 
             "-j1",
             "--keep-target-files",
