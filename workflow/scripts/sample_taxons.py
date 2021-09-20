@@ -2,13 +2,13 @@ import random
 import sys
 
 
-def sample_taxons(uniprot_speclist_file, output_file, log=None, count=10, seed=1234):
+def sample_taxons(uniprot_speclist_file, output_file, log=sys.stderr, count=10, seed=1234):
     with open(uniprot_speclist_file, "r") as file_handle:
         taxids = read_taxids_from_uniprot_speclist_file(file_handle)
     if count > len(taxids):
         print(
             f"Number of requested taxids ({count}) is larger than number of available taxids ({len(taxids)}).",
-            file=sys.stderr,
+            file=log,
         )
         sys.exit(1)
     random.seed(seed)
@@ -50,4 +50,5 @@ def read_taxids_from_uniprot_speclist_file(file_handle):
 
 
 if "snakemake" in globals():
-    sample_taxons(snakemake.input[0], snakemake.output[0], snakemake.log)
+    with open(snakemake.log[0], "w") as log_handle:
+        sample_taxons(snakemake.input[0], snakemake.output[0], log=log_handle)
