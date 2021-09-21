@@ -16,5 +16,5 @@ rule all:
 
 
 include: "rules/common.smk"
-include: "rules/other.smk"
+include: "rules/map_peptides_to_uniprot_ids.smk"
 include: "rules/sample_taxons.smk"
