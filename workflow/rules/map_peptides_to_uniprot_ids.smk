@@ -1,4 +1,3 @@
-# An example collection of Snakemake rules imported in the main Snakefile.
 rule map_peptides_to_uniprot_ids:
     input:
         config["peptides"]
