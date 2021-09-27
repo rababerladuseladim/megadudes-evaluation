@@ -1,13 +1,13 @@
 rule download_uniprot_idmappig:
     output:
-        "uniprot/idmapping_selected.tab.gz"
+        idmap="uniprot/idmapping_selected.tab.gz"
     log:
         "logs/uniprot/idmapping_download.txt"
     shell:
         """\
         wget \
         -o \"{log}\" \
-        -O \"{output[0]}\" \
+        -O \"{output.idmap}\" \
         https://ftp.expasy.org/databases/uniprot/current_release/knowledgebase/idmapping/idmapping_selected.tab.gz"""
 
 rule map_taxids_to_uniprot_accessions:
