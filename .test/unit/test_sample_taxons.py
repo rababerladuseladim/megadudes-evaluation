@@ -13,9 +13,11 @@ sys.path.insert(0, os.path.dirname(__file__))
 import common
 
 
-def test_sample_taxons():
+def test_sample_taxons(tmpdir):
 
-    with TemporaryDirectory() as tmpdir:
+    # with TemporaryDirectory() as tmpdir:
+    if True:
+        print(tmpdir)
         workdir = Path(tmpdir) / "workdir"
         data_path = PurePosixPath(".test/unit/sample_taxons/data")
         expected_path = PurePosixPath(".test/unit/sample_taxons/expected")
