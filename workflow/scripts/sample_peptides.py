@@ -32,10 +32,14 @@ def get_protein_sequences(uniprot_list):
     Returns:
         protein_dict (dict): the updated dictionary
     """
+    base_url = "https://www.uniprot.org/"
+    with request.urlopen(base_url) as f:
+        uniprot_version = f.getheader('X-UniProt-Release')
+    print(f"Uniprot Release Number: {uniprot_version}", file=LOG_HANDLE)
     # This makes it so we match only the ENTRY field
     uniprot_list = ["id%3A" + id for id in uniprot_list]
     line = "+OR+".join(uniprot_list)
-    url = f"https://www.uniprot.org/uniprot/?query={line}&format=fasta"
+    url = base_url + f"uniprot/?query={line}&format=fasta"
     with request.urlopen(url) as f:
         fasta = f.read().decode("utf-8").strip()
     return fasta
