@@ -30,7 +30,7 @@ def test_all():
             "-m",
             "snakemake", 
             "all",
-            "-F", 
+            # "-F",
             "-j1",
             "--keep-target-files",
     

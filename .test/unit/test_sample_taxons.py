@@ -34,7 +34,7 @@ def test_sample_taxons(tmpdir):
             "-m",
             "snakemake", 
             "results/sample_taxons/sample_taxons.txt",
-            "-F", 
+            # "-F",
             "-j1",
             "--keep-target-files",
     
