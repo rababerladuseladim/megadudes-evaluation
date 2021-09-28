@@ -5,10 +5,10 @@ rule download_uniprot_idmapping:
         "logs/download_uniprot_idmapping.txt"
     shell:
         """\
-        wget \
-        -o \"{log}\" \
-        -O \"{output.idmap}\" \
-        https://ftp.expasy.org/databases/uniprot/current_release/knowledgebase/idmapping/idmapping_selected.tab.gz"""
+        UNIPROT_VERSION=$(curl --head -sS https://www.uniprot.org 2>"{log}"| grep x-uniprot-release | sed 's/x-uniprot-release: //')
+        echo "Uniprot Release Number: ${{UNIPROT_VERSION}}" >>"{log}"
+        curl -sS https://www.uniprot.org/docs/speclist.txt > "{output.idmap}" 2>>"{log}"
+        """
 
 rule download_uniprot_speclist:
     output:
@@ -17,8 +17,8 @@ rule download_uniprot_speclist:
         "logs/download_uniprot_speclist.txt"
     shell:
         """\
-        wget \
-        -o \"{log}\" \
-        -O \"{output.speclist}\" \
-        https://www.uniprot.org/docs/speclist.txt"""
+        UNIPROT_VERSION=$(curl --head -sS https://www.uniprot.org 2>"{log}"| grep x-uniprot-release | sed 's/x-uniprot-release: //')
+        echo "Uniprot Release Number: ${{UNIPROT_VERSION}}" >>"{log}"
+        curl -sS https://www.uniprot.org/docs/speclist.txt > "{output.speclist}" 2>>"{log}"
+        """
 

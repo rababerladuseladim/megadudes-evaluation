@@ -15,6 +15,7 @@ rule all:
         "results/map_peptides_to_uniprot_ids/pep2uniprot_ids.json"
 
 
+include: "rules/download_resources.smk"
 include: "rules/common.smk"
 include: "rules/sample_taxons.smk"
 include: "rules/map_taxids_to_uniprot_accessions.smk"
