@@ -1,0 +1,6 @@
+channels:
+  - defaults
+dependencies:
+  - pip
+  - pip:
+    - git+https://github.com/rababerladuseladim/dudes.git@add_uniprot_support
