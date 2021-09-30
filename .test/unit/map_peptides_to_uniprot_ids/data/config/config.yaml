@@ -3,3 +3,5 @@
 # one row per sample. It can be parsed easily via pandas.
 samples: "config/samples.tsv"
 peptides: "config/peptides.txt"
+msfragger_peptides_tsv: "config/peptide.tsv"
+

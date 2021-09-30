@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 import common
 
 
-def test_map_peptides_to_uniprot_ids():
+def test_map_peptides_to_uniprot_ids(tmpdir):
 
     with TemporaryDirectory() as tmpdir:
         workdir = Path(tmpdir) / "workdir"
@@ -30,7 +30,7 @@ def test_map_peptides_to_uniprot_ids():
             "-m",
             "snakemake", 
             "results/map_peptides_to_uniprot_ids/pep2uniprot_ids.json",
-            "-F", 
+            "-F",
             "-j1",
             "--keep-target-files",
     

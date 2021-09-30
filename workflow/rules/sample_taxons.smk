@@ -1,6 +1,6 @@
 rule sample_taxons:
     input:
-        "resources/speclist.txt"
+        "resources/uniprot/speclist.txt"
     log:
         "logs/sample_taxons.txt"
     output:

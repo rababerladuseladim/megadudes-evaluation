@@ -1,6 +1,6 @@
 rule map_taxids_to_uniprot_accessions:
     input:
-        idmap="resources/idmapping_selected.tab.gz",
+        idmap="resources/uniprot/idmapping_selected.tab.gz",
         taxids="results/sample_taxons/sample_taxons.txt"
     output:
         "results/map_taxids_to_uniprot_accessions/tax2accessions.json"

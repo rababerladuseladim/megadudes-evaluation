@@ -1,28 +1,26 @@
-import os.path
+import os
 
-rule download_uniprot_idmapping:
+rule download_uniprot_resources:
     output:
-        idmap="resources/idmapping_selected.tab.gz"
+        speclist="resources/uniprot/peclist.txt",
+        idmap="resources/uniprot/idmapping_selected.tab.gz",
+        swissprot_fasta="resources/uniprot/swissprot.fasta.gz",
+        trembl_fasta="resources/uniprot/trembl.fasta.gz",
     log:
-        "logs/download_uniprot_idmapping.txt"
-    shell:
-        """\
-        UNIPROT_VERSION=$(curl --head -sS https://www.uniprot.org 2>"{log}"| grep x-uniprot-release | sed 's/x-uniprot-release: //')
-        echo "Uniprot Release Number: ${{UNIPROT_VERSION}}" >>"{log}"
-        curl -sS https://www.uniprot.org/docs/speclist.txt > "{output.idmap}" 2>>"{log}"
-        """
-
-rule download_uniprot_speclist:
-    output:
-        speclist="resources/speclist.txt"
-    log:
-        "logs/download_uniprot_speclist.txt"
+        "logs/download_uniprot_resources.txt"
     shell:
         """\
         UNIPROT_VERSION=$(curl --head -sS https://www.uniprot.org 2>"{log}"| grep x-uniprot-release | sed 's/x-uniprot-release: //')
         echo "Uniprot Release Number: ${{UNIPROT_VERSION}}" >>"{log}"
         curl -sS https://www.uniprot.org/docs/speclist.txt > "{output.speclist}" 2>>"{log}"
+        curl -sS https://ftp.expasy.org/databases/uniprot/current_release/knowledgebase/idmapping/idmapping_selected.tab.gz \
+        > "{output.idmap}" 2>>"{log}"
+        curl -sS https://ftp.expasy.org/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz \
+        > "{output.swissprot_fasta}" 2>>"{log}"
+        curl -sS https://ftp.expasy.org/databases/uniprot/current_release/knowledgebase/complete/uniprot_trembl.fasta.gz \
+        > "{output.trembl_fasta}" 2>>"{log}"
         """
+
 
 rule download_ncbi_resources:
     output:
