@@ -1,3 +1,5 @@
+import os.path
+
 rule download_uniprot_idmapping:
     output:
         idmap="resources/idmapping_selected.tab.gz"
@@ -22,3 +24,16 @@ rule download_uniprot_speclist:
         curl -sS https://www.uniprot.org/docs/speclist.txt > "{output.speclist}" 2>>"{log}"
         """
 
+rule download_ncbi_resources:
+    output:
+        nodes = "resources/ncbi/nodes.dmp",
+        names = "resources/ncbi/names.dmp"
+    log:
+        "logs/download_ncbi_resources.txt"
+    params:
+        dir=lambda wildcards, output: os.path.dirname(output.nodes)
+    shell:
+        """
+        curl -sS https://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz 2> "{log}" | \\
+        tar -xzf - --directory "{params.dir}" nodes.dmp names.dmp
+        """
