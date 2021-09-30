@@ -10,8 +10,11 @@ properties:
     type: string
   peptides:
     type: string
+  msfragger_peptides_tsv:
+    type: string
 
 # entries that have to be in the config file for successful validation
 required:
   - samples
   - peptides
+  - msfragger_peptides_tsv
