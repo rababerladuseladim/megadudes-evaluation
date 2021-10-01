@@ -10,15 +10,15 @@ rule download_uniprot_resources:
         "logs/download_uniprot_resources.txt"
     shell:
         """\
-        UNIPROT_VERSION=$(curl --head -sS https://www.uniprot.org 2>"{log}"| grep x-uniprot-release | sed 's/x-uniprot-release: //')
-        echo "Uniprot Release Number: ${{UNIPROT_VERSION}}" >>"{log}"
-        curl -sS https://www.uniprot.org/docs/speclist.txt > "{output.speclist}" 2>>"{log}"
+        UNIPROT_VERSION=$(curl --head -sS https://www.uniprot.org 2>"{log}"| grep x-uniprot-release | sed 's/x-uniprot-release: //');
+        echo "Uniprot Release Number: $UNIPROT_VERSION" >>"{log}";
+        curl -sS https://www.uniprot.org/docs/speclist.txt > "{output.speclist}" 2>>"{log}";
         curl -sS https://ftp.expasy.org/databases/uniprot/current_release/knowledgebase/idmapping/idmapping_selected.tab.gz \
-        > "{output.idmap}" 2>>"{log}"
+        > "{output.idmap}" 2>>"{log}";
         curl -sS https://ftp.expasy.org/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz \
-        > "{output.swissprot_fasta}" 2>>"{log}"
+        > "{output.swissprot_fasta}" 2>>"{log}";
         curl -sS https://ftp.expasy.org/databases/uniprot/current_release/knowledgebase/complete/uniprot_trembl.fasta.gz \
-        > "{output.trembl_fasta}" 2>>"{log}"
+        > "{output.trembl_fasta}" 2>>"{log}";
         """
 
 
