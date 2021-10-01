@@ -12,7 +12,8 @@ rule all:
     input:
         # The first rule should define the default target files
         # Subsequent target rules can be specified below. They should start with all_*.
-        "results/map_peptides_to_uniprot_ids/pep2uniprot_ids.json"
+        "results/megadudes/result.out",
+        "plots/megadudes"
 
 
 include: "rules/download_resources.smk"
@@ -20,3 +21,4 @@ include: "rules/common.smk"
 include: "rules/sample_taxons.smk"
 include: "rules/map_taxids_to_uniprot_accessions.smk"
 include: "rules/map_peptides_to_uniprot_ids.smk"
+include: "rules/run_megadudes.smk"
