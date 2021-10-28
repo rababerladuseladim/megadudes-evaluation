@@ -8,7 +8,7 @@ plt.rcParams["figure.figsize"] = [16 * 0.6, 9 * 0.6]
 # context keywords: notebook, talk, paper, poster
 sns.set_theme(context="talk", rc={"axes.grid": False})
 
-TAX_LEVELS = ["order", "family", "genus", "species", "subspecies"]
+TAX_LEVELS = ["superkingdom", "phylum", "class", "order", "family", "genus", "species", "subspecies"]
 
 
 def read_ground_truth_file(ground_truth_file):
@@ -17,26 +17,11 @@ def read_ground_truth_file(ground_truth_file):
         sep="\t",
         dtype={
             c: pd.Int64Dtype()  # support nan values
-            for c in [
-                "Taxon ID\nsubspecies",
-                "Taxon ID\nspecies",
-                "Taxon ID\ngenus",
-                "Taxon ID\nfamily",
-                "Taxon ID\norder",
-            ]
+            for c in TAX_LEVELS
         },
     )
-    df_t_taxids = df_t_raw.filter(like="Taxon")
-    df_t_taxids = df_t_taxids.rename(lambda x: x.split("\n")[1].strip(), axis=1)
-    df_t_taxids = df_t_taxids.iloc[:, ::-1]
-    # df_t_taxids = df_t_taxids.melt(var_name="tax_level", value_name="taxid")
-    # df_t_taxids.dropna(inplace=True)
-    # df_t_taxids.drop_duplicates(inplace=True, ignore_index=True)
-    # names
-    df_names = df_t_raw.filter(like="scientific name")
-    df_names = df_names.rename(lambda x: x.split("\n")[1].strip(), axis=1)
-    df_names = df_names.iloc[:, ::-1]
-    return df_t_taxids, df_names
+    df_t_taxids = df_t_raw.drop(columns=["Kleiner et al. Name", "Protein amount in equal Protein [microg]"])
+    return df_t_taxids
 
 
 def get_value_overlap(hits, ground_truth):
@@ -66,12 +51,16 @@ def get_value_overlap(hits, ground_truth):
     return pd.Series(dct)
 
 
-def get_unipept_hit_counts(f, ground_truth_df_tax_names, method_name):
-    df_uni_raw = pd.read_csv(f, sep="\t")
-    df_uni = df_uni_raw[TAX_LEVELS]
-    df = pd.DataFrame()
+def get_unipept_hit_counts(f, ground_truth_df_tax_ids, method_name):
+    df_uni = pd.read_csv(
+        f,
+        usecols=[f"{t}_id" for t in TAX_LEVELS],
+        dtype=pd.Int64Dtype()
+    )
+    df_uni.rename(lambda x: x.strip("_id"), axis="columns", inplace=True)
+    df = pd.DataFrame(columns=TAX_LEVELS, index=["TP", "FP", "FN"],)
     for t in TAX_LEVELS:
-        s = get_value_overlap(df_uni[t], ground_truth_df_tax_names[t])
+        s = get_value_overlap(df_uni[t], ground_truth_df_tax_ids[t])
         df[t] = s.value_counts()
     df = df.fillna(0)
     df["eval"] = df.index
@@ -82,7 +71,7 @@ def get_unipept_hit_counts(f, ground_truth_df_tax_names, method_name):
 def get_megadudes_hit_counts(f, ground_truth_df_tax_ids, method_name):
     df_mega = pd.read_csv(f, sep="\t", skiprows=5)
     df_mega = df_mega.rename(lambda c: c.lower().strip("@"), axis=1)
-    df = pd.DataFrame()
+    df = pd.DataFrame(columns=TAX_LEVELS, index=["TP", "FP", "FN"])
     for t in TAX_LEVELS:
         s_mega = (
             df_mega.loc[df_mega["rank"] == t, "taxpath"]
@@ -147,12 +136,13 @@ def plot_qc(df_plt, output):
             y=metric,
             hue="method",
             ax=ax,
-            # legend only in last plot
-            legend=bool(metric == metrics[-1]),
+            # legend only in first plot
+            legend=bool(metric == metrics[0]),
             marker="s",
         )
         ax.set_title(metric)
-        ax.set_ylim(0, 100)
+        ax.set_ylim(0, 105)
+        plt.setp(ax.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
         ax.xaxis.label.set_visible(False)
     axes[0].yaxis.label.set_visible(False)
     axes[-1].tick_params(labelright=True)
@@ -162,10 +152,10 @@ def plot_qc(df_plt, output):
 
 def qc_plots(ground_truth_file, unipept_file_list, megadudes_file_list, output):
     # read ground truth
-    df_gt_taxids, df_gt_taxnames = read_ground_truth_file(ground_truth_file)
+    df_gt_taxids = read_ground_truth_file(ground_truth_file)
     # get unipept hits
     lst_df_uni = [
-        get_unipept_hit_counts(f, df_gt_taxnames, method_name=Path(f).stem)
+        get_unipept_hit_counts(f, df_gt_taxids, method_name=Path(f).stem)
         for f in unipept_file_list
     ]
     # get megadudes hits
@@ -186,9 +176,9 @@ def qc_plots(ground_truth_file, unipept_file_list, megadudes_file_list, output):
 
 
 def test_qc_plots(tmpdir):
-    ground_truth = "/home/hennings/Projects/megadudes-evaluation/resources/kleiner_ground_truth-equal_protein.csv"
+    ground_truth = "/home/hennings/Projects/megadudes-evaluation/resources/kleiner_ground_truth-equal_protein-full_taxid_lineage.csv"
     unipept_results = [
-        "/home/hennings/Nextcloud/PhD/projects/20210100-taxFDR/01-researchgap/02-tax_analysis/unipept_results-Kleiner_P_mpa.csv"
+        "/home/hennings/Nextcloud/PhD/projects/20210100-taxFDR/01-researchgap/02-tax_analysis/unipept_results-Kleiner_P_msfragger.csv"
     ]
     megadudes_file_list = [
         "/home/hennings/Nextcloud/PhD/projects/20210100-taxFDR/02-megadudes/v0.8/megadudes-result.out",
