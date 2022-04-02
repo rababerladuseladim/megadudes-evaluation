@@ -24,7 +24,7 @@ rule map_peptides_from_uniparc_to_uniprot_ids:
         "../envs/megadudes.yaml"
     shell:
         """
-        map_peptides.py \
+        dudes-parse-peptides \
         -m {input.pep_tsv} \
         -d {input.dudes_db} \
         -f {input.uniparc_fasta} \
@@ -56,7 +56,7 @@ rule build_megadudes_db:
         db_base_name=lambda wildcards, output: os.path.splitext(output["dudes_db"])[0]
     shell:
         """
-        DUDesDB.py -m up \
+        dudesdb -m up \
         -f {input.uniprot_fastas} \
         -g {input.idmap} \
         -n {input.ncbi_nodes} \
@@ -72,23 +72,25 @@ rule run_megadudes:
         dudes_db="results/megadudes/proc/dudes_db.npz",
         pep_db="results/megadudes/proc/mapped_peptides.npz"
     log:
-        "logs/megadudes/run_megadudes.txt"
+        "logs/megadudes/run_megadudes-normalize_{normalize}.txt"
     output:
-        table="results/megadudes/result.out",
-        plots=directory("plots/megadudes")
+        table="results/megadudes/result-normalize_{normalize}.out",
+        plots=directory("plots/megadudes-normalize_{normalize}")
     conda:
         "../envs/megadudes.yaml"
     threads:
         99
     params:
-       out_wo_ext=lambda wildcards, output: os.path.splitext(output.table)[0]
+        out_wo_ext=lambda wildcards, output: os.path.splitext(output.table)[0],
+        additional_args=lambda w: [] if w.normalize == "true" else ["--no-normalize"]
     shell:
         """
-        DUDes.py \
+        dudes \
         -s {input.pep_db} \
         -d {input.dudes_db} \
         -t {threads} \
         -o {params.out_wo_ext}\
+        {params.additional_args} \
         --debug_plots_dir {output.plots} \
         --debug 2> {log}
         """
