@@ -1,7 +1,8 @@
 rule convert_msfragger_peptides_tsv_to_fasta:
     input: config["msfragger_peptides_tsv"]
     output: "results/diamond/proc/peptides.fasta"
-    shell: "cat {input} | tail -n +2 | cut -f1 | sed 's/.*/>&\\n&/' > {output}"
+    log: "logs/diamond/convert_msfragger_peptides_tsv_to_fasta.txt"
+    shell: "cat {input} | tail -n +2 | cut -f1 | sed 's/.*/>&\\n&/' > {output} 2>{log}"
 
 
 rule make_diamond_db:
@@ -26,6 +27,7 @@ rule run_diamond:
 rule plot_histogram_of_hits:
     input: "results/diamond/out.tsv"
     output: "plots/diamond/hist_of_hits.svg"
+    log: "logs/diamond/plot_histogram_of_hits.txt"
     conda:
         "../envs/qc_plots.yaml"
     script:
