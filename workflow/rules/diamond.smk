@@ -21,7 +21,7 @@ rule run_diamond:
     conda: "../envs/diamond.yaml"
     log: "logs/diamond/run_diamond.txt"
     shell:
-      "diamond blastp  -q {input.query_fasta} -d {input.dmnd_db} --fast --outfmt 6 qseqid sseqid slen sstart cigar pident -o {output} > {log} 2>&1"
+      "diamond blastp  -q {input.query_fasta} -d {input.dmnd_db} --fast --outfmt 6 qseqid sseqid slen sstart cigar pident mismatch -o {output} > {log} 2>&1"
 
 
 rule plot_histogram_of_hits:
