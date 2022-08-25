@@ -178,12 +178,11 @@ def qc_plots(ground_truth_file, unipept_file_list, megadudes_file_list, output):
 def test_qc_plots(tmpdir):
     ground_truth = "/home/hennings/Projects/megadudes-evaluation/resources/kleiner_ground_truth-equal_protein-full_taxid_lineage.csv"
     unipept_results = [
-        # "/home/hennings/Nextcloud/PhD/projects/20210100-taxFDR/01-researchgap/02-tax_analysis/unipept_results-Kleiner_P_msfragger.csv"
+        "/home/hennings/Nextcloud/PhD/projects/20210100-taxFDR/01-researchgap/02-tax_analysis/unipept_results-Kleiner_P_msfragger.csv"
     ]
     megadudes_file_list = [
-        # "/home/hennings/Nextcloud/PhD/projects/20210100-taxFDR/02-megadudes/v0.8/megadudes-result.out",
+        "/home/hennings/Nextcloud/PhD/projects/20210100-taxFDR/02-megadudes/v0.8/megadudes-result.out",
         "/home/hennings/Nextcloud/PhD/projects/20210100-taxFDR/02-megadudes/v0.9/megadudes-result.out",
-        "/home/hennings/Nextcloud/PhD/projects/20210100-taxFDR/02-megadudes/v0.9-wo_score/megadudes-result.out",
     ]
     output_plot = tmpdir / "qc_plot.svg"
     print(output_plot)

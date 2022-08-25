@@ -3,4 +3,4 @@ channels:
 dependencies:
   - pip
   - pip:
-    - git+https://github.com/rababerladuseladim/dudes.git@9184d61edf43f6f1247f7cd69e87f7e1729d4cdc
+    - git+https://github.com/rababerladuseladim/dudes.git@add_uniprot_support

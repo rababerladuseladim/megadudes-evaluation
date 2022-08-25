@@ -17,11 +17,11 @@ rule run_diamond:
     input:
         query_fasta="results/diamond/proc/peptides.fasta",
         dmnd_db="results/diamond/proc/swissprot.dmnd"
-    output: "results/diamond/out.sam"
+    output: "results/diamond/out.tsv"
     conda: "../envs/diamond.yaml"
     log: "logs/diamond/run_diamond.txt"
     shell:
-      "diamond blastp  -q {input.query_fasta} -d {input.dmnd_db} --fast --outfmt 101 -o {output} > {log} 2>&1"
+      "diamond blastp  -q {input.query_fasta} -d {input.dmnd_db} --fast --outfmt 6 qseqid sseqid slen sstart cigar pident mismatch -o {output} > {log} 2>&1"
 
 
 rule plot_histogram_of_hits:

@@ -12,9 +12,8 @@ rule all:
     input:
         # The first rule should define the default target files
         # Subsequent target rules can be specified below. They should start with all_*.
-        # "results/megadudes/result-normalize_true.out",
-        # "results/megadudes/result-normalize_false.out",
-        "results/megadudes/result-normalize_true-diamond.out",
+        "results/megadudes/result-normalize_true.out",
+        "results/megadudes/result-normalize_false.out",
         "plots/diamond/hist_of_hits.svg"
 
 

@@ -76,8 +76,6 @@ rule run_megadudes:
     output:
         table="results/megadudes/result-normalize_{normalize}.out",
         plots=directory("plots/megadudes-normalize_{normalize}")
-    wildcard_constraints:
-        normalize="true|false"
     conda:
         "../envs/megadudes.yaml"
     threads:
@@ -89,37 +87,6 @@ rule run_megadudes:
         """
         dudes \
         -s {input.pep_db} \
-        -d {input.dudes_db} \
-        -t {threads} \
-        -o {params.out_wo_ext}\
-        {params.additional_args} \
-        --debug_plots_dir {output.plots} \
-        --debug 2> {log}
-        """
-
-
-rule run_megadudes_on_diamond_sam:
-    input:
-        dudes_db="results/megadudes/proc/dudes_db.npz",
-        sam_file="results/diamond/out.sam"
-    log:
-        "logs/megadudes/run_megadudes-normalize_{normalize}-diamond.txt"
-    output:
-        table="results/megadudes/result-normalize_{normalize}-diamond.out",
-        plots=directory("plots/megadudes-normalize_{normalize}-diamond")
-    wildcard_constraints:
-        normalize="true|false"
-    conda:
-        "../envs/megadudes.yaml"
-    threads:
-        99
-    params:
-        out_wo_ext=lambda wildcards, output: os.path.splitext(output.table)[0],
-        additional_args=lambda w: [] if w.normalize == "true" else ["--no-normalize"]
-    shell:
-        """
-        dudes \
-        -s {input.sam_file} \
         -d {input.dudes_db} \
         -t {threads} \
         -o {params.out_wo_ext}\
