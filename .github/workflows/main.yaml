@@ -11,9 +11,9 @@ jobs:
   Linting:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Lint workflow
-      uses: snakemake/snakemake-github-action@v1.5.3
+      uses: snakemake/snakemake-github-action@v1
       with:
         directory: .
         snakefile: workflow/Snakefile
@@ -25,13 +25,13 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Test workflow (local test data)
-      uses: snakemake/snakemake-github-action@v1.5.3
+      uses: snakemake/snakemake-github-action@v1
       with:
         directory: .test/integration
         snakefile: workflow/Snakefile
         args: "--use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs"
     - name: Test report
-      uses: snakemake/snakemake-github-action@v1.5.3
+      uses: snakemake/snakemake-github-action@v1
       with:
         directory: .test/integration
         snakefile: workflow/Snakefile
