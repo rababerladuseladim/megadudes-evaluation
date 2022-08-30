@@ -4,6 +4,9 @@ description: snakemake configuration file
 
 type: object
 
+# forbid usage of parameters beyond the ones defined in this schema
+additionalProperties: false
+
 # possible entries of the config file and which type they should be
 properties:
   samples:
@@ -12,9 +15,15 @@ properties:
     type: string
   msfragger_peptides_tsv:
     type: string
+  ground_truth:
+    type: string
+  unipept_result:
+    type: string
 
 # entries that have to be in the config file for successful validation
 required:
   - samples
   - peptides
   - msfragger_peptides_tsv
+  - ground_truth
+  - unipept_result

@@ -12,8 +12,7 @@ rule all:
     input:
         # The first rule should define the default target files
         # Subsequent target rules can be specified below. They should start with all_*.
-        "results/megadudes/result-normalize_true.out",
-        "results/megadudes/result-normalize_false.out",
+        "plots/taxon_identification_qc.svg",
         "plots/diamond/hist_of_hits.svg"
 
 
@@ -24,4 +23,4 @@ include: "rules/map_taxids_to_uniprot_accessions.smk"
 include: "rules/map_peptides_to_uniprot_ids.smk"
 include: "rules/run_megadudes.smk"
 include: "rules/diamond.smk"
-include: "rules/qc_plots.smk"
+include: "rules/taxon_identification_qc_plots.smk"
