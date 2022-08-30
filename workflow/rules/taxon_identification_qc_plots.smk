@@ -4,11 +4,11 @@ rule taxon_identification_qc_plots:
         unipept_results=[config["unipept_result"]],
         megadudes_results=[
             "results/megadudes/result-normalize_false.out",
-        ]
+        ],
     log:
-        "logs/qc_plots.txt"
+        "logs/qc_plots.txt",
     output:
-        plots="plots/taxon_identification_qc.svg"
+        report("plots/taxon_identification_qc.svg"),
     conda:
         "../envs/qc_plots.yaml"
     script:

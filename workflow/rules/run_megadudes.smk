@@ -1,13 +1,18 @@
 import os.path
 
+
 rule convert_gzip_to_block_gzip:
-    input: "{f}.gz"
-    output: "{f}.bgz"
-    conda: "../envs/samtools.yaml"
+    input:
+        "{f}.gz",
+    output:
+        "{f}.bgz",
+    conda:
+        "../envs/samtools.yaml"
     log:
         zcat="logs/megadudes/convert_gzip_to_block_gzip-zcat-{f}.txt",
         bgzip="logs/megadudes/convert_gzip_to_block_gzip-bgzip-{f}.txt",
-    shell: "zcat {input} 2>{log.zcat}| bgzip -c 2>{log.bgzip}> {output}"
+    shell:
+        "zcat {input} 2>{log.zcat}| bgzip -c 2>{log.bgzip}> {output}"
 
 
 rule map_peptides_from_uniparc_to_uniprot_ids:
@@ -15,11 +20,11 @@ rule map_peptides_from_uniparc_to_uniprot_ids:
         pep_tsv=config["msfragger_peptides_tsv"],
         dudes_db="results/megadudes/proc/dudes_db.npz",
         uniparc_fasta="resources/uniprot/uniparc.fasta.bgz",
-        idmap="resources/uniprot/idmapping_selected.tab.gz"
+        idmap="resources/uniprot/idmapping_selected.tab.gz",
     log:
-        "logs/megadudes/map_peptides_from_uniparc_to_uniprot_ids.txt"
+        "logs/megadudes/map_peptides_from_uniparc_to_uniprot_ids.txt",
     output:
-        "results/megadudes/proc/mapped_peptides.npz"
+        "results/megadudes/proc/mapped_peptides.npz",
     conda:
         "../envs/megadudes.yaml"
     shell:
@@ -34,26 +39,23 @@ rule map_peptides_from_uniparc_to_uniprot_ids:
         """
 
 
-
 rule build_megadudes_db:
     input:
         idmap="resources/uniprot/idmapping_selected.tab.gz",
-        uniprot_fastas=expand("resources/uniprot/{db}.fasta.gz",
-            db=[
-            "swissprot",
-            "trembl"
-        ]),
+        uniprot_fastas=expand(
+            "resources/uniprot/{db}.fasta.gz", db=["swissprot", "trembl"]
+        ),
         ncbi_nodes="resources/ncbi/nodes.dmp",
-        ncbi_names="resources/ncbi/names.dmp"
+        ncbi_names="resources/ncbi/names.dmp",
     log:
-        "logs/megadudes/build_megadudes_db.txt"
+        "logs/megadudes/build_megadudes_db.txt",
     output:
-        dudes_db="results/megadudes/proc/dudes_db.npz"
+        dudes_db="results/megadudes/proc/dudes_db.npz",
     conda:
         "../envs/megadudes.yaml"
     threads: 99
     params:
-        db_base_name=lambda wildcards, output: os.path.splitext(output["dudes_db"])[0]
+        db_base_name=lambda wildcards, output: os.path.splitext(output["dudes_db"])[0],
     shell:
         """
         dudesdb -m up \
@@ -70,19 +72,18 @@ rule build_megadudes_db:
 rule run_megadudes:
     input:
         dudes_db="results/megadudes/proc/dudes_db.npz",
-        pep_db="results/megadudes/proc/mapped_peptides.npz"
+        pep_db="results/megadudes/proc/mapped_peptides.npz",
     log:
-        "logs/megadudes/run_megadudes-normalize_{normalize}.txt"
+        "logs/megadudes/run_megadudes-normalize_{normalize}.txt",
     output:
-        table="results/megadudes/result-normalize_{normalize}.out",
-        plots=directory("plots/megadudes-normalize_{normalize}")
+        table=report("results/megadudes/result-normalize_{normalize}.out"),
+        plots=directory("plots/megadudes-normalize_{normalize}"),
     conda:
         "../envs/megadudes.yaml"
-    threads:
-        99
+    threads: 99
     params:
         out_wo_ext=lambda wildcards, output: os.path.splitext(output.table)[0],
-        additional_args=lambda w: [] if w.normalize == "true" else ["--no-normalize"]
+        additional_args=lambda w: [] if w.normalize == "true" else ["--no-normalize"],
     shell:
         """
         dudes \
