@@ -27,7 +27,11 @@ Configure the workflow according to your needs via editing the files in the `con
 
 Install Snakemake using [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html):
 
-    conda create -c bioconda -c conda-forge -n snakemake snakemake
+    conda create -c bioconda -c conda-forge -n snakemake snakemake pre-commit
+
+Install pre-commit by running
+
+    pre-commit install
 
 For installation details, see the [instructions in the Snakemake documentation](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html).
 
@@ -101,4 +105,3 @@ In case you have also changed or added steps, please consider contributing them 
 ## Testing
 
 Test cases are in the subfolder `.test`. They are automatically executed via continuous integration with [Github Actions](https://github.com/features/actions).
-
