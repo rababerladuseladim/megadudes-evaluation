@@ -33,7 +33,16 @@ rule run_diamond:
     log:
         "logs/diamond/run_diamond.txt",
     shell:
-        "diamond blastp  -q {input.query_fasta} -d {input.dmnd_db} --fast --outfmt 6 qseqid sseqid slen sstart cigar pident mismatch -o {output} > {log} 2>&1"
+        # output fields: (for a list of available options see https://github.com/bbuchfink/diamond/wiki/3.-Command-line-options#output-options)
+        # qseqid: Query Seq - id
+        # sseqid: Subject Seq - id
+        # slen: Subject sequence length
+        # sstart: Start of alignment in subject
+        # cigar: CIGAR string
+        # pident: Percentage of identical matches
+        # mismatch: Number of mismatches
+        # evalue: Expect value
+        "diamond blastp  -q {input.query_fasta} -d {input.dmnd_db} --fast --outfmt 6 qseqid sseqid slen sstart cigar pident mismatch evalue -o {output} > {log} 2>&1"
 
 
 rule plot_histogram_of_hits:
