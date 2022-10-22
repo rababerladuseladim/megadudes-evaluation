@@ -14,12 +14,13 @@ rule make_diamond_db:
         "resources/uniprot/swissprot.fasta.gz",
     output:
         "results/diamond/proc/swissprot.dmnd",
-    log:
-        "logs/diamond/make_diamond_db-swissprot.txt",
     conda:
         "../envs/diamond.yaml"
+    log:
+        "logs/diamond/make_diamond_db-swissprot.txt",
+    threads: 256
     shell:
-        "zcat {input} | diamond makedb --db {output} > {log} 2>&1"
+        "zcat {input} | diamond makedb --threads {threads} --db {output} > {log} 2>&1"
 
 
 rule run_diamond:
@@ -32,6 +33,7 @@ rule run_diamond:
         "../envs/diamond.yaml"
     log:
         "logs/diamond/run_diamond.txt",
+    threads: 256
     shell:
         # output fields: (for a list of available options see https://github.com/bbuchfink/diamond/wiki/3.-Command-line-options#output-options)
         # qseqid: Query Seq - id
@@ -42,7 +44,14 @@ rule run_diamond:
         # pident: Percentage of identical matches
         # mismatch: Number of mismatches
         # evalue: Expect value
-        "diamond blastp  -q {input.query_fasta} -d {input.dmnd_db} --fast --outfmt 6 qseqid sseqid slen sstart cigar pident mismatch evalue -o {output} > {log} 2>&1"
+        "diamond blastp  \
+        -q {input.query_fasta} \
+        -d {input.dmnd_db} \
+        --threads {threads}\
+        --fast \
+        --outfmt 6 qseqid sseqid slen sstart cigar pident mismatch evalue \
+        -o {output} \
+        > {log} 2>&1"
 
 
 rule plot_histogram_of_hits:
