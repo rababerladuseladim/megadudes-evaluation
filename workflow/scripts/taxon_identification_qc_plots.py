@@ -161,7 +161,7 @@ def qc_plots(ground_truth_file, unipept_file_list, megadudes_file_list, output):
     # get megadudes hits
     lst_df_mega = [
         get_megadudes_hit_counts(
-            f, df_gt_taxids, method_name=("megadudes-" + Path(f).parts[-2])
+            f, df_gt_taxids, method_name=("megadudes-" + Path(f).parts[-1])
         )
         for f in megadudes_file_list
     ]

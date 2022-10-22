@@ -69,15 +69,15 @@ rule build_megadudes_db:
         """
 
 
-rule run_megadudes:
+rule run_megadudes_on_precreated_npz_peptide_mapping_file:
     input:
         dudes_db="results/megadudes/proc/dudes_db.npz",
         pep_db="results/megadudes/proc/mapped_peptides.npz",
     log:
-        "logs/megadudes/run_megadudes-normalize_{normalize}.txt",
+        "logs/megadudes/run_megadudes-npz-normalize_{normalize}.txt",
     output:
-        table=report("results/megadudes/result-normalize_{normalize}.out"),
-        plots=directory("plots/megadudes-normalize_{normalize}"),
+        table=report("results/megadudes/npz-normalize_{normalize}.out"),
+        plots=directory("plots/megadudes-npz-normalize_{normalize}"),
     conda:
         "../envs/megadudes.yaml"
     threads: 99
@@ -87,7 +87,35 @@ rule run_megadudes:
     shell:
         """
         dudes \
-        -s {input.pep_db} \
+        -n {input.pep_db} \
+        -d {input.dudes_db} \
+        -t {threads} \
+        -o {params.out_wo_ext}\
+        {params.additional_args} \
+        --debug_plots_dir {output.plots} \
+        --debug 2> {log}
+        """
+
+
+rule run_megadudes_on_custom_blast_file:
+    input:
+        dudes_db="results/megadudes/proc/dudes_db.npz",
+        custom_blast_file="results/diamond/out.tsv",
+    log:
+        "logs/megadudes/run_megadudes-blast-normalize_{normalize}.txt",
+    output:
+        table=report("results/megadudes/blast-normalize_{normalize}.out"),
+        plots=directory("plots/megadudes-blast-normalize_{normalize}"),
+    conda:
+        "../envs/megadudes.yaml"
+    threads: 99
+    params:
+        out_wo_ext=lambda wildcards, output: os.path.splitext(output.table)[0],
+        additional_args=lambda w: [] if w.normalize == "true" else ["--no-normalize"],
+    shell:
+        """
+        dudes \
+        -c {input.custom_blast_file} \
         -d {input.dudes_db} \
         -t {threads} \
         -o {params.out_wo_ext}\
