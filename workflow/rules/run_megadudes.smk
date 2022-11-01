@@ -34,8 +34,7 @@ rule map_peptides_from_uniparc_to_uniprot_ids:
         -d {input.dudes_db} \
         -f {input.uniparc_fasta} \
         -i {input.idmap} \
-        -o {output} \
-        >> {log}
+        -o {output} > {log}
         """
 
 
@@ -49,7 +48,8 @@ rule build_megadudes_db:
         ncbi_nodes="resources/ncbi/nodes.dmp",
         ncbi_names="resources/ncbi/names.dmp",
     log:
-        "logs/megadudes/build_megadudes_db.txt",
+        stdout="logs/megadudes/build_megadudes_db-stdout.txt",
+        stderr="logs/megadudes/build_megadudes_db-stderr.txt",
     output:
         dudes_db="results/megadudes/proc/dudes_db.npz",
     conda:
@@ -65,8 +65,7 @@ rule build_megadudes_db:
         -n {input.ncbi_nodes} \
         -a {input.ncbi_names} \
         -o {params.db_base_name} \
-        -t {threads} \
-        >> {log}
+        -t {threads} > {log.stdout} 2> {log.stderr}
         """
 
 
@@ -75,7 +74,8 @@ rule run_megadudes_on_precreated_npz_peptide_mapping_file:
         dudes_db="results/megadudes/proc/dudes_db.npz",
         pep_db="results/megadudes/proc/mapped_peptides.npz",
     log:
-        "logs/megadudes/run_megadudes-npz-normalize_{normalize}.txt",
+        stdout="logs/megadudes/run_megadudes-npz-normalize_{normalize}-stdout.txt",
+        stderr="logs/megadudes/run_megadudes-npz-normalize_{normalize}-stderr.txt",
     output:
         table=report("results/megadudes/npz-normalize_{normalize}.out"),
         plots=directory("plots/megadudes-npz-normalize_{normalize}"),
@@ -94,7 +94,7 @@ rule run_megadudes_on_precreated_npz_peptide_mapping_file:
         -o {params.out_wo_ext}\
         {params.additional_args} \
         --debug_plots_dir {output.plots} \
-        --debug 2> {log}
+        --debug > {log.stdout} 2> {log.stderr}
         """
 
 
@@ -103,7 +103,8 @@ rule run_megadudes_on_custom_blast_file:
         dudes_db="results/megadudes/proc/dudes_db.npz",
         custom_blast_file="results/diamond/out.tsv",
     log:
-        "logs/megadudes/run_megadudes-blast-normalize_{normalize}.txt",
+        stdout="logs/megadudes/run_megadudes-blast-normalize_{normalize}-stdout.txt",
+        stderr="logs/megadudes/run_megadudes-blast-normalize_{normalize}-stderr.txt",
     output:
         table=report("results/megadudes/blast-normalize_{normalize}.out"),
         plots=directory("plots/megadudes-blast-normalize_{normalize}"),
@@ -122,5 +123,5 @@ rule run_megadudes_on_custom_blast_file:
         -o {params.out_wo_ext}\
         {params.additional_args} \
         --debug_plots_dir {output.plots} \
-        --debug 2> {log}
+        --debug > {log.stdout} 2> {log.stderr}
         """
