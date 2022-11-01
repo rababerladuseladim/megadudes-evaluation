@@ -42,9 +42,10 @@ rule map_peptides_from_uniparc_to_uniprot_ids:
 rule build_megadudes_db:
     input:
         idmap="resources/uniprot/idmapping_selected.tab.gz",
-        uniprot_fastas=expand(
-            "resources/uniprot/{db}.fasta.gz", db=["swissprot", "trembl"]
-        ),
+        # uniprot_fastas=expand(
+        #     "resources/uniprot/{db}.fasta.gz", db=["swissprot", "trembl"]
+        # ),
+        uniprot_fastas=["resources/uniprot/swissprot.fasta.gz"],
         ncbi_nodes="resources/ncbi/nodes.dmp",
         ncbi_names="resources/ncbi/names.dmp",
     log:
