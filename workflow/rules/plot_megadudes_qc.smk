@@ -1,4 +1,4 @@
-rule taxon_identification_qc_plots:
+rule plot_megadudes_qc:
     input:
         ground_truth=config["ground_truth"],
         unipept_results=[config["unipept_result"]],
@@ -7,10 +7,10 @@ rule taxon_identification_qc_plots:
             "results/megadudes/blast-normalize_false.out",
         ],
     log:
-        "logs/qc_plots.txt",
+        "logs/megadudes/plot_megadudes_qc.txt",
     output:
-        report("plots/taxon_identification_qc.svg"),
+        report("plots/megadudes/qc.svg"),
     conda:
         "../envs/qc_plots.yaml"
     script:
-        "../scripts/taxon_identification_qc_plots.py"
+        "../scripts/plot_megadudes_qc.py"

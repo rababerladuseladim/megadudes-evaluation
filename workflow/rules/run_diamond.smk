@@ -52,16 +52,3 @@ rule run_diamond:
         --outfmt 6 qseqid sseqid slen sstart cigar pident mismatch evalue \
         -o {output} \
         > {log} 2>&1"
-
-
-rule plot_histogram_of_hits:
-    input:
-        "results/diamond/out.tsv",
-    output:
-        report("plots/diamond/hist_of_hits.svg"),
-    log:
-        "logs/diamond/plot_histogram_of_hits.txt",
-    conda:
-        "../envs/qc_plots.yaml"
-    script:
-        "../scripts/diamond-hist_of_hits.py"
