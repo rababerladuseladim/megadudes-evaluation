@@ -12,15 +12,15 @@ TAX_LEVELS = ["superkingdom", "phylum", "class", "order", "family", "genus", "sp
 
 
 def read_ground_truth_file(ground_truth_file):
-    df_t_raw = pd.read_csv(
+    df_t_taxids = pd.read_csv(
         ground_truth_file,
+        usecols=TAX_LEVELS,
         sep="\t",
         dtype={
             c: pd.Int64Dtype()  # support nan values
             for c in TAX_LEVELS
         },
     )
-    df_t_taxids = df_t_raw.drop(columns=["Kleiner et al. Name", "Protein amount in equal Protein [microg]"])
     return df_t_taxids
 
 
