@@ -8,6 +8,14 @@ LOG_HANDLE = sys.stderr
 
 
 def map_peptides_to_uniprot_ids(peptide_file, out_path):
+    """Get uniprot accessions that contain peptides from the peptide file and write to json.
+
+    Info is retrieved from unipept API.
+
+    :param peptide_file: file containing one peptide per line
+    :param out_path: path to json file, output format is {peptide: list[accession]}
+    :return:
+    """
     # get uniprot database version
     with urllib.request.urlopen("https://unipept.ugent.be/private_api/metadata") as r:
         data = r.read()
