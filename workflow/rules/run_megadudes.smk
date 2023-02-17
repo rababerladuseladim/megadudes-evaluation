@@ -26,7 +26,7 @@ rule map_peptides_from_uniparc_to_uniprot_ids:
     output:
         "results/megadudes/proc/mapped_peptides.npz",
     conda:
-        "../envs/megadudes.yaml"
+        "../envs/megadudes-dudes_score.yaml"
     shell:
         """
         dudes-parse-peptides \
@@ -53,7 +53,7 @@ rule build_megadudes_db:
     output:
         dudes_db="results/megadudes/proc/dudes_db.npz",
     conda:
-        "../envs/megadudes.yaml"
+        "../envs/megadudes-dudes_score.yaml"
     threads: 99
     params:
         db_base_name=lambda wildcards, output: os.path.splitext(output["dudes_db"])[0],
@@ -80,7 +80,7 @@ rule run_megadudes_on_precreated_npz_peptide_mapping_file:
         table=report("results/megadudes/npz.out"),
         plots=directory("plots/megadudes-npz"),
     conda:
-        "../envs/megadudes.yaml"
+        "../envs/megadudes-dudes_score.yaml"
     threads: 99
     params:
         out_wo_ext=lambda wildcards, output: os.path.splitext(output.table)[0],
@@ -101,13 +101,13 @@ rule run_megadudes_on_custom_blast_file:
         dudes_db="results/megadudes/proc/dudes_db.npz",
         custom_blast_file="results/diamond/out.tsv",
     log:
-        stdout="logs/megadudes/run_megadudes-blast-stdout.txt",
-        stderr="logs/megadudes/run_megadudes-blast-stderr.txt",
+        stdout="logs/megadudes/run_megadudes-blast-{score_version}-stdout.txt",
+        stderr="logs/megadudes/run_megadudes-blast-{score_version}-stderr.txt",
     output:
-        table=report("results/megadudes/blast.out"),
-        plots=directory("plots/megadudes-blast"),
+        table=report("results/megadudes/blast-{score_version}.out"),
+        plots=directory("plots/megadudes-blast-{score_version}"),
     conda:
-        "../envs/megadudes.yaml"
+        "../envs/megadudes-{score_version}.yaml"
     threads: 99
     params:
         out_wo_ext=lambda wildcards, output: os.path.splitext(output.table)[0],

@@ -1,0 +1,6 @@
+channels:
+  - defaults
+dependencies:
+  - pip
+  - pip:
+    - git+https://github.com/rababerladuseladim/dudes.git@6b3d14fd3440c0bc0fd6f73ab7f03a11f40729bd

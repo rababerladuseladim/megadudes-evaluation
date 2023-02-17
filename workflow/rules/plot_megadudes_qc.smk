@@ -1,10 +1,10 @@
 rule plot_megadudes_qc:
     input:
         ground_truth=config["ground_truth"],
-        unipept_results=[config["unipept_result"]],
+        unipept_results=[],
         megadudes_results=[
-            "results/megadudes/npz.out",
-            "results/megadudes/blast.out",
+            "results/megadudes/blast-dudes_score.out",
+            "results/megadudes/blast-evalue_score.out",
         ],
     log:
         "logs/megadudes/plot_megadudes_qc.txt",
