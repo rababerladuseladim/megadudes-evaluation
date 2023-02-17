@@ -17,7 +17,6 @@ rule all:
         "plots/diamond/qc.svg",
 
 
-# include: "rules/download_resources.smk"
 include: "rules/common.smk"
 # include: "rules/sample_taxons.smk"
 # include: "rules/map_taxids_to_uniprot_accessions.smk"
