@@ -74,17 +74,16 @@ rule run_megadudes_on_precreated_npz_peptide_mapping_file:
         dudes_db="results/megadudes/proc/dudes_db.npz",
         pep_db="results/megadudes/proc/mapped_peptides.npz",
     log:
-        stdout="logs/megadudes/run_megadudes-npz-normalize_{normalize}-stdout.txt",
-        stderr="logs/megadudes/run_megadudes-npz-normalize_{normalize}-stderr.txt",
+        stdout="logs/megadudes/run_megadudes-npz-stdout.txt",
+        stderr="logs/megadudes/run_megadudes-npz-stderr.txt",
     output:
-        table=report("results/megadudes/npz-normalize_{normalize}.out"),
-        plots=directory("plots/megadudes-npz-normalize_{normalize}"),
+        table=report("results/megadudes/npz.out"),
+        plots=directory("plots/megadudes-npz"),
     conda:
         "../envs/megadudes.yaml"
     threads: 99
     params:
         out_wo_ext=lambda wildcards, output: os.path.splitext(output.table)[0],
-        additional_args=lambda w: [] if w.normalize == "true" else ["--no-normalize"],
     shell:
         """
         dudes \
@@ -92,7 +91,6 @@ rule run_megadudes_on_precreated_npz_peptide_mapping_file:
         -d {input.dudes_db} \
         -t {threads} \
         -o {params.out_wo_ext}\
-        {params.additional_args} \
         --debug_plots_dir {output.plots} \
         --debug > {log.stdout} 2> {log.stderr}
         """
@@ -103,17 +101,16 @@ rule run_megadudes_on_custom_blast_file:
         dudes_db="results/megadudes/proc/dudes_db.npz",
         custom_blast_file="results/diamond/out.tsv",
     log:
-        stdout="logs/megadudes/run_megadudes-blast-normalize_{normalize}-stdout.txt",
-        stderr="logs/megadudes/run_megadudes-blast-normalize_{normalize}-stderr.txt",
+        stdout="logs/megadudes/run_megadudes-blast-stdout.txt",
+        stderr="logs/megadudes/run_megadudes-blast-stderr.txt",
     output:
-        table=report("results/megadudes/blast-normalize_{normalize}.out"),
-        plots=directory("plots/megadudes-blast-normalize_{normalize}"),
+        table=report("results/megadudes/blast.out"),
+        plots=directory("plots/megadudes-blast"),
     conda:
         "../envs/megadudes.yaml"
     threads: 99
     params:
         out_wo_ext=lambda wildcards, output: os.path.splitext(output.table)[0],
-        additional_args=lambda w: [] if w.normalize == "true" else ["--no-normalize"],
     shell:
         """
         dudes \
@@ -121,7 +118,6 @@ rule run_megadudes_on_custom_blast_file:
         -d {input.dudes_db} \
         -t {threads} \
         -o {params.out_wo_ext}\
-        {params.additional_args} \
         --debug_plots_dir {output.plots} \
         --debug > {log.stdout} 2> {log.stderr}
         """

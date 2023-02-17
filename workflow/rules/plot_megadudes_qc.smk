@@ -3,8 +3,8 @@ rule plot_megadudes_qc:
         ground_truth=config["ground_truth"],
         unipept_results=[config["unipept_result"]],
         megadudes_results=[
-            "results/megadudes/npz-normalize_false.out",
-            "results/megadudes/blast-normalize_false.out",
+            "results/megadudes/npz.out",
+            "results/megadudes/blast.out",
         ],
     log:
         "logs/megadudes/plot_megadudes_qc.txt",
