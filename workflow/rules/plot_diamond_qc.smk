@@ -1,6 +1,7 @@
 rule plot_diamond_qc:
     input:
         "results/diamond/out.tsv",
+        "results/diamond/proc/peptides.fasta",
     output:
         report("plots/diamond/qc.svg"),
     log:
