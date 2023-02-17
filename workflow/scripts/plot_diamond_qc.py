@@ -15,10 +15,9 @@ def qc_plots(diamond_hits_file, output):
     )
     df_hits["length"] = df_hits["query"].str.len()
     # plot
-    f, axs = plt.subplots(3, 1, squeeze=False)
-    sns.histplot(df_hits, x="length", ax=axs[0][0])
-    sns.histplot(df_hits, x="identity", ax=axs[1][0])
-    sns.histplot(df_hits, x="evalue", ax=axs[2][0], log_scale=True)
+    f, (ax0, ax1) = plt.subplots(2, 1, squeeze=True)
+    sns.histplot(df_hits, x="length", ax=ax0)
+    sns.histplot(df_hits, x="evalue", ax=ax1, log_scale=True)
     f.tight_layout()
     f.savefig(output)
     return f
