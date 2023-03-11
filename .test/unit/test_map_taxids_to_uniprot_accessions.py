@@ -29,17 +29,18 @@ def test_map_taxids_to_uniprot_accessions():
         sp.check_output([
             "python",
             "-m",
-            "snakemake", 
+            "snakemake",
+            "-s",
+            "workflow/rules/map_taxids_to_uniprot_accessions.smk",
             "results/map_taxids_to_uniprot_accessions/tax2accessions.json",
             "-j1",
             "--keep-target-files",
-    
             "--directory",
             workdir,
         ])
 
         # Check the output byte by byte using cmp.
         # To modify this behavior, you can inherit from common.OutputChecker in here
-        # and overwrite the method `compare_files(generated_file, expected_file), 
+        # and overwrite the method `compare_files(generated_file, expected_file),
         # also see common.py.
         common.OutputChecker(data_path, expected_path, workdir).check()

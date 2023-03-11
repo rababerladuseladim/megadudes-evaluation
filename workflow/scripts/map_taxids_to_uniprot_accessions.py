@@ -35,7 +35,7 @@ def map_taxids_to_uniprot_accessions(idmapping_selected_file, taxid_file, output
         json.dump(tax2acc_map, outfile)
 
 
-if "snakemake" in globals():
+def main():
     with open(snakemake.log[0], "w") as log_handle:
         map_taxids_to_uniprot_accessions(
             idmapping_selected_file=snakemake.input["idmap"],
@@ -43,3 +43,7 @@ if "snakemake" in globals():
             output_json=snakemake.output[0],
             log_handle=log_handle
         )
+
+
+if "snakemake" in globals():
+    main()
