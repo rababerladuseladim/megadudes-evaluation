@@ -6,8 +6,6 @@ from tempfile import TemporaryDirectory
 import shutil
 from pathlib import Path, PurePosixPath
 
-# from workflow.scripts.sample_taxons import read_taxids
-
 sys.path.insert(0, os.path.dirname(__file__))
 
 import common
