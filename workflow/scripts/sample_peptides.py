@@ -1,15 +1,51 @@
+import random
 from itertools import groupby
+from pathlib import Path
+from typing import cast, Dict, Iterable
+
 from pyteomics.parser import cleave
 from urllib import request
 
 
+import json
 import sys
 
 LOG_HANDLE = sys.stderr
 
 
 def sample_peptides(accessions_file, output):
-    pass
+    with open(accessions_file, "r") as handle:
+        tax2acc = cast(Dict[str, list[str]], json.load(handle))
+
+    # sample accessions
+    accessions_sample = []
+    for i, (tax_id, accessions) in enumerate(tax2acc.items()):
+        size = min(len(accessions), 100)
+        accessions_sample.extend(random.sample(accessions, size))
+        if i >= 100:
+            break
+
+    print(f"Sampled {len(accessions_sample)} accessions", file=LOG_HANDLE)
+
+    # get protein sequences for sampled accessions
+    fastas = []
+    chunk_size = 100
+    for chunk_start in range(0, len(accessions_sample), chunk_size):
+        chunk = accessions_sample[chunk_start:chunk_start + chunk_size]
+        fastas.append(get_fasta(chunk))
+    acc2seq = {acc: seq for f in fastas for acc, seq in convert_fasta_str_to_dict(f).items()}
+
+    # cleave proteins sequences and sample peptides
+    peptides_sample = list()
+    for seq in acc2seq.values():
+        peptides = cleave_protein_sequence(seq)
+        peptides_sample.extend(random.sample(list(peptides), min(3, len(peptides))))
+
+    print(f"Sampled {len(peptides_sample)} peptides", file=LOG_HANDLE)
+
+    # write fasta
+    with open(output, "w") as handle:
+        handle.write("\n".join(peptides_sample))
 
 
 def cleave_protein_sequence(sequence, min_length=5):
@@ -17,11 +53,11 @@ def cleave_protein_sequence(sequence, min_length=5):
 
 
 def get_protein_sequence(accession):
-    fasta = get_protein_sequences([accession])
+    fasta = get_fasta([accession])
     return "".join(fasta.split("\n")[1:])
 
 
-def get_protein_sequences(uniprot_list):
+def get_fasta(uniprot_list: Iterable[str]):
     """Retrieves the sequences from the UniProt database based on the list of
     UniProt ids.
     In general,
@@ -32,20 +68,20 @@ def get_protein_sequences(uniprot_list):
     Returns:
         protein_dict (dict): the updated dictionary
     """
-    base_url = "https://www.uniprot.org/"
-    with request.urlopen(base_url) as f:
+    base_url = "https://rest.uniprot.org/"
+    with request.urlopen("https://www.uniprot.org/") as f:
         uniprot_version = f.getheader('X-UniProt-Release')
     print(f"Uniprot Release Number: {uniprot_version}", file=LOG_HANDLE)
     # This makes it so we match only the ENTRY field
-    uniprot_list = ["id%3A" + id for id in uniprot_list]
+    uniprot_list = ["accession%3A" + id for id in uniprot_list]
     line = "+OR+".join(uniprot_list)
-    url = base_url + f"uniprot/?query={line}&format=fasta"
+    url = base_url + f"uniprotkb/search?query={line}&format=fasta"
     with request.urlopen(url) as f:
         fasta = f.read().decode("utf-8").strip()
     return fasta
 
 
-def fasta_str_to_dict(fasta):
+def convert_fasta_str_to_dict(fasta):
     protein_dict = {}
     fasta_iter = (x[1] for x in groupby(fasta.split("\n"), lambda line: line[0] == ">"))
 
@@ -82,7 +118,7 @@ MALLHSARVLSGVASAFHPGLAAAASARASSWWAHVEMGPPDPILGVTEAYK
 >sp|P99999|CYC_HUMAN Cytochrome c OS=Homo sapiens OX=9606 GN=CYCS PE=1 SV=2
 MGDVEKGKKIFIMKCSQCHTVEKGGKHKTGPNLHGLFGRKTGQAPGYSYTAANKNKGIIW
 GEDTLMEYLENPKKYIPGTKMIFVGIKKKEERADLIAYLKKATNE"""
-    assert fasta_str_to_dict(fasta) == {
+    assert convert_fasta_str_to_dict(fasta) == {
         "P12345": "MALLHSARVLSGVASAFHPGLAAAASARASSWWAHVEMGPPDPILGVTEAYK",
         "P99999": "MGDVEKGKKIFIMKCSQCHTVEKGGKHKTGPNLHGLFGRKTGQAPGYSYTAANKNKGIIWGEDTLMEYLENPKKYIPGTKMIFVGIKKKEERADLIAYLKKATNE",
     }
@@ -95,9 +131,17 @@ def test_get_protein_sequence():
     )
 
 
+def test_sample_peptides(tmpdir):
+    print(tmpdir)
+    sample_peptides(
+        Path(__file__).parent.parent.parent / ".test/unit/sample_peptides/data/results/map_taxids_to_uniprot_accessions/tax2accessions.json",
+        tmpdir / "peptides.txt"
+    )
+
+
 if "snakemake" in globals():
     with open(snakemake.log[0], "w") as log_handle:
         LOG_HANDLE = log_handle
         sample_peptides(
-            accessions_file=snakemake.input["idmap"], output=snakemake.output[0]
+            accessions_file=snakemake.input["accessions"], output=snakemake.output[0]
         )
