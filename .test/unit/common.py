@@ -25,9 +25,11 @@ class OutputChecker:
             for f in files
         )
         unexpected_files = set()
+        created_files = set()
         for path, subdirs, files in os.walk(self.workdir):
             for f in files:
                 f = (Path(path) / f).relative_to(self.workdir)
+                created_files.add(f)
                 if str(f).startswith(".snakemake"):
                     continue
                 if f in expected_files:
@@ -37,6 +39,12 @@ class OutputChecker:
                     pass
                 else:
                     unexpected_files.add(f)
+        if missing_files := expected_files - created_files:
+            raise ValueError(
+                "Missing files:\n{}".format(
+                    "\n".join(sorted(map(str, missing_files)))
+                )
+            )
         if unexpected_files:
             raise ValueError(
                 "Unexpected files:\n{}".format(
