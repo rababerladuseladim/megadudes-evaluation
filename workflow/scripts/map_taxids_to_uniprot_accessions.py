@@ -33,6 +33,7 @@ def map_taxids_to_uniprot_accessions(idmapping_selected_file, taxid_file, output
         print(f"Taxids missing in idmapping file: {missing_taxids}", file=log_handle)
     with open(output_json, "w") as outfile:
         json.dump(tax2acc_map, outfile)
+        outfile.write("\n")
 
 
 def main():

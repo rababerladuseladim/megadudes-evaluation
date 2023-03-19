@@ -16,7 +16,7 @@ class OutputChecker:
         self.expected_path = expected_path
         self.workdir = workdir
 
-    def check(self):
+    def check(self, compare_content=True):
         input_files = set(
             (Path(path) / f).relative_to(self.data_path)
             for path, subdirs, files in os.walk(self.data_path)
@@ -36,7 +36,8 @@ class OutputChecker:
                 if str(f).startswith(".snakemake"):
                     continue
                 if f in expected_files:
-                    self.compare_files(self.workdir / f, self.expected_path / f)
+                    if compare_content:
+                        self.compare_files(self.workdir / f, self.expected_path / f)
                 elif f in input_files:
                     # ignore input files
                     pass

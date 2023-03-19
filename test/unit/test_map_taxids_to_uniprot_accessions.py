@@ -11,7 +11,7 @@ import common
 
 def test_map_taxids_to_uniprot_accessions(tmpdir):
     workdir = Path(tmpdir) / "workdir"
-    data_path = Path(__file__).parent / __name__.lstrip("test_")
+    data_path = Path(__file__).parent / __name__.removeprefix("test_")
     input_path = (data_path / "data").as_posix()
     expected_path = (data_path / "expected").as_posix()
 
@@ -27,7 +27,7 @@ def test_map_taxids_to_uniprot_accessions(tmpdir):
         "-m",
         "snakemake",
         "-s",
-        "workflow/rules/map_taxids_to_uniprot_accessions.smk",
+        common.WORKFLOW_PATH / "workflow/rules/map_taxids_to_uniprot_accessions.smk",
         "results/map_taxids_to_uniprot_accessions/tax2accessions.json",
         "-j1",
         "--keep-target-files",
