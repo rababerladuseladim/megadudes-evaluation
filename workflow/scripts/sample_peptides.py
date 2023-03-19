@@ -2,9 +2,8 @@ import random
 from itertools import groupby
 from pathlib import Path
 from typing import cast, Dict, Iterable
-
 from pyteomics.parser import cleave
-from urllib import request
+import requests
 
 
 import json
@@ -30,9 +29,10 @@ def sample_peptides(accessions_file, output):
     # get protein sequences for sampled accessions
     fastas = []
     chunk_size = 100
+    connector = UniProtConnector()
     for chunk_start in range(0, len(accessions_sample), chunk_size):
         chunk = accessions_sample[chunk_start:chunk_start + chunk_size]
-        fastas.append(get_fasta(chunk))
+        fastas.append(connector.get_fasta(chunk))
     acc2seq = {acc: seq for f in fastas for acc, seq in convert_fasta_str_to_dict(f).items()}
 
     # cleave proteins sequences and sample peptides
@@ -53,36 +53,31 @@ def cleave_protein_sequence(sequence, min_length=5):
 
 
 def get_protein_sequence(accession):
-    fasta = get_fasta([accession])
+    connector = UniProtConnector()
+    fasta = connector.get_fasta([accession])
     return "".join(fasta.split("\n")[1:])
 
 
-def get_fasta(uniprot_list: Iterable[str]):
-    """Retrieves the sequences from the UniProt database based on the list of
-    UniProt ids.
-    In general,
-        1. Compose your query here with the advanced search tool:
-    https://www.uniprot.org/uniprot/?query=id%3Ap40925+OR+id%3Ap40926+OR+id%3Ao43175&sort=score
-        2. Replace `&sort=score` with `&format=fasta`
-        3. Edit this function as necessary
-    Returns:
-        protein_dict (dict): the updated dictionary
-    """
-    base_url = "https://rest.uniprot.org/"
-    with request.urlopen("https://www.uniprot.org/") as f:
-        uniprot_version = f.getheader('X-UniProt-Release')
-    print(f"Uniprot Release Number: {uniprot_version}", file=LOG_HANDLE)
-    # This makes it so we match only the ENTRY field
-    uniprot_list = ["accession%3A" + id for id in uniprot_list]
-    line = "+OR+".join(uniprot_list)
-    url = base_url + f"uniprotkb/search?query={line}&format=fasta"
-    with request.urlopen(url) as f:
-        fasta = f.read().decode("utf-8").strip()
-    return fasta
+class UniProtConnector:
+    url = "https://rest.uniprot.org/uniprotkb/"
+
+    def __init__(self):
+        self.session = requests.Session()
+        self.uniprot_version = requests.get(self.url).headers.get('X-UniProt-Release')
+        print(f"Uniprot Release Number: {self.uniprot_version}", file=LOG_HANDLE)
+
+    def get_fasta(self, uniprot_accessions: Iterable[str]):
+        uniprot_accessions = ["accession%3A" + acc for acc in uniprot_accessions]
+        url = self.url + f"search?query={'+OR+'.join(uniprot_accessions)}&format=fasta"
+        response = self.session.get(url)
+        response.raise_for_status()
+        fasta = response.text
+        return fasta
 
 
 def convert_fasta_str_to_dict(fasta):
     protein_dict = {}
+    fasta = fasta.strip()
     fasta_iter = (x[1] for x in groupby(fasta.split("\n"), lambda line: line[0] == ">"))
 
     for header in fasta_iter:
@@ -132,7 +127,6 @@ def test_get_protein_sequence():
 
 
 def test_sample_peptides(tmpdir):
-    print(tmpdir)
     sample_peptides(
         Path(__file__).parent.parent.parent / ".test/unit/sample_peptides/data/results/map_taxids_to_uniprot_accessions/tax2accessions.json",
         tmpdir / "peptides.txt"

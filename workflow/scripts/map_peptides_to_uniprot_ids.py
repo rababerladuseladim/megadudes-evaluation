@@ -24,19 +24,19 @@ def map_peptides_to_uniprot_ids(peptide_file, out_path):
     print(f"unipept database version: {db_version}", file=LOG_HANDLE)
 
     # map peptides
-    trypticPeptides = []
+    tryptic_peptides = []
     with open(peptide_file) as infile:
         for line in infile.readlines():
             content = line.strip()
             if content:
-                trypticPeptides.append(content)
+                tryptic_peptides.append(content)
 
     # from unipept doku:
     # When performing bulk searches, we suggest splitting the input set over requests of 100 peptides each.
     chunksize = 100
     pep2prot = {}
-    for chunk_start in range(0, len(trypticPeptides), chunksize):
-        pep_chunk = trypticPeptides[chunk_start : chunk_start + chunksize]
+    for chunk_start in range(0, len(tryptic_peptides), chunksize):
+        pep_chunk = tryptic_peptides[chunk_start: chunk_start + chunksize]
         pep2prot.update(get_pep2uniprot_dict(pep_chunk))
 
     with open(out_path, "w") as outfile:
