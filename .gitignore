@@ -12,8 +12,8 @@ analysis/*
 !.gitattributes
 !.editorconfig
 !.travis.yml
-!.test
-!.test/**
+!test
+!test/**
 !LICENSE
 !README.md
 

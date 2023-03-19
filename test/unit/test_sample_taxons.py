@@ -3,30 +3,34 @@ import sys
 
 import subprocess as sp
 import shutil
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 
 sys.path.insert(0, os.path.dirname(__file__))
 
 import common
 
 
-def test_all_dry_run(tmpdir):
-    workdir = tmpdir / "workdir"
-    data_path = PurePosixPath(".test/unit/all/data")
-    expected_path = PurePosixPath(".test/unit/all/expected")
+def test_sample_taxons(tmpdir):
+    workdir = Path(tmpdir) / "workdir"
+    data_path = PurePosixPath("test/unit/sample_taxons/data")
+    expected_path = PurePosixPath("test/unit/sample_taxons/expected")
 
     # Copy data to the temporary workdir.
     shutil.copytree(data_path, workdir)
+
+    # dbg
+    print("results/sample_taxons/sample_taxons.txt", file=sys.stderr)
 
     # Run the test job.
     sp.check_output([
         "python",
         "-m",
         "snakemake",
-        "all",
+        "-s",
+        "workflow/rules/sample_taxons.smk",
+        "results/sample_taxons/sample_taxons.txt",
         "-j1",
         "--keep-target-files",
-        "--dryrun",
         "--directory",
         workdir,
     ])

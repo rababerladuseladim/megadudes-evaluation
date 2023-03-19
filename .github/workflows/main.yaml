@@ -30,7 +30,7 @@ jobs:
       shell: bash
       run: conda install -c bioconda -c conda-forge snakemake pytest
     - name: test
-      run: pytest .test
+      run: pytest
 
 #  IntegrationTesting:
 #    runs-on: ubuntu-latest
@@ -40,12 +40,12 @@ jobs:
 #    - name: Test workflow (local test data)
 #      uses: snakemake/snakemake-github-action@v1
 #      with:
-#        directory: .test/integration
+#        directory: test/integration
 #        snakefile: workflow/Snakefile
 #        args: "--use-conda --show-failed-logs -j 10 --conda-cleanup-pkgs"
 #    - name: Test report
 #      uses: snakemake/snakemake-github-action@v1
 #      with:
-#        directory: .test/integration
+#        directory: test/integration
 #        snakefile: workflow/Snakefile
 #        args: "--report report.zip"

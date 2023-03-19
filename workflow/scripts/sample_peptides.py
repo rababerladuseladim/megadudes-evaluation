@@ -128,7 +128,7 @@ def test_get_protein_sequence():
 
 def test_sample_peptides(tmpdir):
     sample_peptides(
-        Path(__file__).parent.parent.parent / ".test/unit/sample_peptides/data/results/map_taxids_to_uniprot_accessions/tax2accessions.json",
+        Path(__file__).parent.parent.parent / "test/unit/sample_peptides/data/results/map_taxids_to_uniprot_accessions/tax2accessions.json",
         tmpdir / "peptides.txt"
     )
 
