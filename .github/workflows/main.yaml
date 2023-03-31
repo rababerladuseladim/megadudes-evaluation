@@ -30,7 +30,7 @@ jobs:
       with:
         auto-update-conda: true
     - name: install package
-      run: conda install --yes --quiet -c bioconda -c conda-forge snakemake-minimal mamba pytest
+      run: conda install --yes --quiet -c bioconda -c conda-forge snakemake-minimal mamba pytest pandas
     - name: test
       run: pytest
 
