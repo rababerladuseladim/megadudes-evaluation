@@ -30,7 +30,7 @@ jobs:
       shell: bash
       run: conda install --yes --quiet -c bioconda -c conda-forge snakemake pytest
     - name: test
-      run: pytest
+      run: conda activate /usr/share/miniconda && pytest
 
 #  IntegrationTesting:
 #    runs-on: ubuntu-latest
