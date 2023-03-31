@@ -27,10 +27,11 @@ jobs:
       with:
         auto-update-conda: true
     - name: install package
-      shell: bash
+      shell: bash -el {0}
       run: conda install --yes --quiet -c bioconda -c conda-forge snakemake pytest
     - name: test
-      run: conda activate /usr/share/miniconda && pytest
+      shell: bash -el {0}
+      run: pytest
 
 #  IntegrationTesting:
 #    runs-on: ubuntu-latest
