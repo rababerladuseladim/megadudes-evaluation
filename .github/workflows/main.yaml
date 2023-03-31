@@ -21,16 +21,17 @@ jobs:
 
   UnitTesting:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
     steps:
     - uses: actions/checkout@v2
     - uses: conda-incubator/setup-miniconda@v2
       with:
         auto-update-conda: true
     - name: install package
-      shell: bash -el {0}
-      run: conda install --yes --quiet -c bioconda -c conda-forge snakemake pytest
+      run: conda install --yes --quiet -c bioconda -c conda-forge snakemake-minimal mamba pytest
     - name: test
-      shell: bash -el {0}
       run: pytest
 
 #  IntegrationTesting:
