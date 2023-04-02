@@ -85,6 +85,7 @@ Whenever you change something, don't forget to commit the changes back to your g
 - update the local environment: `conda update -n snakemake --all`
 - update env file: `conda env export -n snakemake > env.yaml`
 - update lock-file: `conda list --explicit -n snakemake > spec-file.txt`
+- update pre-commit hooks: `pre-commit autoupdate`
 
 ## Testing
 
