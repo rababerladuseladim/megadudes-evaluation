@@ -80,27 +80,11 @@ Whenever you change something, don't forget to commit the changes back to your g
     git commit -a
     git push
 
-### Step 7: Obtain updates from upstream
+## Updating
 
-Whenever you want to synchronize your workflow copy with new developments from upstream, do the following.
-
-1. Once, register the upstream repository in your local copy: `git remote add -f upstream git@github.com:snakemake-workflows/megadudes-evaluation.git` or `git remote add -f upstream https://github.com/snakemake-workflows/megadudes-evaluation.git` if you do not have setup ssh keys.
-2. Update the upstream version: `git fetch upstream`.
-3. Create a diff with the current version: `git diff HEAD upstream/master workflow > upstream-changes.diff`.
-4. Investigate the changes: `vim upstream-changes.diff`.
-5. Apply the modified diff via: `git apply upstream-changes.diff`.
-6. Carefully check whether you need to update the config files: `git diff HEAD upstream/master config`. If so, do it manually, and only where necessary, since you would otherwise likely overwrite your settings and samples.
-
-
-### Step 8: Contribute back
-
-In case you have also changed or added steps, please consider contributing them back to the original repository:
-
-1. [Fork](https://help.github.com/en/articles/fork-a-repo) the original repo to a personal or lab account.
-2. [Clone](https://help.github.com/en/articles/cloning-a-repository) the fork to your local system, to a different place than where you ran your analysis.
-3. Copy the modified files from your analysis to the clone of your fork, e.g., `cp -r workflow path/to/fork`. Make sure to **not** accidentally copy config file contents or sample sheets. Instead, manually update the example config files if necessary.
-4. Commit and push your changes to your fork.
-5. Create a [pull request](https://help.github.com/en/articles/creating-a-pull-request) against the original repository.
+- update the local environment: `conda update -n snakemake --all`
+- update env file: `conda env export -n snakemake > env.yaml`
+- update lock-file: `conda list --explicit -n snakemake > spec-file.txt`
 
 ## Testing
 
