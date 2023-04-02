@@ -28,9 +28,8 @@ jobs:
     - uses: actions/checkout@v2
     - uses: conda-incubator/setup-miniconda@v2
       with:
-        auto-update-conda: true
-    - name: install package
-      run: conda install --yes --quiet -c bioconda -c conda-forge snakemake-minimal mamba pytest pandas
+        auto-update-conda: false
+        environment-file: spec-file.txt
     - name: test
       run: pytest
 

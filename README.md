@@ -27,7 +27,7 @@ Configure the workflow according to your needs via editing the files in the `con
 
 Install Snakemake using [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html):
 
-    conda create -c bioconda -c conda-forge -n snakemake snakemake pre-commit
+    conda env create -f env.yaml
 
 Install pre-commit by running
 
