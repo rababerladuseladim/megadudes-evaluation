@@ -1,43 +1,6 @@
 import os.path
 
 
-rule convert_gzip_to_block_gzip:
-    input:
-        "{f}.gz",
-    output:
-        "{f}.bgz",
-    conda:
-        "../envs/samtools.yaml"
-    log:
-        zcat="logs/megadudes/convert_gzip_to_block_gzip-zcat-{f}.txt",
-        bgzip="logs/megadudes/convert_gzip_to_block_gzip-bgzip-{f}.txt",
-    shell:
-        "zcat {input} 2>{log.zcat}| bgzip -c 2>{log.bgzip}> {output}"
-
-
-rule map_peptides_from_uniparc_to_uniprot_ids:
-    input:
-        pep_tsv=config["msfragger_peptides_tsv"],
-        dudes_db="results/megadudes/proc/dudes_db.npz",
-        uniparc_fasta="resources/uniprot/uniparc.fasta.bgz",
-        idmap="resources/uniprot/idmapping_selected.tab.gz",
-    log:
-        "logs/megadudes/map_peptides_from_uniparc_to_uniprot_ids.txt",
-    output:
-        "results/megadudes/proc/mapped_peptides.npz",
-    conda:
-        "../envs/megadudes.yaml"
-    shell:
-        """
-        dudes-parse-peptides \
-        -m {input.pep_tsv} \
-        -d {input.dudes_db} \
-        -f {input.uniparc_fasta} \
-        -i {input.idmap} \
-        -o {output} > {log}
-        """
-
-
 rule build_megadudes_db:
     input:
         idmap="resources/uniprot/idmapping_selected.tab.gz",
@@ -66,33 +29,6 @@ rule build_megadudes_db:
         -a {input.ncbi_names} \
         -o {params.db_base_name} \
         -t {threads} > {log.stdout} 2> {log.stderr}
-        """
-
-
-rule run_megadudes_on_precreated_npz_peptide_mapping_file:
-    input:
-        dudes_db="results/megadudes/proc/dudes_db.npz",
-        pep_db="results/megadudes/proc/mapped_peptides.npz",
-    log:
-        stdout="logs/megadudes/run_megadudes-npz-stdout.txt",
-        stderr="logs/megadudes/run_megadudes-npz-stderr.txt",
-    output:
-        table=report("results/megadudes/npz.out"),
-        plots=directory("plots/megadudes-npz"),
-    conda:
-        "../envs/megadudes.yaml"
-    threads: 99
-    params:
-        out_wo_ext=lambda wildcards, output: os.path.splitext(output.table)[0],
-    shell:
-        """
-        dudes \
-        -n {input.pep_db} \
-        -d {input.dudes_db} \
-        -t {threads} \
-        -o {params.out_wo_ext}\
-        --debug_plots_dir {output.plots} \
-        --debug > {log.stdout} 2> {log.stderr}
         """
 
 
