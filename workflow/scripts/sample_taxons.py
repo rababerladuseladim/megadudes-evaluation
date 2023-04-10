@@ -1,8 +1,9 @@
 import random
 import sys
+from pathlib import Path
 
 
-def sample_taxons(uniprot_speclist_file, output_file, log=sys.stderr, count=10, seed=1234):
+def sample_taxons(uniprot_speclist_file, output_file, log=sys.stderr, count=10, seed=None):
     with open(uniprot_speclist_file, "r") as file_handle:
         taxids = read_taxids_from_uniprot_speclist_file(file_handle)
     if count > len(taxids):
@@ -49,6 +50,13 @@ def read_taxids_from_uniprot_speclist_file(file_handle):
     return taxids
 
 
+def sample_taxons_multiple_times(uniprot_speclist_file, output_dir, repeats=1, log=sys.stderr):
+    Path(output_dir).mkdir(exist_ok=True)
+    for i in range(repeats):
+        output_file = Path(output_dir, f"sample_taxons-{i}.txt")
+        sample_taxons(uniprot_speclist_file, output_file, log=log)
+
+
 if "snakemake" in globals():
     with open(snakemake.log[0], "w") as log_handle:
-        sample_taxons(snakemake.input[0], snakemake.output[0], log=log_handle)
+        sample_taxons_multiple_times(snakemake.input[0], snakemake.output[0], repeats=snakemake.params["repeats"], log=log_handle)
