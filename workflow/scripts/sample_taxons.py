@@ -2,7 +2,16 @@ import random
 import sys
 
 
-def sample_taxons(uniprot_speclist_file, output_file, log=sys.stderr, count=10, seed=1234):
+def sample_taxons(uniprot_speclist_file, output_file, log=sys.stderr, count=10):
+    """Take a random sample of taxids from the uniprot speclist file.
+
+    Args:
+        uniprot_speclist_file: path to uniprot speclist file, get from: https://www.uniprot.org/docs/speclist.txt
+        output_file: path to file for writing TaxIDs to, one TaxID per line. Is also used for initializing
+            random.seed.
+        log: handle for writing the log
+        count: number of taxa that should be sampled
+    """
     with open(uniprot_speclist_file, "r") as file_handle:
         taxids = read_taxids_from_uniprot_speclist_file(file_handle)
     if count > len(taxids):
@@ -11,7 +20,7 @@ def sample_taxons(uniprot_speclist_file, output_file, log=sys.stderr, count=10, 
             file=log,
         )
         sys.exit(1)
-    random.seed(seed)
+    random.seed(output_file)
     sample_taxids = random.sample(taxids, count)
     with open(output_file, "w") as output_handle:
         for taxid in sample_taxids:
