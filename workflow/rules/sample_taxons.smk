@@ -1,11 +1,9 @@
 rule sample_taxons:
     input:
-        "resources/uniprot/speclist.txt",
+        "resources/uniprot/speclist.txt"
     log:
-        "logs/sample_taxons.txt",
+        "logs/sample_taxons.txt"
     output:
-        directory("results/sample_taxons/"),
-    params:
-        repeats=10,
+        "results/sample_taxons/sample_taxons.txt"
     script:
         "../scripts/sample_taxons.py"

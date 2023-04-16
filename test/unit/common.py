@@ -31,8 +31,6 @@ class OutputChecker:
         created_files = set()
         for path, subdirs, files in os.walk(self.workdir):
             for f in files:
-                if str(f).startswith(".snakemake"):
-                    continue
                 f = (Path(path) / f).relative_to(self.workdir)
                 created_files.add(f)
                 if str(f).startswith(".snakemake"):

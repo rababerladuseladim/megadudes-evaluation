@@ -12,15 +12,14 @@ import common
 
 def test_sample_taxons(tmpdir):
     workdir = Path(tmpdir) / "workdir"
-    data_path = Path(__file__).parent / __name__.removeprefix("test_")
-    input_path = (data_path / "data").as_posix()
-    expected_path = (data_path / "expected").as_posix()
+    data_path = PurePosixPath("test/unit/sample_taxons/data")
+    expected_path = PurePosixPath("test/unit/sample_taxons/expected")
 
     # Copy data to the temporary workdir.
-    shutil.copytree(input_path, workdir)
+    shutil.copytree(data_path, workdir)
 
     # dbg
-    print("results/sample_taxons", file=sys.stderr)
+    print("results/sample_taxons/sample_taxons.txt", file=sys.stderr)
 
     # Run the test job.
     sp.check_output([
@@ -28,7 +27,8 @@ def test_sample_taxons(tmpdir):
         "-m",
         "snakemake",
         "-s",
-        common.WORKFLOW_PATH / "workflow/rules/sample_taxons.smk",
+        "workflow/rules/sample_taxons.smk",
+        "results/sample_taxons/sample_taxons.txt",
         "-j1",
         "--keep-target-files",
         "--directory",
@@ -39,4 +39,4 @@ def test_sample_taxons(tmpdir):
     # To modify this behavior, you can inherit from common.OutputChecker in here
     # and overwrite the method `compare_files(generated_file, expected_file),
     # also see common.py.
-    common.OutputChecker(input_path, expected_path, workdir).check(compare_content=False)
+    common.OutputChecker(data_path, expected_path, workdir).check()
