@@ -7,9 +7,6 @@ import subprocess as sp
 import os
 
 
-WORKFLOW_PATH = Path(__file__).parent.parent.parent
-
-
 class OutputChecker:
     def __init__(self, data_path, expected_path, workdir):
         self.data_path = data_path

@@ -1,19 +1,15 @@
-import os
 import sys
 
 import subprocess as sp
 import shutil
 from pathlib import Path
-
-sys.path.insert(0, os.path.dirname(__file__))
-
-import common
+from test.unit import common
 
 
-def test_sample_peptides(tmpdir):
+def test_sample_peptides(tmpdir, workflow_path):
     workdir = Path(tmpdir) / "workdir"
     print("workdir:", workdir)
-    data_path = Path(__file__).parent / __name__.removeprefix("test_")
+    data_path = Path(__file__).parent / __name__.split(".")[-1].removeprefix("test_")
     input_path = (data_path / "data").as_posix()
     expected_path = (data_path / "expected").as_posix()
 
@@ -30,7 +26,7 @@ def test_sample_peptides(tmpdir):
         "snakemake",
         "--use-conda",
         "-s",
-        common.WORKFLOW_PATH / "workflow/rules/sample_peptides.smk",
+        workflow_path / "workflow/rules/sample_peptides.smk",
         "results/sample_peptides/peptides.txt",
         "-j1",
         "--keep-target-files",

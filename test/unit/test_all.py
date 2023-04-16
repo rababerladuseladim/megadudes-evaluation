@@ -1,13 +1,7 @@
-import os
-import sys
-
 import subprocess as sp
 import shutil
 from pathlib import PurePosixPath
-
-sys.path.insert(0, os.path.dirname(__file__))
-
-import common
+from test.unit import common
 
 
 def test_all_dry_run(tmpdir):
