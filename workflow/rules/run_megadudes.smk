@@ -4,10 +4,7 @@ import os.path
 rule build_megadudes_db:
     input:
         idmap="resources/uniprot/idmapping_selected.tab.gz",
-        # uniprot_fastas=expand(
-        #     "resources/uniprot/{db}.fasta.gz", db=["swissprot", "trembl"]
-        # ),
-        uniprot_fastas=["resources/uniprot/swissprot.fasta.gz"],
+        uniprot_fastas=config["query_dbs"],
         ncbi_nodes="resources/ncbi/nodes.dmp",
         ncbi_names="resources/ncbi/names.dmp",
     log:

@@ -11,13 +11,13 @@ rule convert_msfragger_peptides_tsv_to_fasta:
 
 rule make_diamond_db:
     input:
-        "resources/uniprot/swissprot.fasta.gz",
+        config["query_dbs"],
     output:
-        "results/diamond/proc/swissprot.dmnd",
+        "results/diamond/proc/query_dbs.dmnd",
     conda:
         "../envs/diamond.yaml"
     log:
-        "logs/diamond/make_diamond_db-swissprot.txt",
+        "logs/diamond/make_diamond_db-query_dbs.txt",
     threads: 256
     shell:
         "zcat {input} | diamond makedb --threads {threads} --db {output} > {log} 2>&1"
@@ -26,7 +26,7 @@ rule make_diamond_db:
 rule run_diamond:
     input:
         query_fasta="results/diamond/proc/peptides.fasta",
-        dmnd_db="results/diamond/proc/swissprot.dmnd",
+        dmnd_db="results/diamond/proc/query_dbs.dmnd",
     output:
         "results/diamond/out.tsv",
     conda:

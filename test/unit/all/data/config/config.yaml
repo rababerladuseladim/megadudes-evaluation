@@ -2,5 +2,5 @@ msfragger_peptides_tsv: "config/peptide.tsv"
 ground_truth: "resources/kleiner_ground_truth-equal_protein-full_taxid_lineage.csv"
 unipept_result: "resources/unipept_results-Kleiner_P_msfragger.csv"
 query_dbs: [
-  "resources/uniprot/swissprot.fasta.gz",
+  "resources/uniprot/uniprot_sprot.fasta.gz",
 ]
