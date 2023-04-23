@@ -3,4 +3,4 @@ channels:
 dependencies:
   - pip
   - pip:
-    - git+https://github.com/rababerladuseladim/dudes.git@746e7e9ee41509058fff22e2d32a4b7dafcdb9e5
+    - git+https://github.com/rababerladuseladim/dudes.git@c542f53cfcd5559a1acd1bacbe6cf8384dd1500e

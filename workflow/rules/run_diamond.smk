@@ -40,15 +40,12 @@ rule run_diamond:
         # sseqid: Subject Seq - id
         # slen: Subject sequence length
         # sstart: Start of alignment in subject
-        # cigar: CIGAR string
-        # pident: Percentage of identical matches
-        # mismatch: Number of mismatches
         # evalue: Expect value
         "diamond blastp  \
         -q {input.query_fasta} \
         -d {input.dmnd_db} \
         --threads {threads}\
         --fast \
-        --outfmt 6 qseqid sseqid slen sstart cigar pident mismatch evalue \
+        --outfmt 6 qseqid sseqid slen sstart evalue \
         -o {output} \
         > {log} 2>&1"
