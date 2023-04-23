@@ -18,9 +18,16 @@ properties:
   unipept_result:
     type: string
     description: "result csv file from the unipept web service"
+  query_dbs:
+    type: array
+    items: {
+      "type": string
+    }
+    description: "protein sequence databases to use for sequence alignment and megadudes"
 
 # entries that have to be in the config file for successful validation
 required:
   - msfragger_peptides_tsv
   - ground_truth
   - unipept_result
+  - query_dbs
