@@ -32,7 +32,7 @@ rule build_megadudes_db:
 rule run_megadudes:
     input:
         dudes_db="results/megadudes/proc/dudes_db.npz",
-        custom_blast_file="results/diamond/out.tsv",
+        diamond_result="results/diamond/out.tsv",
     log:
         stdout="logs/megadudes/run_megadudes-stdout.txt",
         stderr="logs/megadudes/run_megadudes-stderr.txt",
@@ -47,7 +47,7 @@ rule run_megadudes:
     shell:
         """
         dudes \
-        -c {input.custom_blast_file} \
+        -c {input.diamond_result} \
         -d {input.dudes_db} \
         -t {threads} \
         -o {params.out_wo_ext}\
