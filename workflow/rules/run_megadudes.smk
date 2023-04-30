@@ -37,20 +37,20 @@ rule run_megadudes:
         stdout="logs/megadudes/run_megadudes-stdout.txt",
         stderr="logs/megadudes/run_megadudes-stderr.txt",
     output:
-        table=report("results/megadudes/result.out"),
+        result=report("results/megadudes/result.out"),
         plots=directory("plots/megadudes-scores"),
     conda:
         "../envs/megadudes.yaml"
     threads: 99
     params:
-        out_wo_ext=lambda wildcards, output: os.path.splitext(output.table)[0],
+        result_wo_ext=lambda wildcards, output: os.path.splitext(output.result)[0],
     shell:
         """
         dudes \
         -c {input.diamond_result} \
         -d {input.dudes_db} \
         -t {threads} \
-        -o {params.out_wo_ext}\
+        -o {params.result_wo_ext}\
         --debug_plots_dir {output.plots} \
         --debug > {log.stdout} 2> {log.stderr}
         """
