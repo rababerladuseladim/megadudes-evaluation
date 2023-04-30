@@ -3,7 +3,7 @@ rule plot_megadudes_qc:
         ground_truth=config["ground_truth"],
         unipept_results=[config["unipept_result"]],
         megadudes_results=[
-            "results/megadudes/blast.out",
+            "results/megadudes/result.out",
         ],
     log:
         "logs/megadudes/plot_megadudes_qc.txt",

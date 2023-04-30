@@ -29,16 +29,16 @@ rule build_megadudes_db:
         """
 
 
-rule run_megadudes_on_custom_blast_file:
+rule run_megadudes:
     input:
         dudes_db="results/megadudes/proc/dudes_db.npz",
         custom_blast_file="results/diamond/out.tsv",
     log:
-        stdout="logs/megadudes/run_megadudes-blast-stdout.txt",
-        stderr="logs/megadudes/run_megadudes-blast-stderr.txt",
+        stdout="logs/megadudes/run_megadudes-stdout.txt",
+        stderr="logs/megadudes/run_megadudes-stderr.txt",
     output:
-        table=report("results/megadudes/blast.out"),
-        plots=directory("plots/megadudes-blast"),
+        table=report("results/megadudes/result.out"),
+        plots=directory("plots/megadudes-scores"),
     conda:
         "../envs/megadudes.yaml"
     threads: 99
