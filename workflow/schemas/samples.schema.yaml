@@ -1,0 +1,23 @@
+$schema: "http://json-schema.org/draft-06/schema#"
+
+description: an entry in the sample sheet
+properties:
+  sample_name:
+    type: string
+    description: sample name/identifier
+  ground_truth:
+    type: string
+    description: path to ground truth tsv file, containing the expected taxids
+  msfragger_peptides_tsv:
+    type: string
+    description: path to msfragger peptides.tsv output file
+  unipept_result:
+    type: string
+    description: path to unipept output file
+
+
+required:
+  - sample_name
+  - ground_truth
+  - msfragger_peptides_tsv
+  - unipept_result
