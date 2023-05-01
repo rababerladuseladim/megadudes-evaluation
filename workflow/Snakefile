@@ -9,14 +9,6 @@ report: "report/workflow.rst"
 container: "docker://continuumio/miniconda3"
 
 
-rule all:
-    input:
-        # The first rule should define the default target files
-        # Subsequent target rules can be specified below. They should start with all_*.
-        "plots/megadudes/qc.svg",
-        "plots/diamond/qc.svg",
-
-
 include: "rules/common.smk"
 # include: "rules/sample_taxons.smk"
 # include: "rules/map_taxids_to_uniprot_accessions.smk"
@@ -25,3 +17,17 @@ include: "rules/run_diamond.smk"
 include: "rules/run_megadudes.smk"
 include: "rules/plot_diamond_qc.smk"
 include: "rules/plot_megadudes_qc.smk"
+
+
+rule all:
+    input:
+        # The first rule should define the default target files
+        # Subsequent target rules can be specified below. They should start with all_*.
+        expand(
+            "plots/megadudes/qc-sample_{sample_name}.svg",
+            sample_name=samples["sample_name"],
+        ),
+        expand(
+            "plots/diamond/qc-sample_{sample_name}.svg",
+            sample_name=samples["sample_name"],
+        ),

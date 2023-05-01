@@ -9,15 +9,6 @@ additionalProperties: false
 
 # possible entries of the config file and which type they should be
 properties:
-  msfragger_peptides_tsv:
-    type: string
-    description: "peptide search result from the msfragger proteomics search engine"
-  ground_truth:
-    type: string
-    description: "tsv file with the columns (additional columns are ignored): superkingdom, phylum, class, order, family, genus, species, subspecies"
-  unipept_result:
-    type: string
-    description: "result csv file from the unipept web service"
   query_dbs:
     type: array
     items: {
@@ -27,7 +18,4 @@ properties:
 
 # entries that have to be in the config file for successful validation
 required:
-  - msfragger_peptides_tsv
-  - ground_truth
-  - unipept_result
   - query_dbs

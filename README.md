@@ -89,4 +89,4 @@ Whenever you change something, don't forget to commit the changes back to your g
 
 ## Testing
 
-Test cases are in the subfolder `.test`. They are automatically executed via continuous integration with [Github Actions](https://github.com/features/actions).
+Test cases are in the subfolder `test`. They are automatically executed via continuous integration with [GitHub Actions](https://github.com/features/actions).

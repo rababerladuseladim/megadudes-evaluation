@@ -14,12 +14,12 @@ rule make_diamond_db:
 
 rule run_diamond:
     input:
-        query_fasta="results/diamond/proc/peptides.fasta",
+        query_fasta="results/fastas/{sample}.fasta",
         dmnd_db="results/diamond/proc/query_dbs.dmnd",
     output:
-        "results/diamond/out.tsv",
+        "results/diamond/{sample}.tsv",
     log:
-        "logs/diamond/run_diamond.txt",
+        "logs/diamond/run_diamond-{sample}.txt",
     conda:
         "../envs/diamond.yaml"
     threads: 256

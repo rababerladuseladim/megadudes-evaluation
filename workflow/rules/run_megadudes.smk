@@ -32,13 +32,13 @@ rule build_megadudes_db:
 rule run_megadudes:
     input:
         dudes_db="results/megadudes/proc/dudes_db.npz",
-        diamond_result="results/diamond/out.tsv",
-    output:
-        result=report("results/megadudes/result.out"),
-        plots=directory("plots/megadudes-scores"),
+        diamond_result="results/diamond/{sample}.tsv",
     log:
-        stdout="logs/megadudes/run_megadudes-stdout.txt",
-        stderr="logs/megadudes/run_megadudes-stderr.txt",
+        stdout="logs/megadudes/run_megadudes-{sample}-stdout.txt",
+        stderr="logs/megadudes/run_megadudes-{sample}-stderr.txt",
+    output:
+        result=report("results/megadudes/{sample}.out"),
+        plots=directory("plots/megadudes/{sample}/scores"),
     conda:
         "../envs/megadudes.yaml"
     threads: 99
