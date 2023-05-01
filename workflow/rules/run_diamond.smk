@@ -14,10 +14,10 @@ rule make_diamond_db:
         config["query_dbs"],
     output:
         "results/diamond/proc/query_dbs.dmnd",
-    conda:
-        "../envs/diamond.yaml"
     log:
         "logs/diamond/make_diamond_db-query_dbs.txt",
+    conda:
+        "../envs/diamond.yaml"
     threads: 256
     shell:
         "zcat {input} | diamond makedb --threads {threads} --db {output} > {log} 2>&1"
@@ -29,10 +29,10 @@ rule run_diamond:
         dmnd_db="results/diamond/proc/query_dbs.dmnd",
     output:
         "results/diamond/out.tsv",
-    conda:
-        "../envs/diamond.yaml"
     log:
         "logs/diamond/run_diamond.txt",
+    conda:
+        "../envs/diamond.yaml"
     threads: 256
     shell:
         # output fields: (for a list of available options see https://github.com/bbuchfink/diamond/wiki/3.-Command-line-options#output-options)

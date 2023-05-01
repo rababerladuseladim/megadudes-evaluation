@@ -5,10 +5,10 @@ rule plot_megadudes_qc:
         megadudes_results=[
             "results/megadudes/result.out",
         ],
-    log:
-        "logs/megadudes/plot_megadudes_qc.txt",
     output:
         report("plots/megadudes/qc.svg"),
+    log:
+        "logs/megadudes/plot_megadudes_qc.txt",
     conda:
         "../envs/qc_plots.yaml"
     script:
