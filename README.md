@@ -19,11 +19,7 @@ If you use this workflow in a paper, don't forget to give credits to the authors
 1. Create a new github repository using this workflow [as a template](https://help.github.com/en/articles/creating-a-repository-from-a-template).
 2. [Clone](https://help.github.com/en/articles/cloning-a-repository) the newly created repository to your local system, into the place where you want to perform the data analysis.
 
-### Step 2: Configure workflow
-
-Configure the workflow according to your needs via editing the files in the `config/` folder. Adjust `config.yaml` to configure the workflow execution, and `samples.tsv` to specify your sample setup.
-
-### Step 3: Install Snakemake
+### Step 2: Install Snakemake
 
 Install Snakemake using [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html):
 
@@ -35,7 +31,18 @@ Install pre-commit by running
 
 For installation details, see the [instructions in the Snakemake documentation](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html).
 
-### Step 4: Execute workflow
+
+### Step 3: Download Resources
+
+Download resources by executing:
+
+    ./download_resources.sh
+
+### Step 4: Configure workflow
+
+Configure the workflow according to your needs via editing the files in the `config/` folder. Adjust `config.yaml` to configure the workflow execution, and `samples.tsv` to specify your sample setup.
+
+### Step 5: Execute workflow
 
 Activate the conda environment:
 
@@ -64,7 +71,7 @@ If you not only want to fix the software stack but also the underlying OS, use
 in combination with any of the modes above.
 See the [Snakemake documentation](https://snakemake.readthedocs.io/en/stable/executable.html) for further details.
 
-### Step 5: Investigate results
+### Step 6: Investigate results
 
 After successful execution, you can create a self-contained interactive HTML report with all results via:
 
@@ -73,7 +80,7 @@ After successful execution, you can create a self-contained interactive HTML rep
 This report can, e.g., be forwarded to your collaborators.
 An example (using some trivial test data) can be seen [here](https://cdn.rawgit.com/snakemake-workflows/rna-seq-kallisto-sleuth/master/.test/report.html).
 
-### Step 6: Commit changes
+### Step 7: Commit changes
 
 Whenever you change something, don't forget to commit the changes back to your github copy of the repository:
 
