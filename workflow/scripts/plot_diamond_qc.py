@@ -9,10 +9,10 @@ sns.set_theme(context="talk", rc={"axes.grid": False})
 def qc_plots(diamond_hits_file, input_fasta_file, output):
     df_hits = pd.read_table(
         diamond_hits_file,
-        usecols=[0, 5, 7],
+        usecols=[0, 4],
         header=None,
-        dtype={"query": str, "identity": float, "evalue": float},
-        names=["query", "identity", "evalue"],
+        dtype={"query": str, "evalue": float},
+        names=["query", "evalue"],
     )
     df_hits["length"] = df_hits["query"].str.len()
 
@@ -44,8 +44,8 @@ def qc_plots(diamond_hits_file, input_fasta_file, output):
 
 
 def test_qc_plots(tmpdir):
-    input_fasta_f = "/home/hennings/Projects/megadudes-evaluation/results/diamond/proc/peptides.fasta"
-    diamond_hits_f = "/home/hennings/Projects/megadudes-evaluation/results/diamond/out.tsv"
+    input_fasta_f = "/home/hennings/Projects/megadudes-evaluation/results/fastas/sample_kleiner_equal_protein.fasta"
+    diamond_hits_f = "/home/hennings/Projects/megadudes-evaluation/results/diamond/sample_kleiner_equal_protein.tsv"
     output_plot = tmpdir / "hist_of_hits.svg"
     f = qc_plots(
         diamond_hits_file=diamond_hits_f,
