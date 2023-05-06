@@ -1,11 +1,12 @@
 import sys
+
 import subprocess as sp
 import shutil
 from pathlib import Path
 from test.unit import common
 
 
-def test_convert_simulated_peptides_to_fasta(tmpdir, workflow_path):
+def test_sample_taxons(tmpdir, workflow_path):
     workdir = Path(tmpdir) / "workdir"
     data_path = Path(__file__).parent / __name__.split(".")[-1].removeprefix("test_")
     input_path = (data_path / "data").as_posix()
@@ -15,7 +16,7 @@ def test_convert_simulated_peptides_to_fasta(tmpdir, workflow_path):
     shutil.copytree(input_path, workdir)
 
     # dbg
-    print("results/fastas/simulated_peptides_10.fasta", file=sys.stderr)
+    print("results/sample_taxons/sample_taxons.txt", file=sys.stderr)
 
     # Run the test job.
     sp.check_output([
@@ -23,8 +24,8 @@ def test_convert_simulated_peptides_to_fasta(tmpdir, workflow_path):
         "-m",
         "snakemake",
         "-s",
-        workflow_path / "workflow/rules/convert_simulated_peptides_to_fasta.smk",
-        "results/fastas/simulated_peptides_10.fasta",
+        workflow_path / "workflow/rules/simulate_sample.smk",
+        "results/sample_taxons/sample_taxons.txt",
         "-j1",
         "--keep-target-files",
         "--directory",

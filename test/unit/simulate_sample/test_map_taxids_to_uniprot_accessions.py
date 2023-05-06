@@ -23,7 +23,7 @@ def test_map_taxids_to_uniprot_accessions(tmpdir, workflow_path):
         "-m",
         "snakemake",
         "-s",
-        workflow_path / "workflow/rules/map_taxids_to_uniprot_accessions.smk",
+        workflow_path / "workflow/rules/simulate_sample.smk",
         "results/map_taxids_to_uniprot_accessions/tax2accessions.json",
         "-j1",
         "--keep-target-files",
