@@ -29,7 +29,7 @@ rule sample_peptides:
     log:
         "logs/sample_peptides.txt",
     conda:
-        "../envs/sample_peptides.yaml"
+        "../envs/pyteomics.yaml"
     script:
         "../scripts/sample_peptides.py"
 

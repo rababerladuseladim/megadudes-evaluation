@@ -7,6 +7,8 @@ from test.unit import common
 
 
 def test_sample_peptides(tmpdir, workflow_path):
+    target = "results/sample_peptides/peptides.txt"
+
     workdir = Path(tmpdir) / "workdir"
     print("workdir:", workdir)
     data_path = Path(__file__).parent / __name__.split(".")[-1].removeprefix("test_")
@@ -17,7 +19,7 @@ def test_sample_peptides(tmpdir, workflow_path):
     shutil.copytree(input_path, workdir)
 
     # dbg
-    print("results/sample_peptides/peptides.txt", file=sys.stderr)
+    print(target, file=sys.stderr)
 
     # Run the test job.
     sp.check_output([
@@ -27,7 +29,7 @@ def test_sample_peptides(tmpdir, workflow_path):
         "--use-conda",
         "-s",
         workflow_path / "workflow/rules/simulate_sample.smk",
-        "results/sample_peptides/peptides.txt",
+        target,
         "-j1",
         "--keep-target-files",
         "--directory",
@@ -38,4 +40,4 @@ def test_sample_peptides(tmpdir, workflow_path):
     # To modify this behavior, you can inherit from common.OutputChecker in here
     # and overwrite the method `compare_files(generated_file, expected_file),
     # also see common.py.
-    common.OutputChecker(input_path, expected_path, workdir).check(compare_content=False)
+    common.OutputChecker(input_path, expected_path, workdir).check(compare_content=True)
