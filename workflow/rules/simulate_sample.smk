@@ -2,9 +2,9 @@ rule sample_taxons:
     input:
         "resources/uniprot/speclist.txt",
     output:
-        "results/sample_taxons/sample_taxons.txt",
+        "results/simulation/sample_taxons.txt",
     log:
-        "logs/sample_taxons.txt",
+        "logs/simulation/sample_taxons.txt",
     script:
         "../scripts/sample_taxons.py"
 
@@ -12,22 +12,22 @@ rule sample_taxons:
 rule map_taxids_to_uniprot_accessions:
     input:
         idmap="resources/uniprot/idmapping_selected.tab.gz",
-        taxids="results/sample_taxons/sample_taxons.txt",
+        taxids="results/simulation/sample_taxons.txt",
     output:
-        "results/map_taxids_to_uniprot_accessions/tax2accessions.json",
+        "results/simulation/tax2accessions.json",
     log:
-        "logs/map_taxids_to_uniprot_accssions.txt",
+        "logs/simulation/map_taxids_to_uniprot_accssions.txt",
     script:
         "../scripts/map_taxids_to_uniprot_accessions.py"
 
 
 rule sample_peptides:
     input:
-        accessions="results/map_taxids_to_uniprot_accessions/tax2accessions.json",
+        accessions="results/simulation/tax2accessions.json",
     output:
-        "results/sample_peptides/peptides.txt",
+        "results/simulation/peptides.txt",
     log:
-        "logs/sample_peptides.txt",
+        "logs/simulation/sample_peptides.txt",
     conda:
         "../envs/pyteomics.yaml"
     script:

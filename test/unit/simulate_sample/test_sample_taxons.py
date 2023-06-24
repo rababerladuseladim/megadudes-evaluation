@@ -7,6 +7,8 @@ from test.unit import common
 
 
 def test_sample_taxons(tmpdir, workflow_path):
+    target = "results/simulation/sample_taxons.txt"
+
     workdir = Path(tmpdir) / "workdir"
     data_path = Path(__file__).parent / __name__.split(".")[-1].removeprefix("test_")
     input_path = (data_path / "data").as_posix()
@@ -16,7 +18,7 @@ def test_sample_taxons(tmpdir, workflow_path):
     shutil.copytree(input_path, workdir)
 
     # dbg
-    print("results/sample_taxons/sample_taxons.txt", file=sys.stderr)
+    print(target, file=sys.stderr)
 
     # Run the test job.
     sp.check_output([
@@ -25,7 +27,7 @@ def test_sample_taxons(tmpdir, workflow_path):
         "snakemake",
         "-s",
         workflow_path / "workflow/rules/simulate_sample.smk",
-        "results/sample_taxons/sample_taxons.txt",
+        target,
         "-j1",
         "--keep-target-files",
         "--directory",

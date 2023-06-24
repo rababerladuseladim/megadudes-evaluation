@@ -7,7 +7,7 @@ from test.unit import common
 
 
 def test_sample_peptides(tmpdir, workflow_path):
-    target = "results/sample_peptides/peptides.txt"
+    target = "results/simulation/peptides.txt"
 
     workdir = Path(tmpdir) / "workdir"
     print("workdir:", workdir)
