@@ -11,6 +11,7 @@ container: "docker://continuumio/miniconda3"
 
 include: "rules/common.smk"
 include: "rules/convert_msfragger_peptides_tsv_to_fasta.smk"
+include: "rules/simulate_sample.smk"
 include: "rules/run_diamond.smk"
 include: "rules/run_megadudes.smk"
 include: "rules/plot_diamond_qc.smk"
@@ -29,3 +30,4 @@ rule all:
             "plots/diamond/qc-sample_{sample_name}.svg",
             sample_name=samples["sample_name"],
         ),
+        expand("results/megadudes/simulated_peptides_{N}.out", N=range(10)),
