@@ -4,7 +4,7 @@ from pathlib import Path
 from test.unit import common
 
 
-def test_all_dry_run(tmpdir):
+def test_all_dry_run(tmpdir, workflow_path):
     workdir = Path(tmpdir) / "workdir"
     data_path = Path(__file__).parent / "all"
     input_path = (data_path / "data").as_posix()
@@ -19,6 +19,8 @@ def test_all_dry_run(tmpdir):
         "python",
         "-m",
         "snakemake",
+        "-s",
+        workflow_path / "workflow/Snakefile",
         "all",
         "-j1",
         "--keep-target-files",
