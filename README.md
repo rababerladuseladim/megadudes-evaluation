@@ -54,7 +54,7 @@ Test your configuration by performing a dry-run via
 
 Execute the workflow locally via
 
-    snakemake --use-conda --cores $N
+    snakemake --use-conda --cores $N --resources mem_gb=21
 
 using `$N` cores or run it in a cluster environment via
 
