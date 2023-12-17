@@ -1,4 +1,4 @@
 query_dbs: [
   "resources/uniprot/uniprot_sprot.fasta.gz",
-#  "resources/uniprot/uniprot_trembl.fasta.gz",
+  "resources/uniprot/uniprot_trembl.fasta.gz",
 ]
