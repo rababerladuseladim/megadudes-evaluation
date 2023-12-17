@@ -17,6 +17,8 @@ rule map_taxids_to_uniprot_accessions:
         "results/simulation/tax2accessions_{repeat}.json",
     log:
         "logs/simulation/map_taxids_to_uniprot_accessions_{repeat}.txt",
+    resources:
+        mem_gb=21,
     script:
         "../scripts/map_taxids_to_uniprot_accessions.py"
 
