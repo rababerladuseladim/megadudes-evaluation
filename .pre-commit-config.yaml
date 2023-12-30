@@ -7,6 +7,7 @@ repos:
     rev: v4.4.0
     hooks:
     -   id: trailing-whitespace
+        exclude_types: [tsv]
     -   id: end-of-file-fixer
     -   id: check-yaml
     -   id: check-added-large-files

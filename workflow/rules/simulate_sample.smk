@@ -1,3 +1,7 @@
+wildcard_constraints:
+    repeat="\d+",
+
+
 rule sample_taxons:
     input:
         "resources/uniprot/speclist.txt",
@@ -7,6 +11,16 @@ rule sample_taxons:
         "logs/simulation/sample_taxons_{repeat}.txt",
     script:
         "../scripts/sample_taxons.py"
+
+
+rule build_tax_id_lineage:
+    input:
+        tax_id_files=["results/simulation/sample_taxons_{repeat}.txt"],
+        ncbi_nodes="resources/ncbi/nodes.dmp",
+    output:
+        "results/simulation/sample_taxons_{repeat}_lineage.tsv",
+    script:
+        "../scripts/build_tax_id_lineage.py"
 
 
 rule map_taxids_to_uniprot_accessions:
