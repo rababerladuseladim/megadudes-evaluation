@@ -4,7 +4,7 @@ default_language_version:
     python: python3.11
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
     -   id: trailing-whitespace
         exclude_types: [tsv]
@@ -12,6 +12,6 @@ repos:
     -   id: check-yaml
     -   id: check-added-large-files
 -   repo: https://github.com/snakemake/snakefmt
-    rev: v0.8.4
+    rev: v0.8.5
     hooks:
       - id: snakefmt
