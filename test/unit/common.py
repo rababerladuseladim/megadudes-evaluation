@@ -30,7 +30,7 @@ class OutputChecker:
             for f in files:
                 f = (Path(path) / f).relative_to(self.workdir)
                 created_files.add(f)
-                if str(f).startswith(".snakemake"):
+                if str(f).startswith((".snakemake", "log")):
                     continue
                 if f in expected_files:
                     if compare_content:

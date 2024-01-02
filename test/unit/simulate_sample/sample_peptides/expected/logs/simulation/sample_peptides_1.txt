@@ -1,3 +1,0 @@
-Sampled 40 accessions
-Uniprot Release Number: 2023_05
-Sampled 74 peptides
