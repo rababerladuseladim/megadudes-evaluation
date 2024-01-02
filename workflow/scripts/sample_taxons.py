@@ -2,7 +2,7 @@ import random
 import sys
 
 
-def sample_taxons(uniprot_speclist_file, output_file, log=sys.stderr, count=10):
+def sample_taxons(uniprot_speclist_file, output_file, log=sys.stderr, count=100):
     """Take a random sample of taxids from the uniprot speclist file.
 
     Args:
