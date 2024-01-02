@@ -1,5 +1,5 @@
 wildcard_constraints:
-    repeat="\d+",
+    repeat=r"\d+",
 
 
 rule sample_taxons:
