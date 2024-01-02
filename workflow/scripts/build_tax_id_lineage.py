@@ -1,6 +1,9 @@
 import pandas as pd
 from common import TAX_LEVELS
 from pathlib import Path
+import sys
+
+LOG_HANDLE = sys.stderr
 
 
 def parse_nodes(nodes_path: str) -> pd.DataFrame:
@@ -45,22 +48,43 @@ def build_tax_id_lineage(tax_id: int, nodes: pd.DataFrame) -> dict[str, int]:
     return {rank: tax_id for rank, tax_id in lineage.items() if rank in TAX_LEVELS}
 
 
-def build_tax_id_lineage_tsv(tax_id_files: list[str], nodes: str) -> None:
-    """Create one tsv file containing TAX_LEVEL lineage for each tax_id_file."""
+def filter_tax_ids_and_build_lineage_tsv(
+    tax_ids: str, nodes: str, output_lineage_tsv: str, output_tax_ids: str
+) -> None:
+    """Filter tax_ids and build lineage based on ncbi nodes.dmp.
+
+    Filter out tax_ids which not in the provided nodes.dmp and write them to a new file.
+    Create a lineage table containing the parents of each tax_id which have a rank in TAX_LEVELS.
+
+    Args:
+        tax_ids: list of files containing one tax_id per line
+        nodes: path to ncbi nodes.dmp file
+        output_lineage_tsv: path to output lineage tsv file
+        output_tax_ids: path to filtered output tax_id_file
+    """
     nodes = parse_nodes(nodes)
-    for file_ in map(Path, tax_id_files):
-        with file_.open() as f:
-            tax_ids = [int(l) for l in f]
-        lineage = [build_tax_id_lineage(i, nodes) for i in tax_ids]
-        df = pd.DataFrame(lineage, columns=TAX_LEVELS)
-        f_out = file_.parent / (file_.stem + "_lineage.tsv")
-        df.to_csv(f_out, sep="\t", index=False)
+    with open(tax_ids) as f:
+        tax_ids = [int(l) for l in f]
+    filtered_taxids = []
+    lineage: list[dict[str, int]] = []
+    for tax_id in tax_ids:
+        try:
+            lineage.append(build_tax_id_lineage(tax_id, nodes))
+        except KeyError:
+            print(f"Dropping Taxonomy ID {tax_id} because it is not in nodes.dmp", file=LOG_HANDLE)
+        else:
+            filtered_taxids.append(tax_id)
+
+    df = pd.DataFrame(lineage, columns=TAX_LEVELS)
+    df.to_csv(output_lineage_tsv, sep="\t", index=False)
+    with open(output_tax_ids, "w") as f:
+        f.write("\n".join(map(str, filtered_taxids)) + "\n")
 
 
 def test_build_tax_id_lineage_tsv():
     simulated_taxon_file = "/home/hennings/Projects/megadudes-evaluation/test/unit/simulate_sample/build_tax_id_lineage/data/results/simulation/sample_taxons_1.txt"
     nodes_path = "/home/hennings/Projects/megadudes-evaluation/test/unit/simulate_sample/build_tax_id_lineage/data/resources/ncbi/nodes.dmp"
-    build_tax_id_lineage_tsv([simulated_taxon_file], nodes_path)
+    filter_tax_ids_and_build_lineage_tsv(simulated_taxon_file, nodes_path)
 
 
 def test_create_nodes_dmp() -> None:
@@ -88,7 +112,7 @@ def test_create_nodes_dmp() -> None:
             if tax_id == parent_tax_id:
                 break
             tax_id = parent_tax_id
-    with (open(test_db, "w") as f):
+    with open(test_db, "w") as f:
         last_name = ""
         for line in sorted(lines, key=lambda l: l.name):
             if line.name == last_name:
@@ -98,4 +122,11 @@ def test_create_nodes_dmp() -> None:
 
 
 if "snakemake" in globals():
-    build_tax_id_lineage_tsv(tax_id_files=snakemake.input["tax_id_files"], nodes=snakemake.input["ncbi_nodes"])
+    with open(snakemake.log[0], "w") as log_handle:
+        LOG_HANDLE = log_handle
+        filter_tax_ids_and_build_lineage_tsv(
+            tax_ids=snakemake.input["tax_ids"],
+            nodes=snakemake.input["ncbi_nodes"],
+            output_lineage_tsv=snakemake.output["lineage"],
+            output_tax_ids=snakemake.output["tax_ids"],
+        )
