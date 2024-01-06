@@ -6,7 +6,7 @@ from pathlib import Path
 from test.unit import common
 
 
-def test_build_tax_id_lineage(tmpdir, workflow_path):
+def test_filter_tax_ids_and_build_lineage(tmpdir, workflow_path):
     target = "results/simulation/sample_taxons_lineage_1.tsv"
 
     workdir = Path(tmpdir) / "workdir"

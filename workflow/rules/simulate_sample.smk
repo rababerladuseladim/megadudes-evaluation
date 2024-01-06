@@ -13,7 +13,7 @@ rule sample_taxons:
         "../scripts/sample_taxons.py"
 
 
-rule build_tax_id_lineage:
+rule filter_tax_ids_and_build_lineage:
     input:
         tax_ids="results/simulation/sample_taxons_{repeat}.txt",
         ncbi_nodes="resources/ncbi/nodes.dmp",
@@ -21,9 +21,9 @@ rule build_tax_id_lineage:
         lineage="results/simulation/sample_taxons_lineage_{repeat}.tsv",
         tax_ids="results/simulation/sample_taxons_filtered_{repeat}.txt",
     log:
-        "logs/simulation/build_tax_id_lineage_{repeat}.txt",
+        "logs/simulation/filter_tax_ids_and_build_lineage_{repeat}.txt",
     script:
-        "../scripts/build_tax_id_lineage.py"
+        "../scripts/filter_tax_ids_and_build_lineage.py"
 
 
 rule map_taxids_to_uniprot_accessions:

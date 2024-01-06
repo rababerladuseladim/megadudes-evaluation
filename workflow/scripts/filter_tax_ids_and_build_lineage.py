@@ -1,6 +1,5 @@
 import pandas as pd
 from common import TAX_LEVELS
-from pathlib import Path
 import sys
 
 LOG_HANDLE = sys.stderr
