@@ -51,7 +51,7 @@ def get_value_overlap(hits, ground_truth):
     return pd.Series(dct)
 
 
-def get_unipept_hit_counts(f, ground_truth_df_tax_ids, method_name):
+def get_unipept_hit_counts(f, ground_truth_df_tax_ids):
     df_uni = pd.read_csv(
         f,
         usecols=[f"{t}_id" for t in TAX_LEVELS],
@@ -64,11 +64,11 @@ def get_unipept_hit_counts(f, ground_truth_df_tax_ids, method_name):
         df[t] = s.value_counts()
     df = df.fillna(0)
     df["eval"] = df.index
-    df["method"] = method_name
+    df["method"] = "unipept"
     return df
 
 
-def get_megadudes_hit_counts(f, ground_truth_df_tax_ids, method_name):
+def get_megadudes_hit_counts(f, ground_truth_df_tax_ids):
     df_mega = pd.read_csv(f, sep="\t", skiprows=5)
     df_mega = df_mega.rename(lambda c: c.lower().strip("@"), axis=1)
     df = pd.DataFrame(columns=TAX_LEVELS, index=["TP", "FP", "FN"])
@@ -86,7 +86,7 @@ def get_megadudes_hit_counts(f, ground_truth_df_tax_ids, method_name):
         df[t] = s_classification
     df = df.fillna(0)
     df["eval"] = df.index
-    df["method"] = method_name
+    df["method"] = "megadudes"
     return df
 
 
@@ -150,23 +150,17 @@ def plot_qc(df_plt, output):
     return f
 
 
-def qc_plots(ground_truth_file, unipept_file_list, megadudes_file_list, output):
+def qc_plots(ground_truth_file, unipept_file, megadudes_file, output):
     # read ground truth
     df_gt_taxids = read_ground_truth_file(ground_truth_file)
     # get unipept hits
-    lst_df_uni = [
-        get_unipept_hit_counts(f, df_gt_taxids, method_name=Path(f).stem)
-        for f in unipept_file_list
-    ]
+    df_uni = get_unipept_hit_counts(unipept_file, df_gt_taxids)
     # get megadudes hits
-    lst_df_mega = [
-        get_megadudes_hit_counts(
-            f, df_gt_taxids, method_name=("megadudes-" + Path(f).parts[-1])
+    df_mega = get_megadudes_hit_counts(
+            megadudes_file, df_gt_taxids
         )
-        for f in megadudes_file_list
-    ]
     # build TP/FP/FN dataframe
-    df_hits = pd.concat([*lst_df_uni, *lst_df_mega], ignore_index=True)
+    df_hits = pd.concat([df_uni, df_mega], ignore_index=True)
     # build evaluation dataframe, containing sensitivity, precision, f1-score, fdr
     df_eval = calc_eval_metrics(df_hits)
     # plot
@@ -177,19 +171,14 @@ def qc_plots(ground_truth_file, unipept_file_list, megadudes_file_list, output):
 
 def test_qc_plots(tmpdir):
     ground_truth = "/home/hennings/Projects/megadudes-evaluation/resources/kleiner_ground_truth-equal_protein-full_taxid_lineage.csv"
-    unipept_results = [
-        "/home/hennings/Nextcloud/PhD/projects/20210100-taxFDR/01-researchgap/02-tax_analysis/unipept_results-Kleiner_P_msfragger.csv"
-    ]
-    megadudes_file_list = [
-        "/home/hennings/Nextcloud/PhD/projects/20210100-taxFDR/02-megadudes/v0.8/megadudes-result.out",
-        "/home/hennings/Nextcloud/PhD/projects/20210100-taxFDR/02-megadudes/v0.9/megadudes-result.out",
-    ]
+    unipept_results = "/home/hennings/Nextcloud/PhD/projects/20210100-taxFDR/01-researchgap/02-tax_analysis/unipept_results-Kleiner_P_msfragger.csv"
+    megadudes_file_list = "/home/hennings/Nextcloud/PhD/projects/20210100-taxFDR/02-megadudes/v0.9/megadudes-result.out"
     output_plot = tmpdir / "qc_plot.svg"
     print(output_plot)
     f, df_eval = qc_plots(
         ground_truth_file=ground_truth,
-        unipept_file_list=unipept_results,
-        megadudes_file_list=megadudes_file_list,
+        unipept_file=unipept_results,
+        megadudes_file=megadudes_file_list,
         output=output_plot,
     )
     f.show()
@@ -200,7 +189,7 @@ if "snakemake" in globals():
         LOG_HANDLE = log_handle
         qc_plots(
             ground_truth_file=snakemake.input.ground_truth,
-            unipept_file_list=snakemake.input.unipept_results,
-            megadudes_file_list=snakemake.input.megadudes_results,
+            unipept_file=snakemake.input.unipept_results,
+            megadudes_file=snakemake.input.megadudes_results,
             output=snakemake.output[0],
         )
