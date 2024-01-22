@@ -48,11 +48,11 @@ def build_tax_id_lineage(tax_id: int, nodes: pd.DataFrame) -> dict[str, int]:
 
 
 def filter_tax_ids_and_build_lineage_tsv(
-    tax_ids: str, nodes: str, output_lineage_tsv: str, output_tax_ids: str
+    tax_ids: str, nodes: str, output_lineage_tsv: str, output_tax_ids: str | None
 ) -> None:
     """Filter tax_ids and build lineage based on ncbi nodes.dmp.
 
-    Filter out tax_ids which not in the provided nodes.dmp and write them to a new file.
+    Filter out tax_ids not in nodes.dmp, write remaining to a new file.
     Create a lineage table containing the parents of each tax_id which have a rank in TAX_LEVELS.
 
     Args:
@@ -64,7 +64,7 @@ def filter_tax_ids_and_build_lineage_tsv(
     nodes = parse_nodes(nodes)
     with open(tax_ids) as f:
         tax_ids = [int(l) for l in f]
-    filtered_taxids = []
+    found_taxids = []
     lineage: list[dict[str, int]] = []
     for tax_id in tax_ids:
         try:
@@ -72,12 +72,13 @@ def filter_tax_ids_and_build_lineage_tsv(
         except KeyError:
             print(f"Dropping Taxonomy ID {tax_id} because it is not in nodes.dmp", file=LOG_HANDLE)
         else:
-            filtered_taxids.append(tax_id)
+            found_taxids.append(tax_id)
 
     df = pd.DataFrame(lineage, columns=TAX_LEVELS)
     df.to_csv(output_lineage_tsv, sep="\t", index=False)
-    with open(output_tax_ids, "w") as f:
-        f.write("\n".join(map(str, filtered_taxids)) + "\n")
+    if output_tax_ids:
+        with open(output_tax_ids, "w") as f:
+            f.write("\n".join(map(str, found_taxids)) + "\n")
 
 
 def test_build_tax_id_lineage_tsv():
@@ -87,7 +88,7 @@ def test_build_tax_id_lineage_tsv():
 
 
 def test_create_nodes_dmp() -> None:
-    """Create minimal nodes.dmp with only the taxids from the lineageas in the provided taxon file"""
+    """Create minimal nodes.dmp with only the taxids from the lineage as in the provided taxon file"""
     simulated_taxon_file = "/home/hennings/Projects/megadudes-evaluation/test/unit/simulate_sample/sample_taxons/expected/results/simulation/sample_taxons_1.txt"
     nodes_path = "/home/hennings/Projects/megadudes-evaluation/resources/ncbi/nodes.dmp"
     test_db = "/home/hennings/Projects/megadudes-evaluation/test/unit/simulate_sample/build_tax_id_lineage/data/resources/ncbi/nodes.dmp"
@@ -120,12 +121,12 @@ def test_create_nodes_dmp() -> None:
             last_name = line.name
 
 
-if "snakemake" in globals():
+if snakemake := globals().get("snakemake"):
     with open(snakemake.log[0], "w") as log_handle:
         LOG_HANDLE = log_handle
         filter_tax_ids_and_build_lineage_tsv(
             tax_ids=snakemake.input["tax_ids"],
             nodes=snakemake.input["ncbi_nodes"],
             output_lineage_tsv=snakemake.output["lineage"],
-            output_tax_ids=snakemake.output["tax_ids"],
+            output_tax_ids=(snakemake.output["tax_ids"] if "tax_ids" in snakemake.output else None),
         )
