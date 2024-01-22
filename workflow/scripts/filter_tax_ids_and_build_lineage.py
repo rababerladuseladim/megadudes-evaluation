@@ -128,5 +128,5 @@ if snakemake := globals().get("snakemake"):
             tax_ids=snakemake.input["tax_ids"],
             nodes=snakemake.input["ncbi_nodes"],
             output_lineage_tsv=snakemake.output["lineage"],
-            output_tax_ids=(snakemake.output["tax_ids"] if "tax_ids" in snakemake.output else None),
+            output_tax_ids=snakemake.output.get("tax_ids"),
         )

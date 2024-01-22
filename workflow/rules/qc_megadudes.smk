@@ -16,6 +16,7 @@ rule plot_megadudes_qc_sample:
 rule plot_megadudes_qc_simulation:
     input:
         ground_truth="results/simulation/sample_taxons_lineage_{repeat}.tsv",
+        diamond_result="results/diamond/simulated_peptides_{repeat}-lineage.tsv",
         unipept_result="results/unipept/peptides_{repeat}.csv",
         megadudes_result="results/megadudes/simulated_peptides_{repeat}.out",
     log:
