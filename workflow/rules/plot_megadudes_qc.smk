@@ -1,8 +1,8 @@
 rule plot_megadudes_qc_sample:
     input:
         ground_truth=lambda wc: samples.loc[wc.sample_name, "ground_truth"],
-        unipept_results=lambda wc: samples.loc[wc.sample_name, "unipept_result"],
-        megadudes_results="results/megadudes/sample_{sample_name}.out",
+        unipept_result=lambda wc: samples.loc[wc.sample_name, "unipept_result"],
+        megadudes_result="results/megadudes/sample_{sample_name}.out",
     log:
         "logs/megadudes/plot_megadudes_qc-sample_{sample_name}.txt",
     output:
@@ -16,8 +16,8 @@ rule plot_megadudes_qc_sample:
 rule plot_megadudes_qc_simulation:
     input:
         ground_truth="results/simulation/sample_taxons_lineage_{repeat}.tsv",
-        unipept_results=["results/unipept/peptides_{repeat}.csv"],
-        megadudes_results=["results/megadudes/simulated_peptides_{repeat}.out"],
+        unipept_result="results/unipept/peptides_{repeat}.csv",
+        megadudes_result="results/megadudes/simulated_peptides_{repeat}.out",
     log:
         "logs/megadudes/plot_megadudes_qc-simulated_peptides_{repeat}.txt",
     output:

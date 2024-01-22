@@ -189,7 +189,7 @@ if "snakemake" in globals():
         LOG_HANDLE = log_handle
         qc_plots(
             ground_truth_file=snakemake.input.ground_truth,
-            unipept_file=snakemake.input.unipept_results,
-            megadudes_file=snakemake.input.megadudes_results,
+            unipept_file=snakemake.input.unipept_result,
+            megadudes_file=snakemake.input.megadudes_result,
             output=snakemake.output[0],
         )
