@@ -15,8 +15,8 @@ include: "rules/simulate_sample.smk"
 include: "rules/run_diamond.smk"
 include: "rules/run_megadudes.smk"
 include: "rules/run_unipept.smk"
-include: "rules/plot_diamond_qc.smk"
-include: "rules/plot_megadudes_qc.smk"
+include: "rules/qc_diamond.smk"
+include: "rules/qc_megadudes.smk"
 
 
 rule all:
