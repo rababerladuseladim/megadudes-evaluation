@@ -1,12 +1,14 @@
 import sys
+
 import subprocess as sp
 import shutil
 from pathlib import Path
 from test.unit import common
 
 
-def test_map_uniprot_accessions_to_taxids(tmpdir, workflow_path):
-    target = "results/diamond/foo-bar-taxids.txt"
+def test_build_diamond_tax_id_lineage(tmpdir, workflow_path):
+    target = "results/diamond/foo-bar-lineage.tsv"
+
     workdir = Path(tmpdir) / "workdir"
     data_path = Path(__file__).parent / __name__.split(".")[-1].removeprefix("test_")
     input_path = (data_path / "data").as_posix()

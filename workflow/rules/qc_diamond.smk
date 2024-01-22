@@ -23,7 +23,7 @@ rule extract_diamond_accessions:
         "cut -f 2 {input} | grep -o '|.*|' | grep -Eo '[^|]*' > {output} 2>{log}"
 
 
-rule map_uniprot_accessions_to_taxids:
+rule map_diamond_accessions_to_taxids:
     input:
         idmap="resources/uniprot/idmapping_selected.tab.gz",
         accessions="results/diamond/{sample}-accessions.txt",
@@ -35,3 +35,15 @@ rule map_uniprot_accessions_to_taxids:
         mem_gb=21,
     script:
         "../scripts/map_uniprot_accessions_to_taxids.py"
+
+
+rule build_diamond_tax_id_lineage:
+    input:
+        tax_ids="results/diamond/{sample}-taxids.txt",
+        ncbi_nodes="resources/ncbi/nodes.dmp",
+    output:
+        lineage="results/diamond/{sample}-lineage.tsv",
+    log:
+        "logs/diamond/build_diamond_tax_id_lineage_{sample}.txt",
+    script:
+        "../scripts/filter_tax_ids_and_build_lineage.py"
