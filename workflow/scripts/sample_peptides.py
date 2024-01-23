@@ -1,4 +1,5 @@
 import random
+import numpy as np
 from itertools import groupby
 from pathlib import Path
 from typing import cast, Dict, Iterable
@@ -40,13 +41,15 @@ def sample_peptides(accessions_file, output):
     # ensure deterministic behaviour although previous fetching of sequences takes a non-deterministic amount of
     # computation
     random.setstate(seed)
+    rng = np.random.default_rng(seed=random.getstate()[1][0])
 
     # cleave proteins sequences and sample peptides
     sequences = sorted(acc2seq.values())
     peptides_sample = list()
     for seq in sequences:
-        peptides = sorted(cleave_protein_sequence(seq))
-        peptides_sample.extend(random.sample(list(peptides), min(3, len(peptides))))
+        peptides = list(sorted(cleave_protein_sequence(seq)))
+        sample_size = min(rng.poisson(lam=10), len(peptides))
+        peptides_sample.extend(random.sample(peptides, sample_size))
 
     print(f"Sampled {len(peptides_sample)} peptides", file=LOG_HANDLE)
 
