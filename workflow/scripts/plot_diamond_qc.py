@@ -1,3 +1,5 @@
+from typing import Iterable
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -16,13 +18,8 @@ def qc_plots(diamond_hits_file, input_fasta_file, output):
     )
     df_hits["length"] = df_hits["query"].str.len()
 
-    input_peptide_lengths = []
     with open(input_fasta_file) as fh:
-        for line in fh:
-            if line.startswith(">") or len(line.strip()) == 0:
-                continue
-            else:
-                input_peptide_lengths.append(len(line.strip()))
+        input_peptide_lengths = get_length_of_unique_sequences_from_fasta(fh)
 
     df_lengths = pd.concat(
         [
@@ -43,9 +40,39 @@ def qc_plots(diamond_hits_file, input_fasta_file, output):
     return f
 
 
+def get_length_of_unique_sequences_from_fasta(fasta_handle: Iterable[str]) -> list[int]:
+    sequences = []
+    incomplete_sequence = ""
+    for line in fasta_handle:
+        if not line.strip():
+            continue
+        if line.startswith(">"):
+            if incomplete_sequence and incomplete_sequence not in sequences:
+                sequences.append(incomplete_sequence)
+            incomplete_sequence = ""
+            continue
+        incomplete_sequence += line.strip()
+    sequence_lengths = [len(seq) for seq in sequences]
+    return sequence_lengths
+
+
+def test_get_input_sequence_lengths():
+    fasta = [
+        ">foo",
+        "ATGCCGCCG",
+        ">bar",
+        "ATGCCGCCG",
+        "ATG",
+        ">baz",
+        "ATGCCGCCG "
+        "",
+    ]
+    assert get_length_of_unique_sequences_from_fasta(fasta) == [9, 12]
+
+
 def test_qc_plots(tmpdir):
-    input_fasta_f = "/home/hennings/Projects/megadudes-evaluation/results/fastas/sample_kleiner_equal_protein.fasta"
-    diamond_hits_f = "/home/hennings/Projects/megadudes-evaluation/results/diamond/sample_kleiner_equal_protein.tsv"
+    input_fasta_f = "/home/hennings/Projects/megadudes-evaluation/hpi-mnt/results/fastas/simulated_peptides_0.fasta"
+    diamond_hits_f = "/home/hennings/Projects/megadudes-evaluation/hpi-mnt/results/diamond/simulated_peptides_0.tsv"
     output_plot = tmpdir / "hist_of_hits.svg"
     f = qc_plots(
         diamond_hits_file=diamond_hits_f,
@@ -55,7 +82,7 @@ def test_qc_plots(tmpdir):
     f.show()
 
 
-if "snakemake" in globals():
+if snakemake := globals().get("snakemake"):
     qc_plots(
         diamond_hits_file=snakemake.input[0],
         input_fasta_file=snakemake.input[1],
