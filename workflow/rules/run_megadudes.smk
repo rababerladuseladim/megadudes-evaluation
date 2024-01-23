@@ -37,7 +37,7 @@ rule run_megadudes:
         stdout="logs/megadudes/run_megadudes-{sample}-stdout.txt",
         stderr="logs/megadudes/run_megadudes-{sample}-stderr.txt",
     output:
-        result=report("results/megadudes/{sample}.out"),
+        result=report("results/megadudes/{sample}.out", category="megadudes"),
         plots=directory("plots/megadudes/{sample}/scores"),
     conda:
         "../envs/megadudes.yaml"

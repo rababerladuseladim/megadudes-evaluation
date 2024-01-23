@@ -3,7 +3,7 @@ rule plot_diamond_qc:
         "results/diamond/{sample}.tsv",
         "results/fastas/{sample}.fasta",
     output:
-        report("plots/diamond/qc-{sample}.svg"),
+        report("plots/diamond/qc-{sample}.svg", category="qc", subcategory="diamond"),
     log:
         "logs/diamond/plot_diamond_qc-{sample}.txt",
     conda:

@@ -6,7 +6,11 @@ rule plot_megadudes_qc_sample:
     log:
         "logs/megadudes/plot_megadudes_qc-sample_{sample_name}.txt",
     output:
-        report("plots/megadudes/qc-sample_{sample_name}.svg"),
+        report(
+            "plots/megadudes/qc-sample_{sample_name}.svg",
+            category="qc",
+            subcategory="megadudes",
+        ),
     conda:
         "../envs/qc_plots.yaml"
     script:
@@ -22,7 +26,11 @@ rule plot_megadudes_qc_simulation:
     log:
         "logs/megadudes/plot_megadudes_qc-simulated_peptides_{repeat}.txt",
     output:
-        report("plots/megadudes/qc-simulated_peptides_{repeat}.svg"),
+        report(
+            "plots/megadudes/qc-simulated_peptides_{repeat}.svg",
+            category="qc",
+            subcategory="megadudes",
+        ),
     conda:
         "../envs/qc_plots.yaml"
     script:
