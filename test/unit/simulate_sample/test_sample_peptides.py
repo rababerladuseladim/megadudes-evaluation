@@ -40,4 +40,4 @@ def test_sample_peptides(tmpdir, workflow_path):
     # To modify this behavior, you can inherit from common.OutputChecker in here
     # and overwrite the method `compare_files(generated_file, expected_file),
     # also see common.py.
-    common.OutputChecker(input_path, expected_path, workdir).check(compare_content=True)
+    common.OutputChecker(input_path, expected_path, workdir, mode="text").check(compare_content=True)

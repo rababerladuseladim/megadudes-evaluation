@@ -8,10 +8,11 @@ import os
 
 
 class OutputChecker:
-    def __init__(self, data_path, expected_path, workdir):
+    def __init__(self, data_path, expected_path, workdir, mode="binary"):
         self.data_path = data_path
         self.expected_path = expected_path
         self.workdir = workdir
+        self.mode = mode
 
     def check(self, compare_content=True):
         input_files = set(
@@ -54,4 +55,17 @@ class OutputChecker:
             )
 
     def compare_files(self, generated_file, expected_file):
-        sp.check_output(["cmp", generated_file, expected_file])
+
+        cmd = "cmp" if self.mode == "binary" else "diff"
+
+        try:
+            sp.check_output([cmd, generated_file, expected_file])
+        except sp.CalledProcessError as error:
+            raise AssertionError(
+                "Error comparing files:\n"
+                f"    {generated_file}\n"
+                f"    {expected_file}\n"
+                f"Command: {' '.join(map(str, error.cmd))}\n"
+                "Output:\n" +
+                error.output.decode()
+            )
