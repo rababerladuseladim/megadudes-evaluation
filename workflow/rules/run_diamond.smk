@@ -35,6 +35,7 @@ rule run_diamond:
         -d {input.dmnd_db} \
         --threads {threads}\
         --fast \
+        --evalue 10000000 \
         --outfmt 6 qseqid sseqid slen sstart evalue \
         -o {output} \
         > {log} 2>&1"
