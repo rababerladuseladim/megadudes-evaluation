@@ -33,9 +33,8 @@ rule run_diamond:
         "diamond blastp  \
         -q {input.query_fasta} \
         -d {input.dmnd_db} \
-        --threads {threads} \
-        --sensitive \
-        --evalue 0.01 \
+        --threads {threads}\
+        --fast \
         --outfmt 6 qseqid sseqid slen sstart evalue \
         -o {output} \
         > {log} 2>&1"
