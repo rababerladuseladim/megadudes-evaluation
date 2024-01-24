@@ -27,7 +27,7 @@ def sample_taxons(uniprot_speclist_file, output_file, log=sys.stderr, count=100)
             output_handle.write(f"{taxid}\n")
 
 
-def read_taxids_from_uniprot_speclist_file(file_handle):
+def read_taxids_from_uniprot_speclist_file(file_handle) -> list[int]:
     """
 
     :param file_handle: open file handle to uniprot speclist file. download from: https://www.uniprot.org/docs/speclist.txt
@@ -58,6 +58,6 @@ def read_taxids_from_uniprot_speclist_file(file_handle):
     return taxids
 
 
-if "snakemake" in globals():
+if snakemake := globals().get("snakemake"):
     with open(snakemake.log[0], "w") as log_handle:
         sample_taxons(snakemake.input[0], snakemake.output[0], log=log_handle)

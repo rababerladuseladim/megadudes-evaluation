@@ -2,6 +2,17 @@ wildcard_constraints:
     repeat=r"\d+",
 
 
+rule convert_scientific_names_to_taxonomy_ids:
+    input:
+        "resources/human_microbiome_species.txt",
+    output:
+        "results/simulation/human_microbiome_project_taxonomy_ids.txt",
+    log:
+        "logs/simulation/convert_scientific_names_to_taxonomy_ids.txt",
+    script:
+        "../scripts/convert_scientific_names_to_taxonomy_ids.py"
+
+
 rule sample_taxons:
     input:
         "resources/uniprot/speclist.txt",
