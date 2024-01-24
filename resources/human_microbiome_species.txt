@@ -1,0 +1,152 @@
+# source: supplementary table 2 of https://doi.org/10.1038/nature23889
+Actinomyces graevenitzii
+Actinomyces johnsonii
+Actinomyces massiliensis
+Actinomyces naeslundii
+Actinomyces odontolyticus
+Actinomyces oris
+Actinomyces sp HPA0247
+Actinomyces sp ICM39
+Actinomyces sp ICM47
+Actinomyces sp oral taxon 170
+Actinomyces sp oral taxon 171
+Actinomyces sp oral taxon 172
+Actinomyces sp oral taxon 175
+Actinomyces sp oral taxon 448
+Actinomyces viscosus
+Aggregatibacter aphrophilus
+Alistipes indistinctus
+Alistipes putredinis
+Alistipes shahii
+Alistipes sp HGB5
+Alloprevotella tannerae
+Atopobium sp ICM58
+Atopobium vaginae
+Bacteroides caccae
+Bacteroides cellulosilyticus
+Bacteroides dorei
+Bacteroides eggerthii
+Bacteroides faecis
+Bacteroides finegoldii
+Bacteroides fragilis
+Bacteroides intestinalis
+Bacteroides massiliensis
+Bacteroides ovatus
+Bacteroides pectinophilus
+Bacteroides salyersiae
+Bacteroides sp 1 1 30
+Bacteroides stercoris
+Bacteroides thetaiotaomicron
+Bacteroides uniformis
+Bacteroides vulgatus
+Bacteroidetes oral taxon 274
+Bifidobacterium adolescentis
+Bifidobacterium breve
+Bifidobacterium longum
+Butyrivibrio crossotus
+Campylobacter showae
+candidate division TM7 single cell isolate TM7b
+candidate division TM7 single cell isolate TM7c
+Capnocytophaga sp CM59
+Capnocytophaga sp oral taxon 329
+Cardiobacterium hominis
+Clostridium sp L2 50
+Corynebacterium accolens
+Corynebacterium durum
+Corynebacterium kroppenstedtii
+Corynebacterium matruchotii
+Corynebacterium propinquum
+Dialister invisus
+Dialister succinatiphilus
+Dorea formicigenerans
+Escherichia coli
+Eubacterium eligens
+Eubacterium rectale
+Eubacterium siraeum
+Fusobacterium nucleatum
+Fusobacterium periodonticum
+Gemella haemolysans
+Gemella sanguinis
+Granulicatella elegans
+Haemophilus haemolyticus
+Haemophilus parainfluenzae
+Kingella denitrificans
+Kingella oralis
+Lachnospiraceae bacterium 1 1 57FAA
+Lachnospiraceae bacterium 8 1 57FAA
+Lactobacillus crispatus
+Lactobacillus gasseri
+Lactobacillus iners
+Lactobacillus jensenii
+Leptotrichia buccalis
+Leptotrichia sp oral taxon 215
+Leptotrichia wadei
+Megasphaera genomosp type 1
+Megasphaera micronuciformis
+Megasphaera sp UPII 135 E
+Megasphaera sp UPII 199 6
+Mycoplasma hominis
+Mycoplasma orale
+Neisseria elongata
+Neisseria flavescens
+Neisseria sicca
+Neisseria sp oral taxon 014
+Odoribacter laneus
+Odoribacter splanchnicus
+Oribacterium sinus
+Parabacteroides distasonis
+Parabacteroides johnsonii
+Parabacteroides merdae
+Porphyromonas sp oral taxon 278
+Porphyromonas sp oral taxon 279
+Prevotella amnii
+Prevotella bivia
+Prevotella histicola
+Prevotella maculosa
+Prevotella melaninogenica
+Prevotella micans
+Prevotella nanceiensis
+Prevotella nigrescens
+Prevotella oris
+Prevotella oulorum
+Prevotella pallens
+Prevotella pleuritidis
+Prevotella salivae
+Prevotella sp C561
+Propionibacterium acnes
+Propionibacterium granulosum
+Propionibacterium propionicum
+Propionibacterium sp 434 HC2
+Propionibacterium sp KPL1844
+Propionibacterium sp KPL1854
+Propionibacterium sp KPL2008
+Roseburia hominis
+Roseburia intestinalis
+Roseburia inulinivorans
+Rothia aeria
+Rothia dentocariosa
+Rothia mucilaginosa
+Ruminococcus bromii
+Ruminococcus gnavus
+Ruminococcus lactaris
+Ruminococcus torques
+Selenomonas noxia
+Staphylococcus epidermidis
+Streptococcus australis
+Streptococcus infantis
+Streptococcus intermedius
+Streptococcus mutans
+Streptococcus parasanguinis
+Streptococcus salivarius
+Streptococcus sanguinis
+Streptococcus sp GMD4S
+Streptococcus sp SK140
+Sutterella wadsworthensis
+Treponema denticola
+Treponema maltophilum
+Treponema vincentii
+Veillonella atypica
+Veillonella dispar
+Veillonella parvula
+Veillonella sp oral taxon 158
+Veillonella sp oral taxon 780
