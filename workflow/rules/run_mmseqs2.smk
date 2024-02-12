@@ -10,8 +10,9 @@ rule make_mmseqs2_db:
     threads: 256
     shell:
         """
-        mmseqs createdb {input} {output} --threads {threads} > {log} 2>&1;
-        mmseqs createindex {output} "$TMPDIR" --threads {threads}
+        MMSEQS_NUM_THREADS={threads};
+        mmseqs createdb {input} {output} > {log} 2>&1;
+        mmseqs createindex {output} "$TMPDIR"
         """
 
 
@@ -27,12 +28,12 @@ rule run_mmseqs2:
         "../envs/mmseqs2.yaml"
     threads: 256
     shell:
-        'mmseqs easy-search \
+        'MMSEQS_NUM_THREADS={threads}; \
+        mmseqs easy-search \
         {input.query_fasta} \
         {input.mmseqs2_db} \
         {output} \
         "$TMPDIR" \
-        --threads {threads} \
         --seed-sub-mat VTML40.out \
         -s 2 \
         --comp-bias-corr 0 \
