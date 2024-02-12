@@ -16,7 +16,7 @@ include: "rules/run_diamond.smk"
 include: "rules/run_megadudes.smk"
 include: "rules/run_mmseqs2.smk"
 include: "rules/run_unipept.smk"
-include: "rules/qc_diamond.smk"
+include: "rules/qc_alignment.smk"
 include: "rules/qc_megadudes.smk"
 
 
@@ -29,8 +29,8 @@ rule all:
             sample_name=samples["sample_name"],
         ),
         expand(
-            "plots/diamond/qc-sample_{sample_name}.svg",
+            "plots/alignment/qc-sample_{sample_name}.svg",
             sample_name=samples["sample_name"],
         ),
         expand("plots/megadudes/qc-simulated_peptides_{repeat}.svg", repeat=range(10)),
-        expand("plots/diamond/qc-simulated_peptides_{repeat}.svg", repeat=range(10)),
+        expand("plots/alignment/qc-simulated_peptides_{repeat}.svg", repeat=range(10)),

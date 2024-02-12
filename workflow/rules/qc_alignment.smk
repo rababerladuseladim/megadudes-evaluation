@@ -1,15 +1,18 @@
-rule plot_diamond_qc:
+rule plot_alignment_qc:
     input:
-        "results/diamond/{sample}.tsv",
-        "results/fastas/{sample}.fasta",
+        diamond="results/diamond/{sample}.tsv",
+        mmseqs2="results/mmseqs2/{sample}.tsv",
+        input="results/fastas/{sample}.fasta",
     output:
-        report("plots/diamond/qc-{sample}.svg", category="qc", subcategory="diamond"),
+        report(
+            "plots/alignment/qc-{sample}.svg", category="qc", subcategory="alignment"
+        ),
     log:
-        "logs/diamond/plot_diamond_qc-{sample}.txt",
+        "logs/diamond/plot_alignment_qc-{sample}.txt",
     conda:
         "../envs/qc_plots.yaml"
     script:
-        "../scripts/plot_diamond_qc.py"
+        "../scripts/plot_alignment_qc.py"
 
 
 rule extract_diamond_accessions:
