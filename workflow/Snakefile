@@ -32,5 +32,5 @@ rule all:
             "plots/alignment/qc-sample_{sample_name}.svg",
             sample_name=samples["sample_name"],
         ),
-        expand("plots/megadudes/qc-simulated_peptides_{repeat}.svg", repeat=range(10)),
-        expand("plots/alignment/qc-simulated_peptides_{repeat}.svg", repeat=range(10)),
+        expand("plots/megadudes/qc-simulated_peptides_{repeat}.svg", repeat=range(3)),
+        expand("plots/alignment/qc-simulated_peptides_{repeat}.svg", repeat=range(3)),
