@@ -15,7 +15,7 @@ rule convert_scientific_names_to_taxonomy_ids:
 
 rule sample_taxons:
     input:
-        "resources/uniprot/speclist.txt",
+        "results/simulation/human_microbiome_project_taxonomy_ids.txt",
     output:
         "results/simulation/sample_taxons_{repeat}.txt",
     log:

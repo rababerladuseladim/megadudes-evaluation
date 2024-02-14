@@ -1,19 +1,24 @@
 import random
 import sys
+from typing import Literal
 
 
-def sample_taxons(uniprot_speclist_file, output_file, log=sys.stderr, count=100):
+def sample_taxons(input_file, output_file, log=sys.stderr, file_type: Literal["uniprot_speclist", "plain"] = "uniprot_speclist", count=100):
     """Take a random sample of taxids from the uniprot speclist file.
 
     Args:
-        uniprot_speclist_file: path to uniprot speclist file, get from: https://www.uniprot.org/docs/speclist.txt
+        input_file: path to file containing one taxid per line or uniprot speclist file, get from: https://www.uniprot.org/docs/speclist.txt
         output_file: path to file for writing TaxIDs to, one TaxID per line. Is also used for initializing
             random.seed.
         log: handle for writing the log
+        file_type: type of the input_file
         count: number of taxa that should be sampled
     """
-    with open(uniprot_speclist_file, "r") as file_handle:
-        taxids = read_taxids_from_uniprot_speclist_file(file_handle)
+    with open(input_file, "r") as file_handle:
+        if file_type == "uniprot_speclist":
+            taxids = read_taxids_from_uniprot_speclist_file(file_handle)
+        else:
+            taxids = [int(taxid) for taxid in file_handle]
     if count > len(taxids):
         print(
             f"Number of requested taxids ({count}) is larger than number of available taxids ({len(taxids)}).",
@@ -60,4 +65,4 @@ def read_taxids_from_uniprot_speclist_file(file_handle) -> list[int]:
 
 if snakemake := globals().get("snakemake"):
     with open(snakemake.log[0], "w") as log_handle:
-        sample_taxons(snakemake.input[0], snakemake.output[0], log=log_handle)
+        sample_taxons(snakemake.input[0], snakemake.output[0], file_type="plain", log=log_handle)

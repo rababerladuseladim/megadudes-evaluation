@@ -15,6 +15,11 @@ class OutputChecker:
         self.mode = mode
 
     def check(self, compare_content=True):
+        """Check that all expected files are created.
+
+        Args:
+            compare_content: Compare content of expected files with created files, defaults to True
+        """
         input_files = set(
             (Path(path) / f).relative_to(self.data_path)
             for path, subdirs, files in os.walk(self.data_path)
