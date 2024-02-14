@@ -61,6 +61,6 @@ if snakemake := globals().get("snakemake"):
     with open(snakemake.log[0], "w") as log_handle:
         LOG_HANDLE = log_handle
         convert_species_names_to_taxids(
-            species_file=snakemake.input,
-            outfile=snakemake.output,
+            species_file=snakemake.input[0],
+            outfile=snakemake.output[0],
         )
