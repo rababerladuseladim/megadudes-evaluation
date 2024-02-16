@@ -3,8 +3,11 @@ import numpy as np
 from itertools import groupby
 from pathlib import Path
 from typing import cast, Dict, Iterable
+
+from numpy.random import Generator as NumpyGenerator
 from pyteomics.parser import cleave
 import requests
+import pytest
 
 
 import json
@@ -41,15 +44,13 @@ def sample_peptides(accessions_file, output):
     # ensure deterministic behaviour although previous fetching of sequences takes a non-deterministic amount of
     # computation
     random.setstate(seed)
-    rng = np.random.default_rng(seed=random.getstate()[1][0])
+    numpy_random_number_generator = np.random.default_rng(seed=random.getstate()[1][0])
 
     # cleave proteins sequences and sample peptides
     sequences = sorted(acc2seq.values())
     peptides_sample = list()
     for seq in sequences:
-        peptides = list(sorted(cleave_protein_sequence(seq)))
-        sample_size = min(rng.poisson(lam=10), len(peptides))
-        peptides_sample.extend(random.sample(peptides, sample_size))
+        peptides_sample.extend(sample_peptides_from_sequence(numpy_random_number_generator, seq))
 
     print(f"Sampled {len(peptides_sample)} peptides", file=LOG_HANDLE)
 
@@ -58,11 +59,53 @@ def sample_peptides(accessions_file, output):
         handle.write("\n".join(peptides_sample) + "\n")
 
 
-def cleave_protein_sequence(sequence: str, min_length: int = 7, max_length: int = 30):
-    return cleave(sequence, rule="trypsin", min_length=min_length, max_length=max_length)
+def sample_peptides_from_sequence(numpy_random_number_generator: NumpyGenerator, sequence: str) -> list[str]:
+    """Digest sequence according to tryptic digestion rules and return a random sample of unique peptides.
+
+    The sample size is drawn from a poisson distribution with mean 10.
+    Digestion allows up to 2 missed cleavages, with the weights of each missed cleavage as follows:
+    - 0 missed cleavages: 100
+    - 1: 10
+    - 2: 1
+
+    Args:
+        numpy_random_number_generator: initialized numpy Generator
+        sequence: amino acid sequence to be digested
+
+    Returns:
+        sample of peptides
+    """
+    peptides_0_missed_cleavages, peptides_1_missed_cleavages, peptides_2_missed_cleavages = [
+        list(sorted(cleave_protein_sequence(sequence, missed_cleavages=missed_cleavages)))
+        for missed_cleavages in [0, 1, 2]
+    ]
+    sample_size = numpy_random_number_generator.poisson(lam=10)
+    missed_cleavages_distribution = random.choices([0, 1, 2], weights=[100, 10, 1], k=sample_size)
+
+    return (
+        random.sample(population=peptides_0_missed_cleavages, k=min(missed_cleavages_distribution.count(0), len(peptides_0_missed_cleavages))) +
+        random.sample(population=peptides_1_missed_cleavages, k=min(missed_cleavages_distribution.count(1), len(peptides_1_missed_cleavages))) +
+        random.sample(population=peptides_2_missed_cleavages, k=min(missed_cleavages_distribution.count(2), len(peptides_2_missed_cleavages)))
+    )
 
 
-def get_protein_sequence(accession):
+def test_sample_peptides_from_sequence():
+    random.seed(12345)
+    numpy_random_number_generator = np.random.default_rng(seed=random.getstate()[1][0])
+    sequence = "MGDVEKGKKIFIMKCSQCHTVEKGGKHKTGPNLHGLFGRKTGQAPGYSYTAANKNKGIIWGEDTLME"
+    assert (sample_peptides_from_sequence(numpy_random_number_generator, sequence) ==
+            {'GIIWGEDTLME', 'IFIMKCSQCHTVEK', 'CSQCHTVEK', 'TGQAPGYSYTAANK', 'TGPNLHGLFGR'})
+
+
+def cleave_protein_sequence(sequence: str, min_length: int = 7, max_length: int = 30, missed_cleavages: int = 0, *args, **kwargs) -> set[str]:
+    kwargs.update({"sequence": sequence, "rule": "trypsin", "min_length": min_length, "max_length": max_length})
+    if missed_cleavages > 0:
+        return (cleave(*args, missed_cleavages=missed_cleavages, **kwargs) -
+         cleave(*args, missed_cleavages=missed_cleavages-1, **kwargs))
+    return cleave(*args, missed_cleavages=missed_cleavages, **kwargs)
+
+
+def get_protein_sequence(accession) -> str:
     connector = UniProtConnector()
     fasta = connector.get_fasta([accession])
     return "".join(fasta.split("\n")[1:])
@@ -101,20 +144,17 @@ def convert_fasta_str_to_dict(fasta):
     return protein_dict
 
 
-def test_cleave_protein_sequence():
-    seq = "MGDVEKGKKIFIMKCSQCHTVEKGGKHKTGPNLHGLFGRKTGQAPGYSYTAANKNKGIIWGEDTLMEYLENPKKYIPGTKMIFVGIKKKEERADLIAYLKKATNE"
-    peps = {
-        "GIIWGEDTLMEYLENPK",
-        "TGQAPGYSYTAANK",
-        "TGPNLHGLFGR",
-        "CSQCHTVEK",
-        "ADLIAYLK",
-        "MIFVGIK",
-        "YIPGTK",
-        "MGDVEK",
-        "IFIMK",
-    }
-    assert cleave_protein_sequence(seq) == peps
+@pytest.mark.parametrize(
+    ("missed_cleavages", "expected"),
+    [
+        (0, {'TGQAPGYSYTAANK', 'TGPNLHGLFGR', 'GIIWGEDTLME', 'CSQCHTVEK'}),
+        (1, {'CSQCHTVEKGGK', 'KTGQAPGYSYTAANK', 'HKTGPNLHGLFGR', 'TGQAPGYSYTAANKNK', 'TGPNLHGLFGRK', 'IFIMKCSQCHTVEK', 'NKGIIWGEDTLME', 'MGDVEKGK'}),
+        (2, {'KTGQAPGYSYTAANKNK', 'GKKIFIMK', 'TGPNLHGLFGRKTGQAPGYSYTAANK', 'TGQAPGYSYTAANKNKGIIWGEDTLME', 'KIFIMKCSQCHTVEK', 'IFIMKCSQCHTVEKGGK', 'GGKHKTGPNLHGLFGR', 'HKTGPNLHGLFGRK', 'MGDVEKGKK', 'CSQCHTVEKGGKHK'}),
+    ]
+)
+def test_cleave_protein_sequence(missed_cleavages: int, expected: set[str]):
+    sequence = "MGDVEKGKKIFIMKCSQCHTVEKGGKHKTGPNLHGLFGRKTGQAPGYSYTAANKNKGIIWGEDTLME"
+    assert cleave_protein_sequence(sequence, missed_cleavages=missed_cleavages) == expected
 
 
 def test_fasta_to_dict():
