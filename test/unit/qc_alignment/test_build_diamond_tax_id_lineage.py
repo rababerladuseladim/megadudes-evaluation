@@ -26,7 +26,7 @@ def test_build_diamond_tax_id_lineage(tmpdir, workflow_path):
         "-m",
         "snakemake",
         "-s",
-        workflow_path / "workflow/rules/qc_diamond.smk",
+        workflow_path / "workflow/rules/qc_alignment.smk",
         target,
         "-j1",
         "--keep-target-files",
