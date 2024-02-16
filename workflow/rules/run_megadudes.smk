@@ -32,7 +32,7 @@ rule build_megadudes_db:
 rule run_megadudes:
     input:
         dudes_db="results/megadudes/proc/dudes_db.npz",
-        mmseqs2_result="results/mmseqs2/{sample}.tsv",
+        diamond_result="results/diamond/{sample}.tsv",
     log:
         stdout="logs/megadudes/run_megadudes-{sample}-stdout.txt",
         stderr="logs/megadudes/run_megadudes-{sample}-stderr.txt",
@@ -47,7 +47,7 @@ rule run_megadudes:
     shell:
         """
         dudes \
-        -c {input.mmseqs2_result} \
+        -c {input.diamond_result} \
         -d {input.dudes_db} \
         -t {threads} \
         -o {params.result_wo_ext}\
