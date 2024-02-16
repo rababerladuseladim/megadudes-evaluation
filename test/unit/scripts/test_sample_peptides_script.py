@@ -7,6 +7,8 @@ import pytest
 from workflow.scripts.sample_peptides import sample_peptides_from_sequence, cleave_protein_sequence, \
     convert_fasta_str_to_dict, get_protein_sequence, sample_peptides
 
+pytest.importorskip("pyteomics")
+
 
 def test_sample_peptides_from_sequence():
     random.seed(12345)
