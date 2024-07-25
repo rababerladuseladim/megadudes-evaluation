@@ -46,3 +46,21 @@ rule run_mmseqs2:
         -k 6 \
         --format-output "query,target,tlen,tstart,evalue" \
         > {log} 2>&1'
+
+
+rule filter_mmseqs2:
+    input:
+        mmseqs2_result="results/mmseqs2/{sample}.tsv",
+    output:
+        "results/mmseqs2/filtered/{sample}.tsv",
+    log:
+        "logs/mmseqs2/filter_mmseqs2-{sample}.txt",
+    conda:
+        "../envs/mmseqs2.yaml"
+    threads: 256
+    shell:
+        "mmseqs filterdb \
+        {input.mmseqs2_result} \
+        {output} \
+        --extract-lines 10 \
+        > {log} 2>&1"

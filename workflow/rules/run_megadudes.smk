@@ -32,7 +32,7 @@ rule build_megadudes_db:
 rule run_megadudes:
     input:
         dudes_db="results/megadudes/proc/dudes_db.npz",
-        mmseqs2_result="results/mmseqs2/{sample}.tsv",
+        mmseqs2_result="results/mmseqs2/filtered/{sample}.tsv",
     log:
         stdout="logs/megadudes/run_megadudes-{sample}-stdout.txt",
         stderr="logs/megadudes/run_megadudes-{sample}-stderr.txt",
