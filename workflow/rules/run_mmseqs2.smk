@@ -48,9 +48,23 @@ rule run_mmseqs2:
         > {log} 2>&1'
 
 
+rule create_mmseqs2_index:
+    input:
+        mmseqs2_result="results/mmseqs2/{sample}.tsv",
+    output:
+        "results/mmseqs2/{sample}.tsv.index",
+    log:
+        "logs/mmseqs2/create_mmseqs2_index-{sample}.txt",
+    conda:
+        "../envs/mmseqs2.yaml"
+    shell:
+        'mmseqs createindex {input.mmseqs2_result} "$TMPDIR" > {log} 2>&1'
+
+
 rule filter_mmseqs2:
     input:
         mmseqs2_result="results/mmseqs2/{sample}.tsv",
+        index="results/mmseqs2/{sample}.tsv.index",
     output:
         "results/mmseqs2/filtered/{sample}.tsv",
     log:
