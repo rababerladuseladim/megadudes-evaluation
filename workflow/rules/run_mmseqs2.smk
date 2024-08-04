@@ -48,33 +48,24 @@ rule run_mmseqs2:
         > {log} 2>&1'
 
 
-rule create_mmseqs2_index:
-    input:
-        mmseqs2_result="results/mmseqs2/{sample}.tsv",
-    output:
-        "results/mmseqs2/{sample}.tsv.index",
-    log:
-        "logs/mmseqs2/create_mmseqs2_index-{sample}.txt",
-    conda:
-        "../envs/mmseqs2.yaml"
-    shell:
-        'mmseqs createindex {input.mmseqs2_result} "$TMPDIR" > {log} 2>&1'
-
-
 rule filter_mmseqs2:
     input:
         mmseqs2_result="results/mmseqs2/{sample}.tsv",
-        index="results/mmseqs2/{sample}.tsv.index",
     output:
         "results/mmseqs2/filtered/{sample}.tsv",
-    log:
-        "logs/mmseqs2/filter_mmseqs2-{sample}.txt",
-    conda:
-        "../envs/mmseqs2.yaml"
-    threads: 256
-    shell:
-        "mmseqs filterdb \
-        {input.mmseqs2_result} \
-        {output} \
-        --extract-lines 10 \
-        > {log} 2>&1"
+    run:
+        previous_peptide = ""
+        peptide_hits = 0
+        with open(input.mmseqs2_result) as in_handle, open(
+            output[0], "w"
+        ) as out_handle:
+            for line in in_handle:
+                current_peptide = line.split("\t")[0].strip()
+                if current_peptide == previous_peptide:
+                    peptide_hits += 1
+                else:
+                    peptide_hits = 1
+                previous_peptide = current_peptide
+                if peptide_hits > 10:
+                    continue
+                out_handle.write(line)
