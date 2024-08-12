@@ -1,11 +1,23 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
+
+from snakemake import script
+from unittest.mock import MagicMock
+
+
+class NoOpSeaborn:
+    set_theme: MagicMock()
+
+
+try:
+    import seaborn as sns
+    # context keywords: notebook, talk, paper, poster
+    sns.set_theme(context="talk", rc={"axes.grid": False})
+except ImportError:
+    sns = NoOpSeaborn()
 
 
 plt.rcParams["figure.figsize"] = [16 * 0.6, 9 * 0.6]
-# context keywords: notebook, talk, paper, poster
-sns.set_theme(context="talk", rc={"axes.grid": False})
 
 TAX_LEVELS = ["superkingdom", "phylum", "class", "order", "family", "genus", "species", "subspecies"]
 
@@ -197,6 +209,7 @@ def test_qc_plots(tmpdir):
     f.show()
 
 
+snakemake: script.Snakemake
 if snakemake := globals().get("snakemake"):
     with open(snakemake.log[0], "w") as log_handle:
         LOG_HANDLE = log_handle
