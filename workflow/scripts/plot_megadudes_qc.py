@@ -1,23 +1,13 @@
 import pandas as pd
-import matplotlib.pyplot as plt
-
 from snakemake import script
-from unittest.mock import MagicMock
-
-
-class NoOpSeaborn:
-    set_theme: MagicMock()
 
 
 try:
     import seaborn as sns
-    # context keywords: notebook, talk, paper, poster
-    sns.set_theme(context="talk", rc={"axes.grid": False})
+    import matplotlib.pyplot as plt
 except ImportError:
-    sns = NoOpSeaborn()
+    pass
 
-
-plt.rcParams["figure.figsize"] = [16 * 0.6, 9 * 0.6]
 
 TAX_LEVELS = ["superkingdom", "phylum", "class", "order", "family", "genus", "species", "subspecies"]
 
@@ -174,6 +164,9 @@ def plot_qc(df_plt, output):
 
 
 def qc_plots(ground_truth_file, unipept_file, megadudes_file, output, diamond_file: str | None = None):
+    # context keywords: notebook, talk, paper, poster
+    sns.set_theme(context="talk", rc={"axes.grid": False})
+    plt.rcParams["figure.figsize"] = [16 * 0.6, 9 * 0.6]
     # read ground truth
     df_gt_taxids = read_ground_truth_file(ground_truth_file)
     # get diamond hits
