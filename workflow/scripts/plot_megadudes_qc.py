@@ -1,3 +1,5 @@
+from os import PathLike
+
 import pandas as pd
 from snakemake import script
 
@@ -25,7 +27,7 @@ def read_ground_truth_file(ground_truth_file):
     return df_t_taxids
 
 
-def get_value_overlap(hits, ground_truth):
+def get_value_overlap(hits: pd.Series, ground_truth: pd.Series):
     """
     build series of values from both input series and annotate them with TP, FP, FN
 
@@ -34,8 +36,8 @@ def get_value_overlap(hits, ground_truth):
     :return: series with index: union of values from hits and ground_truth, values: TP if index in both,
         FP if only in hits, FN if only in ground_truth
     """
-    left = {t for t in hits if (not pd.isna(t) and (t != "-"))}
-    right = {t for t in ground_truth if (not pd.isna(t) and (t != "-"))}
+    left = {t for t in hits if not (pd.isna(t) or (t == "-"))}
+    right = {t for t in ground_truth if not (pd.isna(t) or (t == "-"))}
     taxa = left.union(right)
     dct = dict()
     for t in taxa:
@@ -52,7 +54,7 @@ def get_value_overlap(hits, ground_truth):
     return pd.Series(dct)
 
 
-def get_diamond_hit_counts(f, ground_truth_df_tax_ids):
+def get_diamond_hit_counts(f: PathLike, ground_truth_df_tax_ids: pd.DataFrame):
     df_dmnd = read_ground_truth_file(f)
     df = pd.DataFrame(columns=TAX_LEVELS, index=["TP", "FP", "FN"],)
     for t in TAX_LEVELS:
