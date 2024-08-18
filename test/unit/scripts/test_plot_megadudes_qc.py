@@ -1,5 +1,5 @@
 from workflow.scripts.plot_megadudes_qc import read_ground_truth_file, get_diamond_hit_counts, get_value_overlap, \
-    TAX_LEVELS, get_unipept_hit_counts
+    TAX_LEVELS, get_unipept_hit_counts, get_megadudes_hit_counts
 from pathlib import Path
 from pandas.testing import assert_frame_equal, assert_series_equal
 import pandas as pd
@@ -80,10 +80,30 @@ def test_get_unipept_hit_counts(ground_truth_df: pd.DataFrame) -> None:
             'species': {'TP': 0.0, 'FP': 1.0, 'FN': 2.0},
             'subspecies': {'TP': 0.0, 'FP': 0.0, 'FN': 1.0},
             'eval': {'TP': 'TP', 'FP': 'FP', 'FN': 'FN'},
-            'method': {'TP': 'unipept', 'FP': 'unipept', 'FN': 'unipept'}}
+            'method': {'TP': 'unipept', 'FP': 'unipept', 'FN': 'unipept'}
+        }
     )
     returned = get_unipept_hit_counts(TEST_DATA / "unipept.tsv", ground_truth_df)
     assert_frame_equal(expected, returned)
 
-# def test_get_megadudes_hit_counts
+
+def test_get_megadudes_hit_counts(ground_truth_df: pd.DataFrame) -> None:
+    expected = pd.DataFrame(
+        {
+            'superkingdom': {'TP': 1, 'FP': 0, 'FN': 0},
+            'phylum': {'TP': 0, 'FP': 3, 'FN': 1},
+            'class': {'TP': 0, 'FP': 0, 'FN': 2},
+            'order': {'TP': 0, 'FP': 0, 'FN': 2},
+            'family': {'TP': 0, 'FP': 0, 'FN': 2},
+            'genus': {'TP': 0, 'FP': 0, 'FN': 2},
+            'species': {'TP': 0, 'FP': 0, 'FN': 2},
+            'subspecies': {'TP': 0, 'FP': 0, 'FN': 1},
+            'eval': {'TP': 'TP', 'FP': 'FP', 'FN': 'FN'},
+            'method': {'TP': 'megadudes', 'FP': 'megadudes', 'FN': 'megadudes'}
+        }
+
+    )
+    returned = get_megadudes_hit_counts(TEST_DATA / "megadudes.tsv", ground_truth_df)
+    assert_frame_equal(expected, returned)
+
 # def test_calc_eval_metrics
