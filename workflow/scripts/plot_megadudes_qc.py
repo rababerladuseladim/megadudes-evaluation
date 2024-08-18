@@ -105,7 +105,7 @@ def get_megadudes_hit_counts(f, ground_truth_df_tax_ids):
     return df
 
 
-def calc_eval_metrics(df_hits):
+def calc_eval_metrics(df_hits: pd.DataFrame) -> pd.DataFrame:
     df_hits_long = df_hits.melt(id_vars=["method", "eval"], var_name="taxon_level")
     df_hits_long["value"] = df_hits_long["value"].apply(int)
     grouped = df_hits_long.groupby(["method", "taxon_level"], sort=False)

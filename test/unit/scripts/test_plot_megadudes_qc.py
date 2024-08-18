@@ -1,5 +1,5 @@
 from workflow.scripts.plot_megadudes_qc import read_ground_truth_file, get_diamond_hit_counts, get_value_overlap, \
-    TAX_LEVELS, get_unipept_hit_counts, get_megadudes_hit_counts
+    TAX_LEVELS, get_unipept_hit_counts, get_megadudes_hit_counts, calc_eval_metrics
 from pathlib import Path
 from pandas.testing import assert_frame_equal, assert_series_equal
 import pandas as pd
@@ -106,4 +106,24 @@ def test_get_megadudes_hit_counts(ground_truth_df: pd.DataFrame) -> None:
     returned = get_megadudes_hit_counts(TEST_DATA / "megadudes.tsv", ground_truth_df)
     assert_frame_equal(expected, returned)
 
-# def test_calc_eval_metrics
+
+def test_calc_eval_metrics() -> None:
+    expected = pd.DataFrame(
+        {
+            'method': {0: 'megadudes'},
+            'taxon_level': {0: 'superkingdom'},
+            'sensitivity': {0: 100.0},
+            'precision': {0: 100.0},
+            'F1-score': {0: 100.0},
+            'fdr': {0: 0.0}
+        }
+    )
+    df_hits = pd.DataFrame(
+        {
+            'superkingdom': {'TP': 1, 'FP': 0, 'FN': 0},
+            "method": {'TP': 'megadudes', 'FP': 'megadudes', 'FN': 'megadudes'},
+            "eval": {'TP': 'TP', 'FP': 'FP', 'FN': 'FN'},
+        }
+    )
+    returned = calc_eval_metrics(df_hits)
+    assert_frame_equal(expected, returned)
