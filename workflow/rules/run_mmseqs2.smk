@@ -48,11 +48,11 @@ rule run_mmseqs2:
         > {log} 2>&1'
 
 
-rule filter_mmseqs2:
+rule mmseqs2_top_10:
     input:
         mmseqs2_result="results/mmseqs2/{sample}.tsv",
     output:
-        "results/mmseqs2/filtered/{sample}.tsv",
+        "results/mmseqs2_top_10/{sample}.tsv",
     run:
         previous_peptide = ""
         peptide_hits = 0
