@@ -1,7 +1,11 @@
 from os import PathLike
 
 import pandas as pd
-from snakemake import script
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from snakemake import script
 
 
 try:
@@ -62,7 +66,6 @@ def get_diamond_hit_counts(f: PathLike, ground_truth_df_tax_ids: pd.DataFrame):
         df[t] = s.value_counts()
     df = df.fillna(0)
     df["eval"] = df.index
-    df["method"] = "diamond"
     return df
 
 
@@ -79,7 +82,6 @@ def get_unipept_hit_counts(f, ground_truth_df_tax_ids):
         df[t] = s.value_counts()
     df = df.fillna(0)
     df["eval"] = df.index
-    df["method"] = "unipept"
     return df
 
 
@@ -101,7 +103,6 @@ def get_megadudes_hit_counts(f, ground_truth_df_tax_ids):
         df[t] = s_classification
     df = df.fillna(0)
     df["eval"] = df.index
-    df["method"] = "megadudes"
     return df
 
 
@@ -173,12 +174,16 @@ def qc_plots(ground_truth_file, unipept_file, megadudes_file, output, diamond_fi
     df_gt_taxids = read_ground_truth_file(ground_truth_file)
     # get diamond hits
     df_dmnd = get_diamond_hit_counts(diamond_file, df_gt_taxids) if diamond_file else pd.DataFrame()
+    if not df_dmnd.empty:
+        df_dmnd["method"] = "diamond"
     # get unipept hits
     df_uni = get_unipept_hit_counts(unipept_file, df_gt_taxids)
+    df_uni["method"] = "unipept"
     # get megadudes hits
     df_mega = get_megadudes_hit_counts(
             megadudes_file, df_gt_taxids
         )
+    df_mega["method"] = "megadudes"
     # build TP/FP/FN dataframe
     df_hits = pd.concat([df_uni, df_mega, df_dmnd], ignore_index=True)
     # build evaluation dataframe, containing sensitivity, precision, f1-score, fdr
@@ -191,8 +196,8 @@ def qc_plots(ground_truth_file, unipept_file, megadudes_file, output, diamond_fi
 
 def test_qc_plots(tmpdir):
     ground_truth = "/home/hennings/Projects/megadudes-evaluation/resources/kleiner_ground_truth-equal_protein-full_taxid_lineage.csv"
-    unipept_file = "/home/hennings/Nextcloud/PhD/projects/20210100-taxFDR/01-researchgap/02-tax_analysis/unipept_results-Kleiner_P_msfragger.csv"
-    megadudes_file = "/home/hennings/Nextcloud/PhD/projects/20210100-taxFDR/02-megadudes/v0.9/megadudes-result.out"
+    unipept_file = "/home/hennings/Nextcloud/Notes/project support material/taxfdr/files/01-researchgap/02-tax_analysis/unipept_results-Kleiner_P_msfragger.csv"
+    megadudes_file = "/home/hennings/Nextcloud/Notes/project support material/taxfdr/files/02-megadudes/v0.9/megadudes-result.out"
     output_plot = tmpdir / "qc_plot.svg"
     print(output_plot)
     f, df_eval = qc_plots(
@@ -204,7 +209,7 @@ def test_qc_plots(tmpdir):
     f.show()
 
 
-snakemake: script.Snakemake
+snakemake: "script.Snakemake"
 if snakemake := globals().get("snakemake"):
     with open(snakemake.log[0], "w") as log_handle:
         LOG_HANDLE = log_handle
