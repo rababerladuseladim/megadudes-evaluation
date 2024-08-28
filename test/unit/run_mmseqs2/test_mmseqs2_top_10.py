@@ -6,8 +6,8 @@ from pathlib import Path
 from test.unit import common
 
 
-def test_filter_mmseqs2(tmpdir, workflow_path):
-    target = "results/mmseqs2/filtered/sample.tsv"
+def test_mmseqs2_top_10(tmpdir, workflow_path):
+    target = "results/mmseqs2_top_10/sample.tsv"
 
     workdir = Path(tmpdir) / "workdir"
     data_path = Path(__file__).parent / __name__.split(".")[-1].removeprefix("test_")
