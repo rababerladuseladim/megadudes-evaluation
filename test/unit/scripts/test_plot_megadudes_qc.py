@@ -67,7 +67,6 @@ def test_get_diamond_hit_counts(ground_truth_df: pd.DataFrame) -> None:
             'species': {'TP': 0.0, 'FP': 9.0, 'FN': 2.0},
             'subspecies': {'TP': 0.0, 'FP': 0.0, 'FN': 1.0},
             'eval': {'TP': 'TP', 'FP': 'FP', 'FN': 'FN'},
-            'method': {'TP': 'diamond', 'FP': 'diamond', 'FN': 'diamond'}
         }
     )
     returned = get_diamond_hit_counts(TEST_DATA / "diamond.tsv", ground_truth_df)
@@ -86,7 +85,6 @@ def test_get_unipept_hit_counts(ground_truth_df: pd.DataFrame) -> None:
             'species': {'TP': 0.0, 'FP': 1.0, 'FN': 2.0},
             'subspecies': {'TP': 0.0, 'FP': 0.0, 'FN': 1.0},
             'eval': {'TP': 'TP', 'FP': 'FP', 'FN': 'FN'},
-            'method': {'TP': 'unipept', 'FP': 'unipept', 'FN': 'unipept'}
         }
     )
     returned = get_unipept_hit_counts(TEST_DATA / "unipept.tsv", ground_truth_df)
@@ -105,7 +103,6 @@ def test_get_megadudes_hit_counts(ground_truth_df: pd.DataFrame) -> None:
             'species': {'TP': 0, 'FP': 0, 'FN': 2},
             'subspecies': {'TP': 0, 'FP': 0, 'FN': 1},
             'eval': {'TP': 'TP', 'FP': 'FP', 'FN': 'FN'},
-            'method': {'TP': 'megadudes', 'FP': 'megadudes', 'FN': 'megadudes'}
         }
 
     )
