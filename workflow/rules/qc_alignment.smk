@@ -1,7 +1,7 @@
 rule plot_alignment_qc:
     input:
         diamond="results/diamond/{sample}.tsv",
-        mmseqs2="results/mmseqs2/filtered/{sample}.tsv",
+        mmseqs2="results/mmseqs2_top_10/{sample}.tsv",
         input="results/fastas/{sample}.fasta",
     output:
         report(
