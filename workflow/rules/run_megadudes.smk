@@ -32,13 +32,13 @@ rule build_megadudes_db:
 rule run_megadudes:
     input:
         dudes_db="results/megadudes/proc/dudes_db.npz",
-        mmseqs2_result="results/mmseqs2_top_10/{sample}.tsv",
+        custom_blast_format_file="results/{method}/{sample}.tsv",
     log:
-        stdout="logs/megadudes/run_megadudes-{sample}-stdout.txt",
-        stderr="logs/megadudes/run_megadudes-{sample}-stderr.txt",
+        stdout="logs/megadudes/run_megadudes-{method}-{sample}-stdout.txt",
+        stderr="logs/megadudes/run_megadudes-{method}-{sample}-stderr.txt",
     output:
-        result=report("results/megadudes/{sample}.out", category="megadudes"),
-        plots=directory("plots/megadudes/{sample}/scores"),
+        result=report("results/megadudes/{method}/{sample}.out", category="megadudes"),
+        plots=directory("plots/megadudes/{method}/{sample}/scores"),
     conda:
         "../envs/megadudes.yaml"
     threads: 99
@@ -47,7 +47,7 @@ rule run_megadudes:
     shell:
         """
         dudes \
-        -c {input.mmseqs2_result} \
+        -c {input.custom_blast_format_file} \
         -d {input.dudes_db} \
         -t {threads} \
         -o {params.result_wo_ext}\
