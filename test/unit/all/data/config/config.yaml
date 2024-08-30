@@ -1,3 +1,8 @@
 query_dbs: [
   "resources/uniprot/uniprot_sprot.fasta.gz",
 ]
+alignment_methods: [
+  "diamond",
+  "mmseqs2",
+  "mmseqs2_top_10"
+]

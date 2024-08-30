@@ -2,7 +2,10 @@ rule plot_megadudes_qc_sample:
     input:
         ground_truth=lambda wc: samples.loc[wc.sample_name, "ground_truth"],
         unipept_result=lambda wc: samples.loc[wc.sample_name, "unipept_result"],
-        megadudes_results=["results/megadudes/mmseqs2_top_10/sample_{sample_name}.out"],
+        megadudes_results=expand(
+            "results/megadudes/{method}/sample_{{sample_name}}.out",
+            method=config["alignment_methods"],
+        ),
     log:
         "logs/megadudes/plot_megadudes_qc-sample_{sample_name}.txt",
     output:
@@ -22,9 +25,10 @@ rule plot_megadudes_qc_simulation:
         ground_truth="results/simulation/sample_taxons_lineage_{repeat}.tsv",
         diamond_result="results/diamond/simulated_peptides_{repeat}-lineage.tsv",
         unipept_result="results/unipept/peptides_{repeat}.csv",
-        megadudes_results=[
-            "results/megadudes/mmseqs2_top_10/simulated_peptides_{repeat}.out"
-        ],
+        megadudes_results=expand(
+            "results/megadudes/{method}/simulated_peptides_{{repeat}}.out",
+            method=config["alignment_methods"],
+        ),
     log:
         "logs/megadudes/plot_megadudes_qc-simulated_peptides_{repeat}.txt",
     output:
