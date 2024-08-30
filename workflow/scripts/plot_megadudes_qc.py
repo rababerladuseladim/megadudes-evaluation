@@ -1,4 +1,4 @@
-from os import PathLike
+from pathlib import Path
 
 import pandas as pd
 
@@ -58,7 +58,7 @@ def get_value_overlap(hits: pd.Series, ground_truth: pd.Series):
     return pd.Series(dct)
 
 
-def get_diamond_hit_counts(f: PathLike, ground_truth_df_tax_ids: pd.DataFrame):
+def get_diamond_hit_counts(f: str, ground_truth_df_tax_ids: pd.DataFrame):
     df_dmnd = read_ground_truth_file(f)
     df = pd.DataFrame(columns=TAX_LEVELS, index=["TP", "FP", "FN"],)
     for t in TAX_LEVELS:
@@ -166,26 +166,37 @@ def plot_qc(df_plt, output):
     return f
 
 
-def qc_plots(ground_truth_file, unipept_file, megadudes_file, output, diamond_file: str | None = None):
+def qc_plots(
+    ground_truth_file: str,
+    unipept_file: str,
+    megadudes_file_list: list[str],
+    output: str,
+    diamond_file: str | None = None
+):
     # context keywords: notebook, talk, paper, poster
     sns.set_theme(context="talk", rc={"axes.grid": False})
     plt.rcParams["figure.figsize"] = [16 * 0.6, 9 * 0.6]
+    hits: list[pd.DataFrame] = []
     # read ground truth
     df_gt_taxids = read_ground_truth_file(ground_truth_file)
     # get diamond hits
     df_dmnd = get_diamond_hit_counts(diamond_file, df_gt_taxids) if diamond_file else pd.DataFrame()
     if not df_dmnd.empty:
         df_dmnd["method"] = "diamond"
+    hits.append(df_dmnd)
     # get unipept hits
     df_uni = get_unipept_hit_counts(unipept_file, df_gt_taxids)
     df_uni["method"] = "unipept"
+    hits.append(df_uni)
     # get megadudes hits
-    df_mega = get_megadudes_hit_counts(
-            megadudes_file, df_gt_taxids
-        )
-    df_mega["method"] = "megadudes"
+    for megadudes_file in megadudes_file_list:
+        df_mega = get_megadudes_hit_counts(
+                megadudes_file, df_gt_taxids
+            )
+        df_mega["method"] = "megadudes on " + Path(megadudes_file).parent.name
+        hits.append(df_mega)
     # build TP/FP/FN dataframe
-    df_hits = pd.concat([df_uni, df_mega, df_dmnd], ignore_index=True)
+    df_hits = pd.concat(hits, ignore_index=True)
     # build evaluation dataframe, containing sensitivity, precision, f1-score, fdr
     df_eval = calc_eval_metrics(df_hits)
     # plot
@@ -203,7 +214,7 @@ def test_qc_plots(tmpdir):
     f, df_eval = qc_plots(
         ground_truth_file=ground_truth,
         unipept_file=unipept_file,
-        megadudes_file=megadudes_file,
+        megadudes_file_list=[megadudes_file],
         output=output_plot,
     )
     f.show()
@@ -217,6 +228,6 @@ if snakemake := globals().get("snakemake"):
             ground_truth_file=snakemake.input.ground_truth,
             diamond_file=snakemake.input.get("diamond_result"),
             unipept_file=snakemake.input.unipept_result,
-            megadudes_file=snakemake.input.megadudes_result,
+            megadudes_file_list=snakemake.input.megadudes_results,
             output=snakemake.output[0],
         )
