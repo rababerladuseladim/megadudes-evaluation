@@ -58,7 +58,7 @@ def get_value_overlap(hits: pd.Series, ground_truth: pd.Series):
     return pd.Series(dct)
 
 
-def get_diamond_hit_counts(f: str, ground_truth_df_tax_ids: pd.DataFrame):
+def get_diamond_hit_counts(f: Path | str, ground_truth_df_tax_ids: pd.DataFrame):
     df_dmnd = read_ground_truth_file(f)
     df = pd.DataFrame(columns=TAX_LEVELS, index=["TP", "FP", "FN"],)
     for t in TAX_LEVELS:
