@@ -107,7 +107,7 @@ def get_megadudes_hit_counts(f, ground_truth_df_tax_ids):
     return df
 
 
-def calculate_sensitivity(df: pd.DataFrame) -> np.array:
+def calculate_sensitivity(df: pd.DataFrame) -> float:
     true_positives = df[df["eval"] == "TP"]["value"].values[0]
     false_negatives = df[df["eval"] == "FN"]["value"].values[0]
     if true_positives + false_negatives == 0:
@@ -115,7 +115,7 @@ def calculate_sensitivity(df: pd.DataFrame) -> np.array:
     return true_positives * 100 / (true_positives + false_negatives)
 
 
-def calculate_precision(df: pd.DataFrame) -> np.array:
+def calculate_precision(df: pd.DataFrame) -> float:
     true_positives = df[df["eval"] == "TP"]["value"].values[0]
     false_positives = df[df["eval"] == "FP"]["value"].values[0]
     if true_positives + false_positives == 0:
@@ -123,7 +123,7 @@ def calculate_precision(df: pd.DataFrame) -> np.array:
     return true_positives * 100 / (true_positives + false_positives)
 
 
-def calculate_fdr(df: pd.DataFrame) -> np.array:
+def calculate_fdr(df: pd.DataFrame) -> float:
     true_positives = df[df["eval"] == "TP"]["value"].values[0]
     false_positives = df[df["eval"] == "FP"]["value"].values[0]
     if true_positives + false_positives == 0:
