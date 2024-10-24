@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 from typing import TYPE_CHECKING
@@ -106,30 +107,39 @@ def get_megadudes_hit_counts(f, ground_truth_df_tax_ids):
     return df
 
 
+def calculate_sensitivity(df: pd.DataFrame) -> np.array:
+    true_positives = df[df["eval"] == "TP"]["value"].values[0]
+    false_negatives = df[df["eval"] == "FN"]["value"].values[0]
+    if true_positives + false_negatives == 0:
+        return np.nan
+    return true_positives * 100 / (true_positives + false_negatives)
+
+
+def calculate_precision(df: pd.DataFrame) -> np.array:
+    true_positives = df[df["eval"] == "TP"]["value"].values[0]
+    false_positives = df[df["eval"] == "FP"]["value"].values[0]
+    if true_positives + false_positives == 0:
+        return np.nan
+    return true_positives * 100 / (true_positives + false_positives)
+
+
+def calculate_fdr(df: pd.DataFrame) -> np.array:
+    true_positives = df[df["eval"] == "TP"]["value"].values[0]
+    false_positives = df[df["eval"] == "FP"]["value"].values[0]
+    if true_positives + false_positives == 0:
+        return np.nan
+    return false_positives * 100 / (true_positives + false_positives)
+
+
 def calc_eval_metrics(df_hits: pd.DataFrame) -> pd.DataFrame:
     df_hits_long = df_hits.melt(id_vars=["method", "eval"], var_name="taxon_level")
     df_hits_long["value"] = df_hits_long["value"].apply(int)
     grouped = df_hits_long.groupby(["method", "taxon_level"], sort=False)
 
-    df_sens_g = grouped.apply(
-        lambda df: df[df["eval"] == "TP"]["value"].values[0]
-        * 100
-        / df[df["eval"].isin(["TP", "FN"])]["value"].sum()
-    )
-    # specificity: TN / (TN + FP)
-    # how to access TN?
-    # precision: TP / (TP + FP)
-    df_precision_g = grouped.apply(
-        lambda df: df[df["eval"] == "TP"]["value"].values[0]
-        * 100
-        / df[df["eval"].isin(["TP", "FP"])]["value"].sum()
-    )
+    df_sens_g = grouped.apply(calculate_sensitivity)
+    df_precision_g = grouped.apply(calculate_precision)
     df_f_one_g = (2 * df_precision_g * df_sens_g) / (df_precision_g + df_sens_g)
-    df_fdr_g = grouped.apply(
-        lambda df: df[df["eval"] == "FP"]["value"].values[0]
-        * 100
-        / df[df["eval"].isin(["TP", "FP"])]["value"].sum()
-    )
+    df_fdr_g = grouped.apply(calculate_fdr)
     df_eval = pd.DataFrame(
         {
             "sensitivity": df_sens_g,
