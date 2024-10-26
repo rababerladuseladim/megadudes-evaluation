@@ -3,5 +3,6 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - seaborn
   - pandas
+  - python 3.11
+  - seaborn
