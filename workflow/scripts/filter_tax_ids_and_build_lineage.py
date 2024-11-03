@@ -40,11 +40,12 @@ def build_tax_id_lineage(tax_id: int, nodes: pd.DataFrame) -> dict[str, int]:
     lineage: dict[str, int] = {}
     while True:
         parent_tax_id, rank = nodes.loc[tax_id, :].values
-        lineage[rank] = tax_id
+        if rank in TAX_LEVELS:
+            lineage[rank] = tax_id
         if tax_id == parent_tax_id:
             break
         tax_id = parent_tax_id
-    return {rank: tax_id for rank, tax_id in lineage.items() if rank in TAX_LEVELS}
+    return lineage
 
 
 def filter_tax_ids_and_build_lineage_tsv(
@@ -53,10 +54,10 @@ def filter_tax_ids_and_build_lineage_tsv(
     """Filter tax_ids and build lineage based on ncbi nodes.dmp.
 
     Filter out tax_ids not in nodes.dmp, write remaining to a new file.
-    Create a lineage table containing the parents of each tax_id which have a rank in TAX_LEVELS.
+    Create a lineage table containing the tax_ids parents. Parents are restricted to ranks present in TAX_LEVELS.
 
     Args:
-        tax_ids: list of files containing one tax_id per line
+        tax_ids: file containing one tax_id per line
         nodes: path to ncbi nodes.dmp file
         output_lineage_tsv: path to output lineage tsv file
         output_tax_ids: path to filtered output tax_id_file
