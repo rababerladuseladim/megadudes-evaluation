@@ -2,7 +2,7 @@ import random
 import numpy as np
 from itertools import groupby
 from typing import cast, Dict, Iterable
-
+from pathlib import Path
 from numpy.random import Generator as NumpyGenerator
 from pyteomics.parser import cleave
 import requests
@@ -13,14 +13,17 @@ import sys
 LOG_HANDLE = sys.stderr
 
 
-def sample_peptides(accessions_file, output):
+def sample_peptides(accessions_file: str | Path, tax_id_file: str | Path, output: str | Path):
     with open(accessions_file, "r") as handle:
         tax2acc = cast(Dict[str, list[str]], json.load(handle))
+    with open(tax_id_file, "r") as handle:
+        tax_ids = list(map(str.strip, handle))
 
     # sample accessions
     random.seed(str(output))
     accessions_sample = []
-    for i, (tax_id, accessions) in enumerate(tax2acc.items()):
+    for i, tax_id in enumerate(tax_ids):
+        accessions = tax2acc[tax_id]
         size = min(len(accessions), 100)
         accessions_sample.extend(random.sample(accessions, size))
         if i >= 100:
@@ -181,5 +184,7 @@ if snakemake := globals().get("snakemake"):
     with open(snakemake.log[0], "w") as log_handle:
         LOG_HANDLE = log_handle
         sample_peptides(
-            accessions_file=snakemake.input["accessions"], output=snakemake.output[0]
+            accessions_file=snakemake.input["accessions"],
+            tax_id_file=snakemake.input["tax_ids"],
+            output=snakemake.output[0]
         )
