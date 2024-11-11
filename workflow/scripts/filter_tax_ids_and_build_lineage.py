@@ -35,9 +35,9 @@ def build_tax_id_lineage(tax_id: int, nodes: pd.DataFrame) -> dict[str, int]:
             are rank
 
     Returns:
-        lineage as mapping from rank to tax_id
+        lineage as mapping from rank to tax_id and key `query` containing the provided tax_id
     """
-    lineage: dict[str, int] = {}
+    lineage: dict[str, int] = {"query": tax_id}
     while True:
         parent_tax_id, rank = nodes.loc[tax_id, :].values
         if rank in TAX_LEVELS:
@@ -75,7 +75,7 @@ def filter_tax_ids_and_build_lineage_tsv(
         else:
             found_taxids.append(tax_id)
 
-    df = pd.DataFrame(lineage, columns=TAX_LEVELS)
+    df = pd.DataFrame(lineage, columns=[*TAX_LEVELS, "query"])
     df.to_csv(output_lineage_tsv, sep="\t", index=False)
     if output_tax_ids:
         with open(output_tax_ids, "w") as f:
