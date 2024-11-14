@@ -62,7 +62,7 @@ def get_pep2uniprot_dict(pep_chunk):
     return pep2prot
 
 
-if "snakemake" in globals():
+if snakemake := globals().get("snakemake"):
     with open(snakemake.log[0], "w") as log_handle:
         LOG_HANDLE = log_handle
         map_peptides_to_uniprot_ids(snakemake.input[0], snakemake.output[0])

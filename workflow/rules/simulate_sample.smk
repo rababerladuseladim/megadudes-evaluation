@@ -40,7 +40,7 @@ rule filter_tax_ids_and_build_lineage:
 rule map_taxids_to_uniprot_accessions:
     input:
         idmap="resources/uniprot/idmapping_selected.tab.gz",
-        taxids="results/simulation/sample_taxons_filtered_{repeat}.txt",
+        lineage="results/simulation/sample_taxons_lineage_{repeat}.tsv",
     output:
         "results/simulation/tax2accessions_{repeat}.json",
     log:
