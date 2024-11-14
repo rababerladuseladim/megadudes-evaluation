@@ -54,6 +54,6 @@ def test_sample_peptides(workflow_path: Path) -> None:
     test_data = Path(__file__).parent.parent / "simulate_sample/sample_peptides/data/results/simulation/"
     sample_peptides(
         test_data / "tax2accessions_1.json",
-        test_data / "sample_taxons_filtered_1.txt",
+        test_data / "sample_taxons_lineage_1.tsv",
         "/dev/null"
     )

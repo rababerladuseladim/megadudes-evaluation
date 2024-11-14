@@ -54,7 +54,7 @@ rule map_taxids_to_uniprot_accessions:
 rule sample_peptides:
     input:
         accessions="results/simulation/tax2accessions_{repeat}.json",
-        tax_ids="results/simulation/sample_taxons_filtered_{repeat}.txt",
+        lineage="results/simulation/sample_taxons_lineage_{repeat}.tsv",
     output:
         "results/simulation/peptides_{repeat}.txt",
     log:

@@ -1,5 +1,6 @@
 import random
 import numpy as np
+import pandas as pd
 from itertools import groupby
 from typing import cast, Dict, Iterable
 from pathlib import Path
@@ -13,11 +14,11 @@ import sys
 LOG_HANDLE = sys.stderr
 
 
-def sample_peptides(accessions_file: str | Path, tax_id_file: str | Path, output: str | Path):
+def sample_peptides(accessions_file: str | Path, lineage_file: str | Path, output: str | Path):
     with open(accessions_file, "r") as handle:
         tax2acc = cast(Dict[str, list[str]], json.load(handle))
-    with open(tax_id_file, "r") as handle:
-        tax_ids = list(map(str.strip, handle))
+    df_tax_ids = pd.read_csv(lineage_file, usecols=["query"], dtype={"query": str}, sep="\t")
+    tax_ids = df_tax_ids["query"].to_list()
 
     # sample accessions
     random.seed(str(output))
@@ -185,6 +186,6 @@ if snakemake := globals().get("snakemake"):
         LOG_HANDLE = log_handle
         sample_peptides(
             accessions_file=snakemake.input["accessions"],
-            tax_id_file=snakemake.input["tax_ids"],
+            lineage_file=snakemake.input["lineage"],
             output=snakemake.output[0]
         )
