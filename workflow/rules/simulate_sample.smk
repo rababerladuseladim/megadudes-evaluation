@@ -29,8 +29,7 @@ rule filter_tax_ids_and_build_lineage:
         tax_ids="results/simulation/sample_taxons_{repeat}.txt",
         ncbi_nodes="resources/ncbi/nodes.dmp",
     output:
-        lineage="results/simulation/sample_taxons_lineage_{repeat}.tsv",
-        tax_ids="results/simulation/sample_taxons_filtered_{repeat}.txt",
+        "results/simulation/sample_taxons_lineage_{repeat}.tsv",
     log:
         "logs/simulation/filter_tax_ids_and_build_lineage_{repeat}.txt",
     script:

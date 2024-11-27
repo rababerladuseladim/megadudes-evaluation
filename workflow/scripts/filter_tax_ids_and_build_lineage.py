@@ -49,7 +49,7 @@ def build_tax_id_lineage(tax_id: int, nodes: pd.DataFrame) -> dict[str, int]:
 
 
 def filter_tax_ids_and_build_lineage_tsv(
-    tax_ids: str, nodes: str, output_lineage_tsv: str, output_tax_ids: str | None
+    tax_ids: str, nodes: str, output_lineage_tsv: str
 ) -> None:
     """Filter tax_ids and build lineage based on ncbi nodes.dmp.
 
@@ -60,7 +60,6 @@ def filter_tax_ids_and_build_lineage_tsv(
         tax_ids: file containing one tax_id per line
         nodes: path to ncbi nodes.dmp file
         output_lineage_tsv: path to output lineage tsv file
-        output_tax_ids: path to filtered output tax_id_file
     """
     nodes = parse_nodes(nodes)
     with open(tax_ids) as f:
@@ -77,9 +76,6 @@ def filter_tax_ids_and_build_lineage_tsv(
 
     df = pd.DataFrame(lineage, columns=[*TAX_LEVELS, "query"])
     df.to_csv(output_lineage_tsv, sep="\t", index=False)
-    if output_tax_ids:
-        with open(output_tax_ids, "w") as f:
-            f.write("\n".join(map(str, found_taxids)) + "\n")
 
 
 def test_build_tax_id_lineage_tsv():
@@ -128,6 +124,5 @@ if snakemake := globals().get("snakemake"):
         filter_tax_ids_and_build_lineage_tsv(
             tax_ids=snakemake.input["tax_ids"],
             nodes=snakemake.input["ncbi_nodes"],
-            output_lineage_tsv=snakemake.output["lineage"],
-            output_tax_ids=snakemake.output.get("tax_ids"),
+            output_lineage_tsv=snakemake.output[0],
         )
