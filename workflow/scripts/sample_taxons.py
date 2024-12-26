@@ -18,7 +18,7 @@ def sample_taxons(input_file, output_file, log=sys.stderr, file_type: Literal["u
         if file_type == "uniprot_speclist":
             taxids = read_taxids_from_uniprot_speclist_file(file_handle)
         else:
-            taxids = [int(taxid) for taxid in file_handle]
+            taxids = [l.strip() for l in file_handle]
     if count > len(taxids):
         print(
             f"Number of requested taxids ({count}) is larger than number of available taxids ({len(taxids)}).",

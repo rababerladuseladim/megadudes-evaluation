@@ -86,7 +86,7 @@ def test_build_tax_id_lineage_tsv():
 
 def test_create_nodes_dmp() -> None:
     """Create minimal nodes.dmp with only the taxids from the lineage as in the provided taxon file"""
-    simulated_taxon_file = "/home/hennings/Projects/megadudes-evaluation/test/unit/simulate_sample/sample_taxons/expected/results/simulation/sample_taxons_1.txt"
+    simulated_taxon_file = "/test/unit/simulate_sample/sample_taxons/expected/results/simulation/sample_taxons_lineage_1.txt"
     nodes_path = "/home/hennings/Projects/megadudes-evaluation/resources/ncbi/nodes.dmp"
     test_db = "/home/hennings/Projects/megadudes-evaluation/test/unit/simulate_sample/build_tax_id_lineage/data/resources/ncbi/nodes.dmp"
     nodes = pd.read_table(

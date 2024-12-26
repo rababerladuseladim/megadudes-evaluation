@@ -7,7 +7,7 @@ from test.unit import common
 
 
 def test_filter_tax_ids_and_build_lineage(tmpdir, workflow_path):
-    target = "results/simulation/sample_taxons_lineage_1.tsv"
+    target = "results/simulation/human_microbiome_project_lineage.tsv"
 
     workdir = Path(tmpdir) / "workdir"
     data_path = Path(__file__).parent / __name__.split(".")[-1].removeprefix("test_")
@@ -38,4 +38,4 @@ def test_filter_tax_ids_and_build_lineage(tmpdir, workflow_path):
     # To modify this behavior, you can inherit from common.OutputChecker in here
     # and overwrite the method `compare_files(generated_file, expected_file),
     # also see common.py.
-    common.OutputChecker(input_path, expected_path, workdir).check()
+    common.OutputChecker(input_path, expected_path, workdir, mode="text").check()

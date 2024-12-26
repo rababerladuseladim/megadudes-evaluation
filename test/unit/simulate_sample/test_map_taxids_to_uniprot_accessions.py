@@ -6,7 +6,7 @@ from test.unit import common
 
 
 def test_map_taxids_to_uniprot_accessions(tmpdir, workflow_path):
-    target = "results/simulation/tax2accessions_1.json"
+    target = "results/simulation/tax2accessions.json"
     workdir = Path(tmpdir) / "workdir"
     data_path = Path(__file__).parent / __name__.split(".")[-1].removeprefix("test_")
     input_path = (data_path / "data").as_posix()

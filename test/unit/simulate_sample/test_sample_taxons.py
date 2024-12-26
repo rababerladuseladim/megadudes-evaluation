@@ -7,7 +7,7 @@ from test.unit import common
 
 
 def test_sample_taxons(tmpdir, workflow_path):
-    target = "results/simulation/sample_taxons_1.txt"
+    target = "results/simulation/sample_taxons_lineage_1.tsv"
 
     workdir = Path(tmpdir) / "workdir"
     data_path = Path(__file__).parent / __name__.split(".")[-1].removeprefix("test_")
