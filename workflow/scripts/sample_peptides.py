@@ -1,4 +1,6 @@
 import random
+from math import floor
+
 import numpy as np
 import pandas as pd
 from itertools import groupby
@@ -12,6 +14,23 @@ import json
 import sys
 
 LOG_HANDLE = sys.stderr
+
+
+class UniProtConnector:
+    url = "https://rest.uniprot.org/uniprotkb/"
+
+    def __init__(self):
+        self.session = requests.Session()
+        self.uniprot_version = requests.get(self.url).headers.get("X-UniProt-Release")
+        print(f"Uniprot Release Number: {self.uniprot_version}", file=LOG_HANDLE)
+
+    def get_fasta(self, uniprot_accessions: Iterable[str]):
+        uniprot_accessions = ["accession%3A" + acc for acc in uniprot_accessions]
+        url = self.url + f"search?query={'+OR+'.join(uniprot_accessions)}&format=fasta"
+        response = self.session.get(url)
+        response.raise_for_status()
+        fasta = response.text
+        return fasta
 
 
 def sample_peptides(accessions_file: str | Path, lineage_file: str | Path, output: str | Path):
@@ -33,16 +52,8 @@ def sample_peptides(accessions_file: str | Path, lineage_file: str | Path, outpu
     print(f"Sampled {len(accessions_sample)} accessions", file=LOG_HANDLE)
     seed = random.getstate()
 
-    # get protein sequences for sampled accessions
-    fastas = []
-    chunk_size = 100
-    connector = UniProtConnector()
-    for chunk_start in range(0, len(accessions_sample), chunk_size):
-        chunk = accessions_sample[chunk_start : chunk_start + chunk_size]
-        fastas.append(connector.get_fasta(chunk))
-    acc2seq = {
-        acc: seq for f in fastas for acc, seq in convert_fasta_str_to_dict(f).items()
-    }
+    uniprot_connector = UniProtConnector()
+    acc2seq = get_accession_to_sequence_mapping(accessions_sample, uniprot_connector=uniprot_connector)
 
     # ensure deterministic behaviour although previous fetching of sequences takes a non-deterministic amount of
     # computation
@@ -59,9 +70,39 @@ def sample_peptides(accessions_file: str | Path, lineage_file: str | Path, outpu
 
     print(f"Sampled {len(peptides_sample)} peptides", file=LOG_HANDLE)
 
+    noise_peptide_count = floor(0.01 * len(peptides_sample))
+    all_accessions = [acc for v in tax2acc.values() for acc in v]
+    noise_accessions = random.sample(all_accessions, noise_peptide_count)
+    noise_acc2seq = get_accession_to_sequence_mapping(noise_accessions, uniprot_connector=uniprot_connector)
+
+    # cleave proteins sequences and sample peptides
+    noise_sequences = sorted(noise_acc2seq.values())
+    noise_peptides = list()
+    for seq in noise_sequences:
+        noise_peptides.append(
+            random.choice(
+                sample_peptides_from_sequence(numpy_random_number_generator, seq)
+            )
+        )
+
+    print(f"Sampled {len(noise_peptides)} noise peptides", file=LOG_HANDLE)
+
     # write fasta
     with open(output, "w") as handle:
-        handle.write("\n".join(peptides_sample) + "\n")
+        handle.write("\n".join(peptides_sample + noise_peptides) + "\n")
+
+
+def get_accession_to_sequence_mapping(accessions: list[str], uniprot_connector: UniProtConnector) -> dict[str, str]:
+    # get protein sequences for accessions
+    fastas = []
+    chunk_size = 100
+    for chunk_start in range(0, len(accessions), chunk_size):
+        chunk = accessions[chunk_start: chunk_start + chunk_size]
+        fastas.append(uniprot_connector.get_fasta(chunk))
+    acc2seq = {
+        acc: seq for f in fastas for acc, seq in convert_fasta_str_to_dict(f).items()
+    }
+    return acc2seq
 
 
 def sample_peptides_from_sequence(
@@ -142,27 +183,10 @@ def cleave_protein_sequence(
     return cleave(*args, missed_cleavages=missed_cleavages, **kwargs)
 
 
-def get_protein_sequence(accession) -> str:
+def get_protein_sequence(accession: str) -> str:
     connector = UniProtConnector()
     fasta = connector.get_fasta([accession])
     return "".join(fasta.split("\n")[1:])
-
-
-class UniProtConnector:
-    url = "https://rest.uniprot.org/uniprotkb/"
-
-    def __init__(self):
-        self.session = requests.Session()
-        self.uniprot_version = requests.get(self.url).headers.get("X-UniProt-Release")
-        print(f"Uniprot Release Number: {self.uniprot_version}", file=LOG_HANDLE)
-
-    def get_fasta(self, uniprot_accessions: Iterable[str]):
-        uniprot_accessions = ["accession%3A" + acc for acc in uniprot_accessions]
-        url = self.url + f"search?query={'+OR+'.join(uniprot_accessions)}&format=fasta"
-        response = self.session.get(url)
-        response.raise_for_status()
-        fasta = response.text
-        return fasta
 
 
 def convert_fasta_str_to_dict(fasta):
