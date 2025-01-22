@@ -28,7 +28,7 @@ def map_taxids_to_uniprot_accessions(idmapping_selected_file: str, lineage_file:
         else:
             missing_tax_ids.append(tax_id)
     if missing_tax_ids:
-        print(f"Taxids missing in idmapping file: {missing_tax_ids}", file=LOG_HANDLE)
+        print(f"Taxids missing in idmapping file: {sorted(missing_tax_ids)}", file=LOG_HANDLE)
     with open(output_json, "w") as outfile:
         json.dump(tax2acc_map, outfile, indent=4)
         outfile.write("\n")

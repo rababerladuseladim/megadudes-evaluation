@@ -1,5 +1,6 @@
 import requests
 import sys
+import urllib.parse
 
 LOG_HANDLE = sys.stderr
 
@@ -17,7 +18,7 @@ class TaxonomyConnector:
             "searchType": "EQUALSTO",
             "fieldName": "SCIENTIFICNAME",
         }
-        url = self.url + scientific_name.replace(" ", "%20")
+        url = urllib.parse.urljoin(self.url, urllib.parse.quote(scientific_name))
         response = self.session.get(url, params=params)
         # ebi api returns 404 if search result is empty
         if response.status_code == 404:
@@ -43,10 +44,11 @@ def convert_species_names_to_taxids(species_file, outfile):
             line = line.strip()
             if line.startswith("#") or not line:
                 continue
-            if tax_id := taxonomy.get_taxonomy_id(line.replace(" sp ", " sp. ")):
+            cleaned_line = line.replace(" sp ", " sp. ")
+            if tax_id := taxonomy.get_taxonomy_id(cleaned_line):
                 taxonomy_ids.append(tax_id)
             else:
-                print(f"No hit for: line", file=LOG_HANDLE)
+                print(f"No hit for: {cleaned_line}", file=LOG_HANDLE)
     with open(outfile, "w") as fh:
         fh.write("\n".join(map(str, taxonomy_ids)) + "\n")
 
