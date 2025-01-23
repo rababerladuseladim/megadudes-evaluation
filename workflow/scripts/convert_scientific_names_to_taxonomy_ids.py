@@ -6,28 +6,21 @@ LOG_HANDLE = sys.stderr
 
 
 class TaxonomyConnector:
-    url = "https://www.ebi.ac.uk/proteins/api/taxonomy/name/"
+    url = "https://www.ebi.ac.uk/ena/taxonomy/rest/any-name/"
 
     def __init__(self):
         self.session = requests.Session()
 
     def get_taxonomy_id(self, scientific_name: str) -> int | None:
-        params = {
-            "pageNumber": "1",
-            "pageSize": "100",
-            "searchType": "EQUALSTO",
-            "fieldName": "SCIENTIFICNAME",
-        }
         url = urllib.parse.urljoin(self.url, urllib.parse.quote(scientific_name))
-        response = self.session.get(url, params=params)
+        response = self.session.get(url)
         # ebi api returns 404 if search result is empty
         if response.status_code == 404:
             return None
         response.raise_for_status()
-        taxonomies = response.json()["taxonomies"]
-        if len(taxonomies) != 1:
+        if len(response.json()) != 1:
             return None
-        return taxonomies[0]["taxonomyId"]
+        return response.json()[0]["taxId"]
 
 
 def test_get_taxonomy_id():
@@ -48,7 +41,8 @@ def convert_species_names_to_taxids(species_file, outfile):
             if tax_id := taxonomy.get_taxonomy_id(cleaned_line):
                 taxonomy_ids.append(tax_id)
             else:
-                print(f"No hit for: {cleaned_line}", file=LOG_HANDLE)
+                print(f"No hit for: {line} (queried {cleaned_line})", file=LOG_HANDLE)
+    print(f"Found {len(taxonomy_ids)} taxids", file=LOG_HANDLE)
     with open(outfile, "w") as fh:
         fh.write("\n".join(map(str, taxonomy_ids)) + "\n")
 
