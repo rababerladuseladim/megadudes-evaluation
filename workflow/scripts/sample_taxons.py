@@ -2,7 +2,7 @@ import random
 import sys
 
 
-def sample_taxons(input_file, output_file, log=sys.stderr, count=100):
+def sample_taxons(input_file, output_file, log=sys.stderr, count=50):
     """Take a random sample of lines from the provided input file.
 
     The first line is expected to be the headline and written as first line to the output file.
