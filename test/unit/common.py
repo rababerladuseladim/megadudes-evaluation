@@ -5,10 +5,11 @@ Common code for unit testing of rules generated with Snakemake 6.8.0.
 from pathlib import Path
 import subprocess as sp
 import os
+from typing import Literal
 
 
 class OutputChecker:
-    def __init__(self, data_path, expected_path, workdir, mode="binary"):
+    def __init__(self, data_path, expected_path, workdir, mode=Literal["binary", "text"]):
         self.data_path = data_path
         self.expected_path = expected_path
         self.workdir = workdir

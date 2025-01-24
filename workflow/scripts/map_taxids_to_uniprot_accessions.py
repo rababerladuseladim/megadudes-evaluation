@@ -5,9 +5,14 @@ import pandas as pd
 LOG_HANDLE = sys.stderr
 
 
-def map_taxids_to_uniprot_accessions(idmapping_selected_file: str, lineage_file: str, output_json: str):
-    df_tax_ids = pd.read_csv(lineage_file, usecols=["query"], dtype={"query": int}, sep="\t")
-    tax_ids = df_tax_ids["query"].to_list()
+def map_taxids_to_uniprot_accessions(idmapping_selected_file: str, tax_ids_file: str, output_tax2acc_map: str,
+                                     output_tax_ids: str):
+    tax_ids = []
+    with open(tax_ids_file) as infile:
+        for line in infile.readlines():
+            content = line.strip()
+            if content:
+                tax_ids.append(int(content))
 
     df = pd.read_csv(
         idmapping_selected_file,
@@ -29,8 +34,11 @@ def map_taxids_to_uniprot_accessions(idmapping_selected_file: str, lineage_file:
             missing_tax_ids.append(tax_id)
     if missing_tax_ids:
         print(f"Taxids missing in idmapping file: {sorted(missing_tax_ids)}", file=LOG_HANDLE)
-    with open(output_json, "w") as outfile:
+    with open(output_tax2acc_map, "w") as outfile:
         json.dump(tax2acc_map, outfile, indent=4)
+        outfile.write("\n")
+    with open(output_tax_ids, "w") as outfile:
+        outfile.write("\n".join(map(str, tax2acc_map.keys())))
         outfile.write("\n")
 
 
@@ -39,6 +47,7 @@ if snakemake := globals().get("snakemake"):
         LOG_HANDLE = log_handle
         map_taxids_to_uniprot_accessions(
             idmapping_selected_file=snakemake.input["idmap"],
-            lineage_file=snakemake.input["lineage"],
-            output_json=snakemake.output[0],
+            tax_ids_file=snakemake.input["tax_ids"],
+            output_tax2acc_map=snakemake.output["tax2acc_map"],
+            output_tax_ids=snakemake.output["tax_ids"],
         )

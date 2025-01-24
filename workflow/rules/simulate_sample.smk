@@ -13,9 +13,24 @@ rule convert_scientific_names_to_taxonomy_ids:
         "../scripts/convert_scientific_names_to_taxonomy_ids.py"
 
 
+rule map_taxids_to_uniprot_accessions:
+    input:
+        idmap="resources/uniprot/idmapping_selected.tab.gz",
+        tax_ids="results/simulation/human_microbiome_project_taxonomy_ids.txt",
+    output:
+        tax2acc_map="results/simulation/tax2accessions.json",
+        tax_ids="results/simulation/human_microbiome_project_taxonomy_ids_in_uniprot.txt",
+    log:
+        "logs/simulation/map_taxids_to_uniprot_accessions.txt",
+    resources:
+        mem_gb=21,
+    script:
+        "../scripts/map_taxids_to_uniprot_accessions.py"
+
+
 rule filter_tax_ids_and_build_lineage:
     input:
-        tax_ids="results/simulation/human_microbiome_project_taxonomy_ids.txt",
+        tax_ids="results/simulation/human_microbiome_project_taxonomy_ids_in_uniprot.txt",
         ncbi_nodes="resources/ncbi/nodes.dmp",
     output:
         "results/simulation/human_microbiome_project_lineage.tsv",
@@ -23,20 +38,6 @@ rule filter_tax_ids_and_build_lineage:
         "logs/simulation/filter_tax_ids_and_build_lineage.txt",
     script:
         "../scripts/filter_tax_ids_and_build_lineage.py"
-
-
-rule map_taxids_to_uniprot_accessions:
-    input:
-        idmap="resources/uniprot/idmapping_selected.tab.gz",
-        lineage="results/simulation/human_microbiome_project_lineage.tsv",
-    output:
-        "results/simulation/tax2accessions.json",
-    log:
-        "logs/simulation/map_taxids_to_uniprot_accessions.txt",
-    resources:
-        mem_gb=21,
-    script:
-        "../scripts/map_taxids_to_uniprot_accessions.py"
 
 
 rule sample_taxons:
