@@ -53,7 +53,7 @@ rule sample_taxons:
 
 rule sample_peptides:
     input:
-        accessions="results/simulation/tax2accessions.json",
+        tax2acc_map="results/simulation/tax2accessions.json",
         lineage="results/simulation/sample_taxons_lineage_{repeat}.tsv",
     output:
         "results/simulation/peptides_{repeat}.txt",
