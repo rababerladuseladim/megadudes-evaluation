@@ -38,7 +38,6 @@ rule run_megadudes:
         stderr="logs/megadudes/run_megadudes-{method}-{sample}-stderr.txt",
     output:
         result=report("results/megadudes/{method}/{sample}.out", category="megadudes"),
-        plots=directory("plots/megadudes/{method}/{sample}/scores"),
     conda:
         "../envs/megadudes.yaml"
     threads: 99
@@ -51,6 +50,5 @@ rule run_megadudes:
         -d {input.dudes_db} \
         -t {threads} \
         -o {params.result_wo_ext}\
-        --debug_plots_dir {output.plots} \
         --debug > {log.stdout} 2> {log.stderr}
         """
