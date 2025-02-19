@@ -76,7 +76,7 @@ def sample_peptides(tax2acc_map_file: str | Path, lineage_file: str | Path, outp
     # ensure deterministic behaviour although previous fetching of sequences takes a non-deterministic amount of
     # computation
     random.setstate(random_state)
-    numpy_random_number_generator = np.random.default_rng(seed=random.randint(0, 2 ** 31 - 1))
+    numpy_random_number_generator = np.random.default_rng(seed=random.getstate()[1][0])
 
     # cleave proteins sequences and sample peptides
     sequences = sorted(acc2seq.values())
