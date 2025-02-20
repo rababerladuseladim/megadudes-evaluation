@@ -29,7 +29,6 @@ def test_filter_tax_ids_and_build_lineage(tmpdir, workflow_path):
         workflow_path / "workflow/rules/simulate_sample.smk",
         target,
         "-j1",
-        "--keep-target-files",
         "--directory",
         workdir,
     ])

@@ -29,7 +29,6 @@ def test_mmseqs2_top_10(tmpdir, workflow_path):
         workflow_path / "workflow/rules/run_mmseqs2.smk",
         target,
         "-j1",
-        "--keep-target-files",
         "--config",
         "query_dbs=foo",
         "--directory",

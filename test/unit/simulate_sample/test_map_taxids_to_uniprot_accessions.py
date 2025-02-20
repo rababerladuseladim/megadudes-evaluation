@@ -27,7 +27,6 @@ def test_map_taxids_to_uniprot_accessions(tmpdir, workflow_path):
         workflow_path / "workflow/rules/simulate_sample.smk",
         target,
         "-j1",
-        "--keep-target-files",
         "--directory",
         workdir,
     ])

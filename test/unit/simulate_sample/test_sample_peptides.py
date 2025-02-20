@@ -31,7 +31,6 @@ def test_sample_peptides(tmpdir, workflow_path):
         workflow_path / "workflow/rules/simulate_sample.smk",
         target,
         "-j1",
-        "--keep-target-files",
         "--directory",
         workdir,
     ])

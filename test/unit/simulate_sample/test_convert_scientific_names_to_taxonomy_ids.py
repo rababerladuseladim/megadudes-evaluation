@@ -29,7 +29,6 @@ def test_convert_scientific_names_to_taxonomy_ids(tmpdir, workflow_path):
         workflow_path / "workflow/rules/simulate_sample.smk",
         target,
         "-j1",
-        "--keep-target-files",
         "--directory",
         workdir,
     ])

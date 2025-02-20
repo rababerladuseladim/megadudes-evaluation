@@ -26,7 +26,6 @@ def test_convert_simulated_peptides_to_fasta(tmpdir, workflow_path):
         workflow_path / "workflow/rules/simulate_sample.smk",
         "results/fastas/simulated_peptides_10.fasta",
         "-j1",
-        "--keep-target-files",
         "--directory",
         workdir,
     ])

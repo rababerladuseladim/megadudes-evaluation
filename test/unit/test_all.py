@@ -23,7 +23,6 @@ def test_all_dry_run(tmpdir, workflow_path):
         workflow_path / "workflow/Snakefile",
         "all",
         "-j1",
-        "--keep-target-files",
         "--dryrun",
         "--directory",
         workdir,
