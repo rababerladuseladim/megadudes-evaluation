@@ -94,14 +94,19 @@ def sample_peptides(tax2acc_map_file: str | Path, lineage_file: str | Path, outp
     noise_acc2seq = get_accession_to_sequence_mapping(noise_accessions, uniprot_connector=uniprot_connector)
 
     # cleave proteins sequences and sample peptides
-    noise_sequences = sorted(noise_acc2seq.values())[:noise_peptide_count]
+    noise_sequences = sorted(noise_acc2seq.values())
     noise_peptides = list()
+    peptides_drawn = 0
     for seq in noise_sequences:
-        noise_peptides.append(
-            random.choice(
-                sample_peptides_from_sequence(numpy_random_number_generator, seq)
+        if peptide_sample_current_sequence := sample_peptides_from_sequence(numpy_random_number_generator, seq):
+            noise_peptides.append(
+                random.choice(
+                    peptide_sample_current_sequence
+                )
             )
-        )
+            peptides_drawn += 1
+        if peptides_drawn == noise_peptide_count:
+            break
 
     print(f"Sampled {len(noise_peptides)} noise peptides", file=LOG_HANDLE)
 
