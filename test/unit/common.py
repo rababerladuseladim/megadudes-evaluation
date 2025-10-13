@@ -3,9 +3,30 @@ Common code for unit testing of rules generated with Snakemake 6.8.0.
 """
 
 from pathlib import Path
-import subprocess as sp
-import os
 from typing import Literal
+
+import os
+import subprocess
+
+
+def run_command(command: list[str]) -> None:
+    """Run a subprocess command and print stdout/stderr if it fails."""
+    try:
+        result = subprocess.run(
+            command,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except subprocess.CalledProcessError as e:
+        print(f"Command failed with exit code {e.returncode}")
+        print("--- STDOUT ---")
+        print(e.stdout.strip())
+        print("--- STDERR ---")
+        print(e.stderr.strip())
+        raise
+    else:
+        print(result.stdout)
 
 
 class OutputChecker:
@@ -65,8 +86,8 @@ class OutputChecker:
         cmd = "cmp" if self.mode == "binary" else "diff"
 
         try:
-            sp.check_output([cmd, generated_file, expected_file])
-        except sp.CalledProcessError as error:
+            subprocess.check_output([cmd, generated_file, expected_file])
+        except subprocess.CalledProcessError as error:
             raise AssertionError(
                 "Error comparing files:\n"
                 f"    {generated_file}\n"

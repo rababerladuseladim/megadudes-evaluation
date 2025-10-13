@@ -1,13 +1,13 @@
+import shutil
 import sys
 
-import subprocess as sp
-import shutil
 from pathlib import Path
 from test.unit import common
+from test.unit.common import run_command
 
 
 def test_sample_peptides(tmpdir, workflow_path):
-    target = "results/simulation/peptides_1.txt"
+    target = "results/peptides/simulated_peptides_1.txt"
 
     workdir = Path(tmpdir) / "workdir"
     print("workdir:", workdir)
@@ -22,7 +22,7 @@ def test_sample_peptides(tmpdir, workflow_path):
     print(target, file=sys.stderr)
 
     # Run the test job.
-    sp.check_output([
+    run_command([
         "python",
         "-m",
         "snakemake",
@@ -36,8 +36,4 @@ def test_sample_peptides(tmpdir, workflow_path):
         workdir,
     ])
 
-    # Check the output byte by byte using cmp.
-    # To modify this behavior, you can inherit from common.OutputChecker in here
-    # and overwrite the method `compare_files(generated_file, expected_file),
-    # also see common.py.
     common.OutputChecker(input_path, expected_path, workdir, mode="text").check(compare_content=True)

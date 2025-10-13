@@ -56,21 +56,10 @@ rule sample_peptides:
         tax2acc_map="results/simulation/tax2accessions.json",
         lineage="results/simulation/sample_taxons_lineage_{repeat}.tsv",
     output:
-        "results/simulation/peptides_{repeat}.txt",
+        "results/peptides/simulated_peptides_{repeat}.txt",
     log:
-        "logs/simulation/sample_peptides_{repeat}.txt",
+        "logs/simulation/sample_peptides-simulated_peptides_{repeat}.txt",
     conda:
         "../envs/pyteomics.yaml"
     script:
         "../scripts/sample_peptides.py"
-
-
-rule convert_simulated_peptides_to_fasta:
-    input:
-        "results/simulation/peptides_{repeat}.txt",
-    output:
-        "results/fastas/simulated_peptides_{repeat}.fasta",
-    log:
-        "logs/simulation/convert_peptides_txt_to_fasta_{repeat}.txt",
-    shell:
-        "cat {input} | sed 's/.*/>&\\n&/' > {output} 2>{log}"

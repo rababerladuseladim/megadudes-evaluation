@@ -1,7 +1,7 @@
-import subprocess as sp
 import shutil
 from pathlib import Path
 from test.unit import common
+from test.unit.common import run_command
 
 
 def test_all_dry_run(tmpdir, workflow_path):
@@ -14,23 +14,18 @@ def test_all_dry_run(tmpdir, workflow_path):
     shutil.copytree(input_path, workdir)
 
     # Run the test job.
+    run_command([
+            "python",
+            "-m",
+            "snakemake",
+            "-s",
+            workflow_path / "workflow/Snakefile",
+            "all",
+            "-j1",
+            "--keep-target-files",
+            "--dryrun",
+            "--directory",
+            workdir,
+        ])
 
-    sp.check_output([
-        "python",
-        "-m",
-        "snakemake",
-        "-s",
-        workflow_path / "workflow/Snakefile",
-        "all",
-        "-j1",
-        "--keep-target-files",
-        "--dryrun",
-        "--directory",
-        workdir,
-    ])
-
-    # Check the output byte by byte using cmp.
-    # To modify this behavior, you can inherit from common.OutputChecker in here
-    # and overwrite the method `compare_files(generated_file, expected_file),
-    # also see common.py.
     common.OutputChecker(input_path, expected_path, workdir).check()

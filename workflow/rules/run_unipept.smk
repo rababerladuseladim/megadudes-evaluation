@@ -13,10 +13,10 @@ rule install_unipept:
         """
 
 
-rule run_unipept_on_simulated_sample:
+rule run_unipept:
     input:
         "results/unipept/install_success",
-        "results/simulation/{sample}.txt",
+        "results/peptides/{sample}.txt",
     log:
         "logs/unipept/{sample}.txt",
     output:
