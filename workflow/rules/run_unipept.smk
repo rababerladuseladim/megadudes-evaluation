@@ -15,8 +15,8 @@ rule install_unipept:
 
 rule run_unipept:
     input:
-        "results/unipept/install_success",
-        "results/peptides/{sample}.txt",
+        install_success="results/unipept/install_success",
+        peptides="results/peptides/{sample}.txt",
     log:
         "logs/unipept/{sample}.txt",
     output:
@@ -25,5 +25,5 @@ rule run_unipept:
         "../envs/ruby.yaml"
     shell:
         """
-        cat {input} | prot2pept | peptfilter | unipept pept2lca -a -e > {output} 2>{log};
+        cat {input.peptides} | prot2pept | peptfilter | unipept pept2lca -a -e > {output} 2>{log};
         """
