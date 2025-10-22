@@ -7,7 +7,7 @@ rule install_unipept:
         "../envs/ruby.yaml"
     shell:
         """
-        gem install unipept > {log} 2>&1;
+        gem install unipept -v 3.1.0 > {log} 2>&1;
         ln -s $(which ruby) $(dirname $(which unipept))/ruby;  # unipept looks for ruby in the gem bin dir
         touch {output};
         """
