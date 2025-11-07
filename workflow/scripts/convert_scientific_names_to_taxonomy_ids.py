@@ -1,6 +1,11 @@
+import re
+
+import pytest
 import requests
 import sys
 import urllib.parse
+
+from requests import HTTPError
 
 LOG_HANDLE = sys.stderr
 
@@ -14,19 +19,19 @@ class TaxonomyConnector:
     def get_taxonomy_id(self, scientific_name: str) -> int | None:
         url = urllib.parse.urljoin(self.url, urllib.parse.quote(scientific_name))
         response = self.session.get(url)
-        # ebi api returns 404 if search result is empty
-        if response.status_code == 404:
-            return None
         response.raise_for_status()
-        if len(response.json()) != 1:
-            return None
-        return response.json()[0]["taxId"]
+        tax_ids = response.json()
+        # ebi api returns empty list if no hit is found
+        if len(tax_ids) != 1:
+            raise HTTPError(f"Expected one taxonomy ID from the EBI API, got {len(response.json())}")
+        return int(tax_ids[0]["taxId"])
 
 
 def test_get_taxonomy_id():
     taxonomy = TaxonomyConnector()
     assert taxonomy.get_taxonomy_id("Actinomyces sp. oral taxon 448") == 712124
-    assert taxonomy.get_taxonomy_id("foo") is None
+    with pytest.raises(HTTPError, match=r"Expected one taxonomy ID.*, got 0"):
+        taxonomy.get_taxonomy_id("foo")
 
 
 def convert_species_names_to_taxids(species_file, outfile):
@@ -38,10 +43,14 @@ def convert_species_names_to_taxids(species_file, outfile):
             if line.startswith("#") or not line:
                 continue
             cleaned_line = line.replace(" sp ", " sp. ")
-            if tax_id := taxonomy.get_taxonomy_id(cleaned_line):
-                taxonomy_ids.append(tax_id)
-            else:
-                print(f"No hit for: {line} (queried {cleaned_line})", file=LOG_HANDLE)
+            try:
+                tax_id = taxonomy.get_taxonomy_id(cleaned_line)
+            except HTTPError as e:
+                if re.match(r"Expected one taxonomy ID.*, got 0", str(e)):
+                    print(f"No hit for: {line} (queried {cleaned_line})", file=LOG_HANDLE)
+                    continue
+                raise e
+            taxonomy_ids.append(tax_id)
     print(f"Found {len(taxonomy_ids)} taxids", file=LOG_HANDLE)
     with open(outfile, "w") as fh:
         fh.write("\n".join(map(str, taxonomy_ids)) + "\n")
