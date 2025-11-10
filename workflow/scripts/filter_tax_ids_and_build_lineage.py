@@ -31,13 +31,13 @@ def build_tax_id_lineage(tax_id: int, nodes: pd.DataFrame) -> dict[str, int]:
 
     Args:
         tax_id: tax_id
-        nodes: nodes dataframe, expected to have tax_id as index, first columns are parent tax_id and secondo columns
-            are rank
+        nodes: nodes dataframe, expected to have tax_id as index, first column contains the parent tax_id and the second
+            column the rank
 
     Returns:
-        lineage as mapping from rank to tax_id and key `query` containing the provided tax_id
+        lineage as mapping from rank to tax_id
     """
-    lineage: dict[str, int] = {"query": tax_id}
+    lineage: dict[str, int] = {}
     while True:
         parent_tax_id, rank = nodes.loc[tax_id, :].values
         if rank in TAX_LEVELS:
@@ -64,15 +64,14 @@ def filter_tax_ids_and_build_lineage_tsv(
     nodes = parse_nodes(nodes)
     with open(tax_ids) as f:
         tax_ids = [int(l) for l in f]
-    found_taxids = []
     lineage: list[dict[str, int]] = []
     for tax_id in tax_ids:
         try:
-            lineage.append(build_tax_id_lineage(tax_id, nodes))
+            lineage_current_tax_id = build_tax_id_lineage(tax_id, nodes)
         except KeyError:
             print(f"Dropping Taxonomy ID {tax_id} because it is not in nodes.dmp", file=LOG_HANDLE)
-        else:
-            found_taxids.append(tax_id)
+            continue
+        lineage.append({**lineage_current_tax_id, "query": tax_id})
 
     df = pd.DataFrame(lineage, columns=[*TAX_LEVELS, "query"])
     df.to_csv(output_lineage_tsv, sep="\t", index=False)
