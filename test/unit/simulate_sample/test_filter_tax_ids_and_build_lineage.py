@@ -1,9 +1,9 @@
 import sys
 
-import subprocess as sp
 import shutil
 from pathlib import Path
 from test.unit import common
+from test.unit.common import run_command
 
 
 def test_filter_tax_ids_and_build_lineage(tmpdir, workflow_path):
@@ -21,7 +21,7 @@ def test_filter_tax_ids_and_build_lineage(tmpdir, workflow_path):
     print(target, file=sys.stderr)
 
     # Run the test job.
-    sp.check_output([
+    run_command([
         "python",
         "-m",
         "snakemake",

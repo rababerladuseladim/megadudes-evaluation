@@ -19,13 +19,28 @@ rule map_taxids_to_uniprot_accessions:
         tax_ids="results/simulation/human_microbiome_project_taxonomy_ids.txt",
     output:
         tax2acc_map="results/simulation/tax2accessions.json",
-        tax_ids="results/simulation/human_microbiome_project_taxonomy_ids_in_uniprot.txt",
     log:
         "logs/simulation/map_taxids_to_uniprot_accessions.txt",
     resources:
         mem_gb=21,
     script:
         "../scripts/map_taxids_to_uniprot_accessions.py"
+
+
+rule convert_tax2acc_map_to_tax_ids:
+    input:
+        tax2acc_map="results/simulation/tax2accessions.json",
+    output:
+        tax_ids="results/simulation/human_microbiome_project_taxonomy_ids_in_uniprot.txt",
+    run:
+        import json
+
+        with open(input.tax2acc_map) as f:
+            tax2acc_map = json.load(f)
+            tax_ids = list(tax2acc_map.keys())
+        with open(output.tax_ids, "w") as outfile:
+            outfile.write("\n".join(tax_ids))
+            outfile.write("\n")
 
 
 rule filter_tax_ids_and_build_lineage:

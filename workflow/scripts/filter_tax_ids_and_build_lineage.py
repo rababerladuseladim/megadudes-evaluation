@@ -49,7 +49,7 @@ def build_tax_id_lineage(tax_id: int, nodes: pd.DataFrame) -> dict[str, int]:
 
 
 def filter_tax_ids_and_build_lineage_tsv(
-    tax_ids: str, nodes: str, output_lineage_tsv: str
+    tax_ids_path: str, nodes_path: str, output_lineage_tsv: str
 ) -> None:
     """Filter tax_ids and build lineage based on ncbi nodes.dmp.
 
@@ -57,12 +57,12 @@ def filter_tax_ids_and_build_lineage_tsv(
     Create a lineage table containing the tax_ids parents. Parents are restricted to ranks present in TAX_LEVELS.
 
     Args:
-        tax_ids: file containing one tax_id per line
-        nodes: path to ncbi nodes.dmp file
+        tax_ids_path: path to file containing one tax_id per line
+        nodes_path: path to ncbi nodes.dmp file
         output_lineage_tsv: path to output lineage tsv file
     """
-    nodes = parse_nodes(nodes)
-    with open(tax_ids) as f:
+    nodes = parse_nodes(nodes_path)
+    with open(tax_ids_path) as f:
         tax_ids = [int(l) for l in f]
     lineage: list[dict[str, int]] = []
     for tax_id in tax_ids:
@@ -121,7 +121,7 @@ if snakemake := globals().get("snakemake"):
     with open(snakemake.log[0], "w") as log_handle:
         LOG_HANDLE = log_handle
         filter_tax_ids_and_build_lineage_tsv(
-            tax_ids=snakemake.input["tax_ids"],
-            nodes=snakemake.input["ncbi_nodes"],
+            tax_ids_path=snakemake.input["tax_ids"],
+            nodes_path=snakemake.input["ncbi_nodes"],
             output_lineage_tsv=snakemake.output[0],
         )
