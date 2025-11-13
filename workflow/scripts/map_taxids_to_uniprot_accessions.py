@@ -13,9 +13,9 @@ def map_taxids_to_uniprot_accessions(
     """Generate json with tax_ids as keys and list of uniprot accessions as values.
 
     Args:
-    idmapping_selected_file: path to uniprot idmapping selected file
-    tax_ids_file: path to tax_ids file containing one tax id per line. These are the keys of the resulting mapping.
-    output_tax2acc_map: path to output file
+        idmapping_selected_file: path to uniprot idmapping selected file
+        tax_ids_file: path to tax_ids file containing one tax id per line. These are the keys of the resulting mapping.
+        output_tax2acc_map: path to output file
     """
     tax_ids = []
     with open(tax_ids_file) as infile:
@@ -24,7 +24,7 @@ def map_taxids_to_uniprot_accessions(
             if content:
                 tax_ids.append(int(content))
 
-    df = pd.read_csv(
+    idmapping = pd.read_csv(
         idmapping_selected_file,
         compression="gzip" if idmapping_selected_file.endswith(".gz") else None,
         sep="\t",
@@ -33,7 +33,7 @@ def map_taxids_to_uniprot_accessions(
         names=["acc", "taxid"],
         converters={12: lambda x: int(x) if int(x) in tax_ids else -1}
     )
-    acc2taxid = df[df["taxid"] != -1]
+    acc2taxid = idmapping[idmapping["taxid"] != -1]
 
     tax2acc_map = {}
     missing_tax_ids = []
