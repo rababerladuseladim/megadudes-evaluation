@@ -1,8 +1,8 @@
 import sys
-import subprocess as sp
 import shutil
 from pathlib import Path
 from test.unit import common
+from test.unit.common import run_command
 
 
 def test_map_diamond_accessions_to_taxids(tmpdir, workflow_path):
@@ -19,7 +19,7 @@ def test_map_diamond_accessions_to_taxids(tmpdir, workflow_path):
     print(target, file=sys.stderr)
 
     # Run the test job.
-    sp.check_output([
+    run_command([
         "python",
         "-m",
         "snakemake",

@@ -1,9 +1,9 @@
 import sys
 
-import subprocess as sp
 import shutil
 from pathlib import Path
 from test.unit import common
+from test.unit.common import run_command
 
 
 def test_mmseqs2_top_10(tmpdir, workflow_path):
@@ -21,7 +21,7 @@ def test_mmseqs2_top_10(tmpdir, workflow_path):
     print(target, file=sys.stderr)
 
     # Run the test job.
-    sp.check_output([
+    run_command([
         "python",
         "-m",
         "snakemake",

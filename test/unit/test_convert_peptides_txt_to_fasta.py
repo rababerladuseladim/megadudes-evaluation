@@ -18,7 +18,7 @@ def test_convert_peptides_txt_to_fasta(tmpdir, workflow_path):
     print("results/fastas/simulated_peptides_10.fasta", file=sys.stderr)
 
     # Run the test job.
-    command = [
+    args = [
         "python",
         "-m",
         "snakemake",
@@ -30,5 +30,5 @@ def test_convert_peptides_txt_to_fasta(tmpdir, workflow_path):
         "--directory",
         workdir,
     ]
-    run_command(command)
+    run_command(args)
     common.OutputChecker(input_path, expected_path, workdir).check()
