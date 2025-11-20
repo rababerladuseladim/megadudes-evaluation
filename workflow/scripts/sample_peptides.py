@@ -58,6 +58,17 @@ def sample_accessions(tax2acc: dict[str, list[str]], tax_ids: list[str]) -> list
 
 
 def sample_peptides(tax2acc_map_file: str | Path, lineage_file: str | Path, output: str | Path):
+    """Generate sample of peptides for tax_ids in the provided lineage file.
+
+    The random module is seeded with the output path.
+    Adds noise peptides to the end of the output. The number of noise peptides is 1% of the number of sampled peptides.
+
+    Args:
+        tax2acc_map_file: path to json with tax_ids as keys and list of accessions as values
+        lineage_file: path to tab seperated lineage file with column "query", which is used to look up accessions to
+          sample from in tax2acc_map_file
+        output: path to output file, containing one peptide per line
+    """
     with open(tax2acc_map_file, "r") as handle:
         tax2acc = cast(dict[str, list[str]], json.load(handle))
     df_tax_ids = pd.read_csv(lineage_file, usecols=["query"], dtype={"query": str}, sep="\t")
