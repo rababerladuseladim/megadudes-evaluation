@@ -63,7 +63,7 @@ rule sample_taxons:
     log:
         "logs/simulation/sample_taxons_{repeat}.txt",
     script:
-        "../scripts/sample_taxons.py"
+        "../scripts/sample_lines.py"
 
 
 rule sample_peptides:
