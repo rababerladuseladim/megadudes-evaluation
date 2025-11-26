@@ -78,8 +78,8 @@ def filter_tax_ids_and_build_lineage_tsv(
 
 
 def test_build_tax_id_lineage_tsv():
-    simulated_taxon_file = "/home/hennings/Projects/megadudes-evaluation/test/unit/simulate_sample/build_tax_id_lineage/data/results/simulation/sample_taxons_1.txt"
-    nodes_path = "/home/hennings/Projects/megadudes-evaluation/test/unit/simulate_sample/build_tax_id_lineage/data/resources/ncbi/nodes.dmp"
+    simulated_taxon_file = "/home/hennings/Projects/megadudes-evaluation/test/rules/simulate_sample/build_tax_id_lineage/data/results/simulation/sample_taxons_1.txt"
+    nodes_path = "/home/hennings/Projects/megadudes-evaluation/test/rules/simulate_sample/build_tax_id_lineage/data/resources/ncbi/nodes.dmp"
     filter_tax_ids_and_build_lineage_tsv(simulated_taxon_file, nodes_path)
 
 
