@@ -2,5 +2,6 @@ channels:
   - defaults
 dependencies:
   - pip
+  - python=3.11
   - pip:
-    - git+https://github.com/rababerladuseladim/dudes.git@42f66fc6aab9df1172bec6b9f5dddd6cab368cee
+    - git+https://github.com/rababerladuseladim/dudes.git@ffb1ebcfa9ac65da9676adcef3d278a80d3794ed

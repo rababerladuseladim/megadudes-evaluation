@@ -1,8 +1,11 @@
 import random
-import numpy as np
-from itertools import groupby
-from typing import cast, Dict, Iterable
+from math import floor
 
+import numpy as np
+import pandas as pd
+from itertools import groupby
+from typing import cast
+from pathlib import Path
 from numpy.random import Generator as NumpyGenerator
 from pyteomics.parser import cleave
 import requests
@@ -13,36 +16,77 @@ import sys
 LOG_HANDLE = sys.stderr
 
 
-def sample_peptides(accessions_file, output):
-    with open(accessions_file, "r") as handle:
-        tax2acc = cast(Dict[str, list[str]], json.load(handle))
+class UniProtConnector:
+    url = "https://rest.uniprot.org/uniprotkb/"
+
+    def __init__(self):
+        self.session = requests.Session()
+        self.uniprot_version = requests.get(self.url).headers.get("X-UniProt-Release")
+        print(f"Uniprot Release Number: {self.uniprot_version}", file=LOG_HANDLE)
+
+    def get_fasta(self, uniprot_accessions: list[str]) -> str:
+        fastas = []
+        chunk_size = min(25, len(uniprot_accessions))
+        for chunk_start in range(0, len(uniprot_accessions), chunk_size):
+            chunk = uniprot_accessions[chunk_start: chunk_start + chunk_size]
+            accession_string = ["accession%3A" + acc for acc in chunk]
+            url = self.url + f"search?query={'+OR+'.join(accession_string)}&format=fasta"
+            response = self.session.get(url)
+            response.raise_for_status()
+            fastas.append(response.text)
+        return "".join(fastas)
+
+
+def sample_accessions(tax2acc: dict[str, list[str]], tax_ids: list[str]) -> list[str]:
+    """Sample accessions for each tax_id.
+
+    Samples min(len(accessions_of_this_tax_id), 25) accessions for each tax id in tax_ids.
+
+    Args:
+        tax2acc: mapping of taxonomic identifiers to list of accessions
+        tax_ids: list of taxonomic identifiers to sample accessions
+
+    Returns:
+        list of sampled accessions
+    """
+    accessions_sample: list[str] = []
+    for tax_id in tax_ids:
+        accessions = tax2acc[tax_id]
+        sample_size_for_current_tax_id = min(len(accessions), 25)
+        accessions_sample.extend(random.sample(accessions, sample_size_for_current_tax_id))
+    return accessions_sample
+
+
+def sample_peptides(tax2acc_map_file: str | Path, lineage_file: str | Path, output: str | Path):
+    """Generate sample of peptides for tax_ids in the provided lineage file.
+
+    The random module is seeded with the output path.
+    Adds noise peptides to the end of the output. The number of noise peptides is 1% of the number of sampled peptides.
+
+    Args:
+        tax2acc_map_file: path to json with tax_ids as keys and list of accessions as values
+        lineage_file: path to tab seperated lineage file with column "query", which is used to look up accessions to
+          sample from in tax2acc_map_file
+        output: path to output file, containing one peptide per line
+    """
+    with open(tax2acc_map_file, "r") as handle:
+        tax2acc = cast(dict[str, list[str]], json.load(handle))
+    df_tax_ids = pd.read_csv(lineage_file, usecols=["query"], dtype={"query": str}, sep="\t")
+    tax_ids = df_tax_ids["query"].to_list()
 
     # sample accessions
     random.seed(str(output))
-    accessions_sample = []
-    for i, (tax_id, accessions) in enumerate(tax2acc.items()):
-        size = min(len(accessions), 100)
-        accessions_sample.extend(random.sample(accessions, size))
-        if i >= 100:
-            break
+    accessions_sample = sample_accessions(tax2acc, tax_ids)
 
     print(f"Sampled {len(accessions_sample)} accessions", file=LOG_HANDLE)
-    seed = random.getstate()
+    random_state = random.getstate()
 
-    # get protein sequences for sampled accessions
-    fastas = []
-    chunk_size = 100
-    connector = UniProtConnector()
-    for chunk_start in range(0, len(accessions_sample), chunk_size):
-        chunk = accessions_sample[chunk_start : chunk_start + chunk_size]
-        fastas.append(connector.get_fasta(chunk))
-    acc2seq = {
-        acc: seq for f in fastas for acc, seq in convert_fasta_str_to_dict(f).items()
-    }
+    uniprot_connector = UniProtConnector()
+    acc2seq = get_accession_to_sequence_mapping(accessions_sample, uniprot_connector=uniprot_connector)
 
     # ensure deterministic behaviour although previous fetching of sequences takes a non-deterministic amount of
     # computation
-    random.setstate(seed)
+    random.setstate(random_state)
     numpy_random_number_generator = np.random.default_rng(seed=random.getstate()[1][0])
 
     # cleave proteins sequences and sample peptides
@@ -55,9 +99,48 @@ def sample_peptides(accessions_file, output):
 
     print(f"Sampled {len(peptides_sample)} peptides", file=LOG_HANDLE)
 
+    noise_peptide_count = floor(0.01 * len(peptides_sample))
+    all_accessions = [acc for accession_list in tax2acc.values() for acc in accession_list]
+    noise_accessions = random.sample(all_accessions, noise_peptide_count * 3)
+    noise_acc2seq = get_accession_to_sequence_mapping(noise_accessions, uniprot_connector=uniprot_connector)
+
+    # cleave proteins sequences and sample peptides
+    noise_sequences = sorted(noise_acc2seq.values())
+    noise_peptides = list()
+    peptides_drawn = 0
+    for seq in noise_sequences:
+        if peptide_sample_current_sequence := sample_peptides_from_sequence(numpy_random_number_generator, seq):
+            noise_peptides.append(
+                random.choice(
+                    peptide_sample_current_sequence
+                )
+            )
+            peptides_drawn += 1
+        if peptides_drawn == noise_peptide_count:
+            break
+
+    print(f"Sampled {len(noise_peptides)} noise peptides", file=LOG_HANDLE)
+
     # write fasta
     with open(output, "w") as handle:
-        handle.write("\n".join(peptides_sample) + "\n")
+        handle.write("\n".join(peptides_sample + noise_peptides) + "\n")
+
+
+def test_sample_peptides(tmpdir: Path) -> None:
+    test_data_path = Path(
+        __file__).parent.parent.parent / "test/unit/simulate_sample/sample_peptides/data/results/simulation"
+    test_data_path = Path("/home/hennings/Downloads/delete_me/")
+    sample_peptides(
+        tax2acc_map_file=test_data_path / "tax2accessions.json",
+        lineage_file=test_data_path / "sample_taxons_lineage_0.tsv",
+        output=tmpdir / "peptides.txt",
+    )
+
+
+def get_accession_to_sequence_mapping(accessions: list[str], uniprot_connector: UniProtConnector) -> dict[str, str]:
+    # get protein sequences for accessions
+    fasta = uniprot_connector.get_fasta(accessions)
+    return convert_fasta_str_to_dict(fasta)
 
 
 def sample_peptides_from_sequence(
@@ -138,29 +221,6 @@ def cleave_protein_sequence(
     return cleave(*args, missed_cleavages=missed_cleavages, **kwargs)
 
 
-def get_protein_sequence(accession) -> str:
-    connector = UniProtConnector()
-    fasta = connector.get_fasta([accession])
-    return "".join(fasta.split("\n")[1:])
-
-
-class UniProtConnector:
-    url = "https://rest.uniprot.org/uniprotkb/"
-
-    def __init__(self):
-        self.session = requests.Session()
-        self.uniprot_version = requests.get(self.url).headers.get("X-UniProt-Release")
-        print(f"Uniprot Release Number: {self.uniprot_version}", file=LOG_HANDLE)
-
-    def get_fasta(self, uniprot_accessions: Iterable[str]):
-        uniprot_accessions = ["accession%3A" + acc for acc in uniprot_accessions]
-        url = self.url + f"search?query={'+OR+'.join(uniprot_accessions)}&format=fasta"
-        response = self.session.get(url)
-        response.raise_for_status()
-        fasta = response.text
-        return fasta
-
-
 def convert_fasta_str_to_dict(fasta):
     protein_dict = {}
     fasta = fasta.strip()
@@ -181,5 +241,7 @@ if snakemake := globals().get("snakemake"):
     with open(snakemake.log[0], "w") as log_handle:
         LOG_HANDLE = log_handle
         sample_peptides(
-            accessions_file=snakemake.input["accessions"], output=snakemake.output[0]
+            tax2acc_map_file=snakemake.input["tax2acc_map"],
+            lineage_file=snakemake.input["lineage"],
+            output=snakemake.output[0]
         )

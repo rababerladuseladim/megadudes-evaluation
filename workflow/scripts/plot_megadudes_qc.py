@@ -71,11 +71,14 @@ def get_diamond_hit_counts(f: Path | str, ground_truth_df_tax_ids: pd.DataFrame)
 
 
 def get_unipept_hit_counts(f, ground_truth_df_tax_ids):
+    columns = [f"{t}_id" for t in TAX_LEVELS]
+    columns = ["domain_id" if item == "superkingdom_id" else item for item in columns]
     df_uni = pd.read_csv(
         f,
-        usecols=[f"{t}_id" for t in TAX_LEVELS],
+        usecols=columns,
         dtype=pd.Int64Dtype()
     )
+    df_uni.rename(columns={"domain_id": "superkingdom_id"}, inplace=True)
     df_uni.rename(lambda x: x.strip("_id"), axis="columns", inplace=True)
     df = pd.DataFrame(columns=TAX_LEVELS, index=["TP", "FP", "FN"],)
     for t in TAX_LEVELS:

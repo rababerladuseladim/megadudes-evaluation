@@ -13,63 +13,68 @@ rule convert_scientific_names_to_taxonomy_ids:
         "../scripts/convert_scientific_names_to_taxonomy_ids.py"
 
 
-rule sample_taxons:
-    input:
-        "results/simulation/human_microbiome_project_taxonomy_ids.txt",
-    output:
-        "results/simulation/sample_taxons_{repeat}.txt",
-    log:
-        "logs/simulation/sample_taxons_{repeat}.txt",
-    script:
-        "../scripts/sample_taxons.py"
-
-
-rule filter_tax_ids_and_build_lineage:
-    input:
-        tax_ids="results/simulation/sample_taxons_{repeat}.txt",
-        ncbi_nodes="resources/ncbi/nodes.dmp",
-    output:
-        lineage="results/simulation/sample_taxons_lineage_{repeat}.tsv",
-        tax_ids="results/simulation/sample_taxons_filtered_{repeat}.txt",
-    log:
-        "logs/simulation/filter_tax_ids_and_build_lineage_{repeat}.txt",
-    script:
-        "../scripts/filter_tax_ids_and_build_lineage.py"
-
-
 rule map_taxids_to_uniprot_accessions:
     input:
         idmap="resources/uniprot/idmapping_selected.tab.gz",
-        taxids="results/simulation/sample_taxons_filtered_{repeat}.txt",
+        tax_ids="results/simulation/human_microbiome_project_taxonomy_ids.txt",
     output:
-        "results/simulation/tax2accessions_{repeat}.json",
+        tax2acc_map="results/simulation/tax2accessions.json",
     log:
-        "logs/simulation/map_taxids_to_uniprot_accessions_{repeat}.txt",
+        "logs/simulation/map_taxids_to_uniprot_accessions.txt",
     resources:
         mem_gb=21,
     script:
         "../scripts/map_taxids_to_uniprot_accessions.py"
 
 
+rule convert_tax2acc_map_to_tax_ids:
+    input:
+        tax2acc_map="results/simulation/tax2accessions.json",
+    output:
+        tax_ids="results/simulation/human_microbiome_project_taxonomy_ids_in_uniprot.txt",
+    run:
+        import json
+
+        with open(input.tax2acc_map) as f:
+            tax2acc_map = json.load(f)
+            tax_ids = list(tax2acc_map.keys())
+        with open(output.tax_ids, "w") as outfile:
+            outfile.write("\n".join(tax_ids))
+            outfile.write("\n")
+
+
+rule filter_tax_ids_and_build_lineage:
+    input:
+        tax_ids="results/simulation/human_microbiome_project_taxonomy_ids_in_uniprot.txt",
+        ncbi_nodes="resources/ncbi/nodes.dmp",
+    output:
+        "results/simulation/human_microbiome_project_lineage.tsv",
+    log:
+        "logs/simulation/filter_tax_ids_and_build_lineage.txt",
+    script:
+        "../scripts/filter_tax_ids_and_build_lineage.py"
+
+
+rule sample_taxons:
+    input:
+        "results/simulation/human_microbiome_project_lineage.tsv",
+    output:
+        "results/simulation/sample_taxons_lineage_{repeat}.tsv",
+    log:
+        "logs/simulation/sample_taxons_{repeat}.txt",
+    script:
+        "../scripts/sample_lines.py"
+
+
 rule sample_peptides:
     input:
-        accessions="results/simulation/tax2accessions_{repeat}.json",
+        tax2acc_map="results/simulation/tax2accessions.json",
+        lineage="results/simulation/sample_taxons_lineage_{repeat}.tsv",
     output:
-        "results/simulation/peptides_{repeat}.txt",
+        "results/peptides/simulated_peptides_{repeat}.txt",
     log:
-        "logs/simulation/sample_peptides_{repeat}.txt",
+        "logs/simulation/sample_peptides-simulated_peptides_{repeat}.txt",
     conda:
         "../envs/pyteomics.yaml"
     script:
         "../scripts/sample_peptides.py"
-
-
-rule convert_simulated_peptides_to_fasta:
-    input:
-        "results/simulation/peptides_{repeat}.txt",
-    output:
-        "results/fastas/simulated_peptides_{repeat}.fasta",
-    log:
-        "logs/simulation/convert_peptides_txt_to_fasta_{repeat}.txt",
-    shell:
-        "cat {input} | sed 's/.*/>&\\n&/' > {output} 2>{log}"
