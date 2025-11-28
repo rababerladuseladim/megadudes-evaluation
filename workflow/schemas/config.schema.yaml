@@ -18,6 +18,7 @@ properties:
     type: array
     items:
       type: string
+      enum: ["diamond", "mmseqs2", "mmseqs2_top_10"]
     description: "Methods to use for sequence alignment of input fastas against reference databases"
 
 # entries that have to be in the config file for successful validation
