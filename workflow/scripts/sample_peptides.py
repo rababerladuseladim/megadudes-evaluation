@@ -1,6 +1,6 @@
 import random
 from math import floor
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Generator
 
 import numpy as np
 import pandas as pd
@@ -61,7 +61,12 @@ def sample_accessions(tax2acc: dict[str, list[str]], tax_ids: list[str]) -> list
     return accessions_sample
 
 
-def sample_peptides(tax2acc_map_file: str | Path, lineage_file: str | Path, output: str | Path, false_positive_percentage: int = 1):
+def sample_peptides(
+    tax2acc_map_file: str | Path,
+    lineage_file: str | Path,
+    output: str | Path,
+    noise_percentage: int = 1
+):
     """Generate sample of peptides for tax_ids in the provided lineage file.
 
     The random module is seeded with the lineage_file.
@@ -72,26 +77,31 @@ def sample_peptides(tax2acc_map_file: str | Path, lineage_file: str | Path, outp
         lineage_file: path to tab seperated lineage file with column "query", which is used to look up accessions to
           sample from in tax2acc_map_file and as randomness seed
         output: path to output file, containing one peptide per line
-        false_positive_percentage: percentage of the number of sampled true positive peptides to add to the sample
+        noise_percentage: percentage of the number of sampled signal peptides to add to the sample
     """
     with open(tax2acc_map_file, "r") as handle:
         tax2acc = cast(dict[str, list[str]], json.load(handle))
     df_tax_ids = pd.read_csv(lineage_file, usecols=["query"], dtype={"query": str}, sep="\t")
-    tax_ids = df_tax_ids["query"].to_list()
+    signal_tax_ids = df_tax_ids["query"].to_list()
 
     # sample accessions
     random.seed(str(lineage_file))
     numpy_random_number_generator = np.random.default_rng(seed=random.getstate()[1][0])
     uniprot_connector = UniProtConnector()
 
-    peptides = sample_true_positive_peptides(tax_ids, tax2acc, numpy_random_number_generator, uniprot_connector)
+    peptides = sample_signal_peptides(signal_tax_ids, tax2acc, numpy_random_number_generator, uniprot_connector)
 
-    if false_positive_percentage:
-        all_accessions = [acc for accession_list in tax2acc.values() for acc in accession_list]
-        false_positive_peptide_count = floor(false_positive_percentage / 100 * len(peptides))
-        peptides.extend(sample_false_positive_peptides(
-            false_positive_peptide_count,
-            all_accessions,
+    if noise_percentage:
+        noise_accession_population = [
+            acc
+            for tax_id, accession_list in tax2acc.items()
+            if tax_id not in signal_tax_ids
+            for acc in accession_list
+        ]
+        noise_peptide_count = floor(noise_percentage / 100 * len(peptides))
+        peptides.extend(sample_noise_peptides(
+            noise_peptide_count,
+            noise_accession_population,
             numpy_random_number_generator,
             uniprot_connector
         ))
@@ -101,7 +111,7 @@ def sample_peptides(tax2acc_map_file: str | Path, lineage_file: str | Path, outp
         handle.write("\n".join(peptides) + "\n")
 
 
-def sample_true_positive_peptides(
+def sample_signal_peptides(
     tax_id_population: list,
     tax2acc: dict[str, list[str]],
     numpy_random_number_generator: NumpyGenerator,
@@ -109,7 +119,7 @@ def sample_true_positive_peptides(
 ) -> list[str]:
     accessions_sample = sample_accessions(tax2acc, tax_id_population)
 
-    print(f"Sampled {len(accessions_sample)} true positive accessions", file=LOG_HANDLE)
+    print(f"Sampled {len(accessions_sample)} signal accessions", file=LOG_HANDLE)
 
     acc2seq = get_accession_to_sequence_mapping(accessions_sample, uniprot_connector=uniprot_connector)
 
@@ -120,35 +130,40 @@ def sample_true_positive_peptides(
         peptides.extend(
             sample_peptides_from_sequence(numpy_random_number_generator, seq)
         )
-    print(f"Sampled {len(peptides)} true positive peptides", file=LOG_HANDLE)
+    print(f"Sampled {len(peptides)} signal peptides", file=LOG_HANDLE)
     return peptides
 
 
-def sample_false_positive_peptides(
-    false_positive_peptide_count: int,
+def sample_noise_peptides(
+    noise_peptide_count: int,
     accession_population: list[str],
     numpy_random_number_generator: NumpyGenerator,
     uniprot_connector: UniProtConnector
 ) -> list[str]:
-    false_positive_accessions = random.sample(accession_population, false_positive_peptide_count * 3)
-    false_positive_acc2seq = get_accession_to_sequence_mapping(false_positive_accessions, uniprot_connector=uniprot_connector)
+
+    def random_sequence_generator() -> Generator[str, None, None]:
+        noise_accessions = random.choices(accession_population, k=25)
+        noise_acc2seq = get_accession_to_sequence_mapping(noise_accessions, uniprot_connector=uniprot_connector)
+        yield from noise_acc2seq.values()
 
     # cleave proteins sequences and sample peptides
-    false_positive_sequences = sorted(false_positive_acc2seq.values())
-    false_positive_peptides = list()
+    noise_peptides = list()
     peptides_drawn = 0
-    for seq in false_positive_sequences:
-        if peptide_sample_current_sequence := sample_peptides_from_sequence(numpy_random_number_generator, seq):
-            false_positive_peptides.append(
-                random.choice(
-                    peptide_sample_current_sequence
-                )
+    for seq in random_sequence_generator():
+        peptide_sample_current_sequence = sample_peptides_from_sequence(numpy_random_number_generator, seq)
+        if not peptide_sample_current_sequence:
+            continue
+        peptide = random.choice(
+                peptide_sample_current_sequence
             )
-            peptides_drawn += 1
-        if peptides_drawn == false_positive_peptide_count:
+        if peptide in noise_peptides:
+            continue
+        noise_peptides.append(peptide)
+        peptides_drawn += 1
+        if peptides_drawn == noise_peptide_count:
             break
-    print(f"Sampled {len(false_positive_peptides)} false positive peptides", file=LOG_HANDLE)
-    return false_positive_peptides
+    print(f"Sampled {len(noise_peptides)} noise peptides", file=LOG_HANDLE)
+    return noise_peptides
 
 
 def test_sample_peptides(tmpdir: Path) -> None:
@@ -270,5 +285,5 @@ if snakemake := globals().get("snakemake"):
             tax2acc_map_file=snakemake.input["tax2acc_map"],
             lineage_file=snakemake.input["lineage"],
             output=snakemake.output[0],
-            false_positive_percentage=int(snakemake.wildcards["percentage"]),
+            noise_percentage=int(snakemake.wildcards["percentage"]),
         )
