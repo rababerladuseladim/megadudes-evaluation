@@ -71,9 +71,9 @@ rule sample_peptides:
         tax2acc_map="results/simulation/tax2accessions.json",
         lineage="results/simulation/sample_taxons_lineage_{repeat}.tsv",
     output:
-        "results/peptides/simulated_peptides_{repeat}.txt",
+        "results/peptides/simulated_peptides_{repeat}_with_{percentage}_percent_noise.txt",
     log:
-        "logs/simulation/sample_peptides-simulated_peptides_{repeat}.txt",
+        "logs/simulation/sample_peptides-simulated_peptides_{repeat}_with_{percentage}_percent_noise.txt",
     conda:
         "../envs/pyteomics.yaml"
     script:

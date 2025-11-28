@@ -20,6 +20,7 @@ def run_command(command: list[str]) -> None:
         )
     except subprocess.CalledProcessError as e:
         print(f"Command failed with exit code {e.returncode}")
+        print(f"Command: {' '.join(command)}\n")
         print("--- STDOUT ---")
         print(e.stdout.strip())
         print("--- STDERR ---")
@@ -119,7 +120,7 @@ def check_output(standard_paths: StandardPaths, mode: Literal["binary", "text"] 
 
 def snakemake_run(
     snakefile: Path,
-    target: str,
+    targets: list[str],
     workdir: Path,
     additional_arguments: Iterable[str] = None,
 ) -> None:
@@ -127,7 +128,7 @@ def snakemake_run(
 
     Args:
         snakefile: Path to the Snakemake workflow (.smk) file.
-        target: The Snakemake rule target to build.
+        targets: The Snakemake targets to build.
         workdir: Directory in which Snakemake will be executed.
         additional_arguments: Optional extra command-line
             arguments to append to the Snakemake invocation. Useful for passing
@@ -146,12 +147,12 @@ def snakemake_run(
         "-m",
         "snakemake",
         "-s",
-        snakefile,
-        target,
+        snakefile.as_posix(),
+        *targets,
         "-j1",
         "--keep-target-files",
         "--directory",
-        workdir,
+        workdir.as_posix(),
     ]
 
     if additional_arguments:

@@ -1,5 +1,6 @@
 import random
 from math import floor
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
@@ -12,6 +13,9 @@ import requests
 
 import json
 import sys
+
+if TYPE_CHECKING:
+    from snakemake import script
 
 LOG_HANDLE = sys.stderr
 
@@ -258,11 +262,13 @@ def convert_fasta_str_to_dict(fasta):
     return protein_dict
 
 
+snakemake: "script.Snakemake"
 if snakemake := globals().get("snakemake"):
     with open(snakemake.log[0], "w") as log_handle:
         LOG_HANDLE = log_handle
         sample_peptides(
             tax2acc_map_file=snakemake.input["tax2acc_map"],
             lineage_file=snakemake.input["lineage"],
-            output=snakemake.output[0]
+            output=snakemake.output[0],
+            false_positive_percentage=int(snakemake.wildcards["percentage"]),
         )
