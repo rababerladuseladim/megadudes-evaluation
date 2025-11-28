@@ -95,7 +95,7 @@ class OutputChecker:
                 f"Command: {' '.join(map(str, error.cmd))}\n"
                 "Output:\n" +
                 error.output.decode()
-            )
+            ) from None
 
 
 @dataclass
