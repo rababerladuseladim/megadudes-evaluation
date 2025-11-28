@@ -74,11 +74,7 @@ GEDTLMEYLENPKKYIPGTKMIFVGIKKKEERADLIAYLKKATNE"""
 
 def test_sample_peptides(workflow_path: Path) -> None:
     test_data = Path(__file__).parent.parent / "rules" / "simulate_sample/sample_peptides/data/results/simulation/"
-    sample_peptides(
-        test_data / "tax2accessions.json",
-        test_data / "sample_taxons_lineage_1.tsv",
-        "/dev/null"
-    )
+    sample_peptides(test_data / "tax2accessions.json", test_data / "sample_taxons_lineage_1.tsv", "/dev/null")
 
 
 def test_sample_accessions() -> None:
