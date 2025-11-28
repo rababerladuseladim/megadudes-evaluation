@@ -72,13 +72,20 @@ GEDTLMEYLENPKKYIPGTKMIFVGIKKKEERADLIAYLKKATNE"""
     }
 
 
-def test_sample_peptides(workflow_path: Path) -> None:
+def test_sample_peptides(workflow_path: Path, tmp_path: Path) -> None:
+    false_positive_percentage = 1
     test_data = Path(__file__).parent.parent / "rules" / "simulate_sample/sample_peptides/data/results/simulation/"
-    sample_peptides(
-        test_data / "tax2accessions.json",
-        test_data / "sample_taxons_lineage_1.tsv",
-        "/dev/null"
-    )
+
+    no_noise = tmp_path / "no_noise.txt"
+    sample_peptides(test_data / "tax2accessions.json", test_data / "sample_taxons_lineage_1.tsv", no_noise, noise_percentage=0)
+    signal_peptides = [line.strip() for line in no_noise.read_text(encoding="utf-8").splitlines()]
+
+    with_noise = tmp_path / "with_noise.txt"
+    sample_peptides(test_data / "tax2accessions.json", test_data / "sample_taxons_lineage_1.tsv", with_noise, noise_percentage=false_positive_percentage)
+    signal_and_noise_peptides = [line.strip() for line in with_noise.read_text(encoding="utf-8").splitlines()]
+
+    assert set(signal_peptides).issubset(set(signal_and_noise_peptides))
+    assert round((len(signal_and_noise_peptides) - len(signal_peptides)) / len(signal_peptides) * 100) == false_positive_percentage
 
 
 def test_sample_accessions() -> None:
