@@ -1,6 +1,7 @@
 import random
 from math import floor
 from typing import TYPE_CHECKING, Generator
+from hashlib import sha256
 
 import numpy as np
 import pandas as pd
@@ -85,8 +86,10 @@ def sample_peptides(
     signal_tax_ids = df_tax_ids["query"].to_list()
 
     # sample accessions
-    random.seed(str(lineage_file))
-    numpy_random_number_generator = np.random.default_rng(seed=random.getstate()[1][0])
+    salted_seed = str(lineage_file) + "sample_peptides"
+    seed = sha256(salted_seed.encode("utf-8")).hexdigest()
+    random.seed(seed)
+    numpy_random_number_generator = np.random.default_rng(seed=random.randint(0, 2 ** 31 - 1))
     uniprot_connector = UniProtConnector()
 
     peptides = sample_signal_peptides(signal_tax_ids, tax2acc, numpy_random_number_generator, uniprot_connector)
