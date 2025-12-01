@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Iterable
 
 import pandas as pd
@@ -8,34 +9,31 @@ plt.rcParams["figure.figsize"] = [16 * 0.6, 9 * 0.6]
 sns.set_theme(context="talk", rc={"axes.grid": False})
 
 
-def qc_plots(diamond_hits_file, mmseqs2_hits_file, input_fasta_file, output):
-    df_diamond_hits = pd.read_table(
-        diamond_hits_file,
-        usecols=[0, 4],
-        header=None,
-        dtype={"query": str, "evalue": float},
-        names=["query", "evalue"],
-    )
-    df_diamond_hits["length"] = df_diamond_hits["query"].str.len()
+def qc_plots(alignment_result_files: list[str], input_fasta_file: str, output: str):
+    df_hits_by_method: dict[str, pd.DataFrame] = {}
 
-    df_mmseqs2_hits = pd.read_table(
-        mmseqs2_hits_file,
-        usecols=[0, 4],
-        header=None,
-        dtype={"query": str, "evalue": float},
-        names=["query", "evalue"],
-    )
-    df_mmseqs2_hits["length"] = df_mmseqs2_hits["query"].str.len()
+    for result_file in alignment_result_files:
+        method = Path(result_file).parent.name
+        df_hits = pd.read_table(
+            result_file,
+            usecols=[0, 4],
+            header=None,
+            dtype={"query": str, "evalue": float},
+            names=["query", "evalue"],
+        )
+        df_hits["length"] = df_hits["query"].str.len()
+        df_hits_by_method[method] = df_hits
 
     with open(input_fasta_file) as fh:
         input_peptide_lengths = get_length_of_unique_sequences_from_fasta(fh)
 
     df_lengths = pd.concat(
         [
-            pd.DataFrame({"length": df_diamond_hits.drop_duplicates(subset="query").loc[:, "length"],
-                          "source": "diamond"}),
-            pd.DataFrame({"length": df_mmseqs2_hits.drop_duplicates(subset="query").loc[:, "length"],
-                          "source": "mmseqs2"}),
+            *[
+                pd.DataFrame({"length": df.drop_duplicates(subset="query").loc[:, "length"],
+                          "source": method})
+                for method, df in df_hits_by_method.items()
+            ],
             pd.DataFrame({"length": input_peptide_lengths,
                           "source": "input"}),
         ],
@@ -44,10 +42,11 @@ def qc_plots(diamond_hits_file, mmseqs2_hits_file, input_fasta_file, output):
 
     df_evalue = pd.concat(
         [
-            pd.DataFrame({"evalue": df_diamond_hits.loc[:, "evalue"],
-                          "source": "diamond"}),
-            pd.DataFrame({"evalue": df_mmseqs2_hits.loc[:, "evalue"],
-                          "source": "mmseqs2"}),
+            *[
+                pd.DataFrame({"evalue": df.loc[:, "evalue"],
+                              "source": method})
+                for method, df in df_hits_by_method.items()
+            ],
         ],
         ignore_index=True
     )
@@ -98,8 +97,7 @@ def test_qc_plots(tmpdir):
     mmseqs2_hits_f = "/home/hennings/Projects/megadudes-evaluation/hpi-mnt/results/mmseqs2/sample_kleiner_vs_kleiner.tsv"
     output_plot = tmpdir / "hist_of_hits.svg"
     f = qc_plots(
-        diamond_hits_file=diamond_hits_f,
-        mmseqs2_hits_file=mmseqs2_hits_f,
+        alignment_result_files=[diamond_hits_f, mmseqs2_hits_f],
         input_fasta_file=input_fasta_f,
         output=output_plot,
     )
@@ -108,8 +106,7 @@ def test_qc_plots(tmpdir):
 
 if snakemake := globals().get("snakemake"):
     qc_plots(
-        diamond_hits_file=snakemake.input["diamond"],
-        mmseqs2_hits_file=snakemake.input["mmseqs2"],
+        alignment_result_files=snakemake.input["alignment_results"],
         input_fasta_file=snakemake.input["input"],
         output=snakemake.output[0],
     )

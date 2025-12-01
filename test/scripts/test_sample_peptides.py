@@ -92,7 +92,7 @@ def test_cleave_protein_sequence(missed_cleavages: int, expected: set[str]):
     assert cleave_protein_sequence(sequence, missed_cleavages=missed_cleavages) == expected
 
 
-def test_fasta_to_dict():
+def test_convert_fasta_str_to_dict():
     fasta = """>sp|P12345|AATM_RABIT Aspartate aminotransferase, mitochondrial OS=Oryctolagus cuniculus OX=9986 GN=GOT2 PE=1 SV=2
 MALLHSARVLSGVASAFHPGLAAAASARASSWWAHVEMGPPDPILGVTEAYK
 >sp|P99999|CYC_HUMAN Cytochrome c OS=Homo sapiens OX=9606 GN=CYCS PE=1 SV=2
@@ -202,4 +202,6 @@ def test_get_accession_to_sequence_mapping():
         'A0A7J4XUU1', 'A0A173RK00', 'A0A827QNQ9', 'A0A9Q7ZIA1', 'A0A378TZE8', 'A0A921K5C8'
     ]
     with UniProtConnector() as uniprot_connector:
-        assert len(uniprot_connector.get_accession_to_sequence_mapping(accessions)) > 25
+        accession_to_sequence_mapping = uniprot_connector.get_accession_to_sequence_mapping(accessions)
+    assert len(accession_to_sequence_mapping) > 25
+    # assert set(accessions) == set(accession_to_sequence_mapping)

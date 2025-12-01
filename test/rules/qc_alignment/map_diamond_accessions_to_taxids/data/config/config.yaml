@@ -1,0 +1,4 @@
+alignment_methods: [
+  "diamond",
+  "mmseqs2_top_10"
+]

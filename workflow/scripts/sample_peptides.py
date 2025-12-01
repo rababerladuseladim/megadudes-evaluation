@@ -51,8 +51,15 @@ class UniProtConnector:
     def get_accession_to_sequence_mapping(self, accessions: list[str]) -> dict[str, str]:
         missing_accessions = list(set(accessions) - set(self._accession_to_sequence_cache))
         fasta = self.get_fasta(missing_accessions)
-        self._accession_to_sequence_cache.update(convert_fasta_str_to_dict(fasta))
-        return {acc: self._accession_to_sequence_cache[acc] for acc in accessions}
+        retrieved_accession_to_sequence_mapping = convert_fasta_str_to_dict(fasta)
+        unretrievable_accessions = sorted({acc for acc in missing_accessions if acc not in retrieved_accession_to_sequence_mapping})
+        print(f"Could not retrieve sequences for the following accessions: {' '.join(unretrievable_accessions)}", file=LOG_HANDLE)
+        self._accession_to_sequence_cache.update(retrieved_accession_to_sequence_mapping)
+        return {
+            acc: self._accession_to_sequence_cache[acc]
+            for acc in accessions
+            if acc not in unretrievable_accessions
+        }
 
 
 def sample_accessions(tax2acc: dict[str, list[str]], tax_ids: list[str]) -> list[str]:
