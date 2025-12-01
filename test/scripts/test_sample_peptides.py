@@ -1,24 +1,55 @@
 import random
+from functools import cache
+from math import floor, ceil
 from pathlib import Path
 
 import numpy as np
 import pytest
+from conda.testing.helpers import expected_error_prefix
 
 pytest.importorskip("pyteomics")
 
 from workflow.scripts.sample_peptides import (
     cleave_protein_sequence,
     convert_fasta_str_to_dict,
-    get_accession_to_sequence_mapping,
     sample_accessions,
+    sample_noise_peptides,
     sample_peptides,
     sample_peptides_from_sequence,
     UniProtConnector,
 )
 
 
+class MockedUniprotConnector:
+    def __init__(self):
+        pass
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
+    def _generate_random_peptide_sequence(self) -> str:
+        amino_acid_alphabet = "ARNDCEQGHILKMFPSTWYV"
+        length = random.randint(10, 2*10**4)
+        amino_acids = random.choices(amino_acid_alphabet, k=length)
+        return "".join(amino_acids)
+
+    @cache
+    def _get_sequence_for_acc(self, acc) -> str:
+        return self._generate_random_peptide_sequence()
+
+    def get_accession_to_sequence_mapping(self, noise_accessions: list[str]):
+        acc2seq: dict[str, str] = {}
+        for acc in noise_accessions:
+            acc2seq[acc] = self._get_sequence_for_acc(acc)
+        return acc2seq
+
+
 def test_get_fasta() -> None:
-    fasta = UniProtConnector().get_fasta(["A0A3R6E0N5"])
+    with UniProtConnector() as connector:
+        fasta = connector.get_fasta(["A0A3R6E0N5"])
     assert fasta == """\
 >tr|A0A3R6E0N5|A0A3R6E0N5_9FIRM Glycosyl transferase OS=Roseburia intestinalis OX=166486 GN=DW264_18045 PE=4 SV=1
 MCGGDDILKYRTYCKNQRDVAFVINGIIDEYWCGKLSEKEMKEDILTLYENNKEKLFKDG
@@ -34,7 +65,8 @@ def test_get_fasta_returns_more_than_25_results() -> None:
         'A0A139L7B9', 'A0A1S6GKC3', 'A0A7M1NVS6', 'A0A7D7DSC8', 'A0A0M1UJ95', 'A0A174PW89', 'A0A448PJ07', 'A0A415D293',
         'A0A7J4XQ64', 'A0A412P7C0', 'A0A0G3B8Y9', 'A0A9Q6F4E3', 'A0A7W9SEH0', 'A0A137SRT4', 'A0A2H4U0C6', 'A0A412RPZ4',
     ]
-    fasta = UniProtConnector().get_fasta(accessions)
+    with UniProtConnector() as connector:
+        fasta = connector.get_fasta(accessions)
     assert fasta.count(">") > 25
 
 
@@ -73,7 +105,7 @@ GEDTLMEYLENPKKYIPGTKMIFVGIKKKEERADLIAYLKKATNE"""
 
 
 def test_sample_peptides(workflow_path: Path, tmp_path: Path) -> None:
-    noise_percentage = 1
+    expected_noise_percentage = 10
     test_data = Path(__file__).parent.parent / "rules" / "simulate_sample/sample_peptides/data/results/simulation/"
 
     no_noise = tmp_path / "no_noise.txt"
@@ -81,11 +113,65 @@ def test_sample_peptides(workflow_path: Path, tmp_path: Path) -> None:
     signal_peptides = [line.strip() for line in no_noise.read_text(encoding="utf-8").splitlines()]
 
     with_noise = tmp_path / "with_noise.txt"
-    sample_peptides(test_data / "tax2accessions.json", test_data / "sample_taxons_lineage_1.tsv", with_noise, noise_percentage=noise_percentage)
+    sample_peptides(test_data / "tax2accessions.json", test_data / "sample_taxons_lineage_1.tsv", with_noise, noise_percentage=expected_noise_percentage)
     signal_and_noise_peptides = [line.strip() for line in with_noise.read_text(encoding="utf-8").splitlines()]
 
-    assert set(signal_peptides).issubset(set(signal_and_noise_peptides))
-    assert round((len(signal_and_noise_peptides) - len(signal_peptides)) / len(signal_peptides) * 100) == noise_percentage
+    signal_set = set(signal_peptides)
+    signal_and_noise_set = set(signal_and_noise_peptides)
+    returned_noise_percentage = ceil((len(signal_and_noise_peptides) - len(signal_peptides)) / len(signal_peptides) * 100)
+
+    assert signal_set.issubset(signal_and_noise_set)
+    assert len(signal_and_noise_set - signal_set) >= 1
+    assert returned_noise_percentage == expected_noise_percentage
+
+
+def test_sample_noise_peptides():
+    random.seed(123)
+    numpy_random_number_generator = np.random.default_rng(seed=random.randint(0, 2 ** 31 - 1))
+
+    tax2acc = {"123": ["foo"]}
+    noise_taxid_population = list(tax2acc)
+
+    with MockedUniprotConnector() as connector:
+        peptides = sample_noise_peptides(
+            26,
+            noise_taxid_population,
+            tax2acc,
+            numpy_random_number_generator,
+            connector
+        )
+    assert len(peptides) == 26
+
+
+def test_sample_noise_peptides_raises_runtime_error(monkeypatch: pytest.MonkeyPatch) -> None:
+    random.seed(123)
+    numpy_random_number_generator = np.random.default_rng(seed=random.randint(0, 2 ** 31 - 1))
+
+    tax2acc = {"123": ["foo"]}
+    noise_taxid_population = list(tax2acc)
+    sequence_without_cleavage_site: str = "ACDEFGHILMNPQSTVWYV"
+
+    # Define replacement function
+    def fake_method(self: MockedUniprotConnector, accessions: list[str]) -> dict[str, str]:
+        return {acc: sequence_without_cleavage_site for acc in accessions}
+
+    # Apply monkeypatch
+    monkeypatch.setattr(
+        MockedUniprotConnector,
+        "get_accession_to_sequence_mapping",
+        fake_method,
+    )
+
+    with MockedUniprotConnector() as connector:
+        with pytest.raises(RuntimeError, match="Maximum number of tries reached: 10"):
+            sample_noise_peptides(
+            2,
+            noise_taxid_population,
+            tax2acc,
+            numpy_random_number_generator,
+            connector
+        )
+
 
 
 def test_sample_accessions() -> None:
@@ -115,5 +201,5 @@ def test_get_accession_to_sequence_mapping():
         'A0A376K0H5', 'A0A174NBZ0', 'A0A139LVH8', 'A0A930Q174', 'A0A2N0SPF6', 'A0A1Q8I2P6', 'A0A2X1JGP1', 'A0A2X3K270',
         'A0A7J4XUU1', 'A0A173RK00', 'A0A827QNQ9', 'A0A9Q7ZIA1', 'A0A378TZE8', 'A0A921K5C8'
     ]
-    uniprot_connector = UniProtConnector()
-    assert len(get_accession_to_sequence_mapping(accessions, uniprot_connector)) > 25
+    with UniProtConnector() as uniprot_connector:
+        assert len(uniprot_connector.get_accession_to_sequence_mapping(accessions)) > 25
