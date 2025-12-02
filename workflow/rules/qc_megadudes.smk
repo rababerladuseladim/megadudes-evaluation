@@ -23,7 +23,6 @@ rule plot_megadudes_qc_sample:
 rule plot_megadudes_qc_simulation:
     input:
         ground_truth="results/simulation/sample_taxons_lineage_{repeat}.tsv",
-        diamond_result="results/diamond/simulated_peptides_{repeat}_with_{percentage}_percent_noise-lineage.tsv",
         unipept_result="results/unipept/simulated_peptides_{repeat}_with_{percentage}_percent_noise.csv",
         megadudes_results=expand(
             "results/megadudes/{method}/simulated_peptides_{{repeat}}_with_{{percentage}}_percent_noise.out",
