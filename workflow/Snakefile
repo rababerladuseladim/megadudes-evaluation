@@ -41,5 +41,5 @@ rule all:
         expand(
             "plots/alignment/qc-simulated_peptides_{repeat}_with_{percentage}_percent_noise.svg",
             repeat=range(3),
-            percentage=[0, 1, 10],
+            percentage=[0, 1, 10, 20],
         ),
