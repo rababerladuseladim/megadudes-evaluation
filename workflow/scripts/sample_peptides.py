@@ -1,5 +1,7 @@
 import random
 from math import floor
+from typing import TYPE_CHECKING, Generator, Self
+from hashlib import sha256
 
 import numpy as np
 import pandas as pd
@@ -13,6 +15,9 @@ import requests
 import json
 import sys
 
+if TYPE_CHECKING:
+    from snakemake import script
+
 LOG_HANDLE = sys.stderr
 
 
@@ -23,6 +28,13 @@ class UniProtConnector:
         self.session = requests.Session()
         self.uniprot_version = requests.get(self.url).headers.get("X-UniProt-Release")
         print(f"Uniprot Release Number: {self.uniprot_version}", file=LOG_HANDLE)
+        self._accession_to_sequence_cache: dict[str, str] = {}
+
+    def __enter__(self) -> Self:
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        self.session.close()
 
     def get_fasta(self, uniprot_accessions: list[str]) -> str:
         fastas = []
@@ -35,6 +47,19 @@ class UniProtConnector:
             response.raise_for_status()
             fastas.append(response.text)
         return "".join(fastas)
+
+    def get_accession_to_sequence_mapping(self, accessions: list[str]) -> dict[str, str]:
+        missing_accessions = list(set(accessions) - set(self._accession_to_sequence_cache))
+        fasta = self.get_fasta(missing_accessions)
+        retrieved_accession_to_sequence_mapping = convert_fasta_str_to_dict(fasta)
+        unretrievable_accessions = sorted({acc for acc in missing_accessions if acc not in retrieved_accession_to_sequence_mapping})
+        print(f"Could not retrieve sequences for the following accessions: {' '.join(unretrievable_accessions)}", file=LOG_HANDLE)
+        self._accession_to_sequence_cache.update(retrieved_accession_to_sequence_mapping)
+        return {
+            acc: self._accession_to_sequence_cache[acc]
+            for acc in accessions
+            if acc not in unretrievable_accessions
+        }
 
 
 def sample_accessions(tax2acc: dict[str, list[str]], tax_ids: list[str]) -> list[str]:
@@ -57,73 +82,120 @@ def sample_accessions(tax2acc: dict[str, list[str]], tax_ids: list[str]) -> list
     return accessions_sample
 
 
-def sample_peptides(tax2acc_map_file: str | Path, lineage_file: str | Path, output: str | Path):
+def sample_peptides(
+    tax2acc_map_file: str | Path,
+    lineage_file: str | Path,
+    output: str | Path,
+    noise_percentage: int = 1
+):
     """Generate sample of peptides for tax_ids in the provided lineage file.
 
-    The random module is seeded with the output path.
-    Adds noise peptides to the end of the output. The number of noise peptides is 1% of the number of sampled peptides.
+    The random module is seeded with the lineage_file.
+    Adds false positive peptides to the end of the output.
 
     Args:
         tax2acc_map_file: path to json with tax_ids as keys and list of accessions as values
         lineage_file: path to tab seperated lineage file with column "query", which is used to look up accessions to
-          sample from in tax2acc_map_file
+          sample from in tax2acc_map_file and as randomness seed
         output: path to output file, containing one peptide per line
+        noise_percentage: percentage of the number of sampled signal peptides to add to the sample
     """
     with open(tax2acc_map_file, "r") as handle:
         tax2acc = cast(dict[str, list[str]], json.load(handle))
     df_tax_ids = pd.read_csv(lineage_file, usecols=["query"], dtype={"query": str}, sep="\t")
-    tax_ids = df_tax_ids["query"].to_list()
+    signal_tax_ids: list[str] = df_tax_ids["query"].to_list()
 
     # sample accessions
-    random.seed(str(output))
-    accessions_sample = sample_accessions(tax2acc, tax_ids)
+    salted_seed = str(lineage_file) + "sample_peptides"
+    seed = sha256(salted_seed.encode("utf-8")).hexdigest()
+    random.seed(seed)
+    numpy_random_number_generator = np.random.default_rng(seed=random.randint(0, 2 ** 31 - 1))
+    with UniProtConnector() as uniprot_connector:
+        peptides = sample_signal_peptides(signal_tax_ids, tax2acc, numpy_random_number_generator, uniprot_connector)
 
-    print(f"Sampled {len(accessions_sample)} accessions", file=LOG_HANDLE)
-    random_state = random.getstate()
+        if noise_percentage:
+            noise_tax_id_population = [
+                tax_id
+                for tax_id in tax2acc
+                if tax_id not in signal_tax_ids
+            ]
+            noise_peptide_count = floor(noise_percentage / 100 * len(peptides))
+            peptides.extend(sample_noise_peptides(
+                noise_peptide_count,
+                noise_tax_id_population,
+                tax2acc,
+                numpy_random_number_generator,
+                uniprot_connector
+            ))
 
-    uniprot_connector = UniProtConnector()
-    acc2seq = get_accession_to_sequence_mapping(accessions_sample, uniprot_connector=uniprot_connector)
+    # write output
+    with open(output, "w") as handle:
+        handle.write("\n".join(peptides) + "\n")
 
-    # ensure deterministic behaviour although previous fetching of sequences takes a non-deterministic amount of
-    # computation
-    random.setstate(random_state)
-    numpy_random_number_generator = np.random.default_rng(seed=random.getstate()[1][0])
+
+def sample_signal_peptides(
+    signal_tax_id_population: list[str],
+    tax2acc: dict[str, list[str]],
+    numpy_random_number_generator: NumpyGenerator,
+    uniprot_connector: UniProtConnector
+) -> list[str]:
+    accessions_sample = sample_accessions(tax2acc, signal_tax_id_population)
+
+    print(f"Sampled {len(accessions_sample)} signal accessions", file=LOG_HANDLE)
+
+    acc2seq = uniprot_connector.get_accession_to_sequence_mapping(accessions_sample)
 
     # cleave proteins sequences and sample peptides
     sequences = sorted(acc2seq.values())
-    peptides_sample = list()
+    peptides = list()
     for seq in sequences:
-        peptides_sample.extend(
+        peptides.extend(
             sample_peptides_from_sequence(numpy_random_number_generator, seq)
         )
+    print(f"Sampled {len(peptides)} signal peptides", file=LOG_HANDLE)
+    return peptides
 
-    print(f"Sampled {len(peptides_sample)} peptides", file=LOG_HANDLE)
 
-    noise_peptide_count = floor(0.01 * len(peptides_sample))
-    all_accessions = [acc for accession_list in tax2acc.values() for acc in accession_list]
-    noise_accessions = random.sample(all_accessions, noise_peptide_count * 3)
-    noise_acc2seq = get_accession_to_sequence_mapping(noise_accessions, uniprot_connector=uniprot_connector)
+def sample_noise_peptides(
+    noise_peptide_count: int,
+    noise_tax_id_population: list[str],
+    tax2acc: dict[str, list[str]],
+    numpy_random_number_generator: NumpyGenerator,
+    uniprot_connector: UniProtConnector
+) -> list[str]:
+    accession_population = [
+        acc
+        for tax_id in noise_tax_id_population
+        for acc in tax2acc[tax_id]
+    ]
+
+    def random_sequence_generator() -> Generator[str, None, None]:
+        while True:
+            noise_accessions = random.choices(accession_population, k=25)
+            noise_acc2seq = uniprot_connector.get_accession_to_sequence_mapping(noise_accessions)
+            yield from noise_acc2seq.values()
 
     # cleave proteins sequences and sample peptides
-    noise_sequences = sorted(noise_acc2seq.values())
+    maximum_number_of_tries = 5*noise_peptide_count
     noise_peptides = list()
     peptides_drawn = 0
-    for seq in noise_sequences:
-        if peptide_sample_current_sequence := sample_peptides_from_sequence(numpy_random_number_generator, seq):
-            noise_peptides.append(
-                random.choice(
-                    peptide_sample_current_sequence
-                )
+    for executed_number_of_tries, seq in enumerate(random_sequence_generator()):
+        if executed_number_of_tries >= maximum_number_of_tries:
+            raise RuntimeError(f"Maximum number of tries reached: {maximum_number_of_tries}")
+        peptide_sample_current_sequence = sample_peptides_from_sequence(numpy_random_number_generator, seq)
+        if not peptide_sample_current_sequence:
+            continue
+        peptide = random.choice(
+                peptide_sample_current_sequence
             )
-            peptides_drawn += 1
+        if peptide in noise_peptides:
+            continue
+        noise_peptides.append(peptide)
+        peptides_drawn += 1
         if peptides_drawn == noise_peptide_count:
             break
-
     print(f"Sampled {len(noise_peptides)} noise peptides", file=LOG_HANDLE)
-
-    # write fasta
-    with open(output, "w") as handle:
-        handle.write("\n".join(peptides_sample + noise_peptides) + "\n")
+    return noise_peptides
 
 
 def test_sample_peptides(tmpdir: Path) -> None:
@@ -135,12 +207,6 @@ def test_sample_peptides(tmpdir: Path) -> None:
         lineage_file=test_data_path / "sample_taxons_lineage_0.tsv",
         output=tmpdir / "peptides.txt",
     )
-
-
-def get_accession_to_sequence_mapping(accessions: list[str], uniprot_connector: UniProtConnector) -> dict[str, str]:
-    # get protein sequences for accessions
-    fasta = uniprot_connector.get_fasta(accessions)
-    return convert_fasta_str_to_dict(fasta)
 
 
 def sample_peptides_from_sequence(
@@ -237,11 +303,13 @@ def convert_fasta_str_to_dict(fasta):
     return protein_dict
 
 
+snakemake: "script.Snakemake"
 if snakemake := globals().get("snakemake"):
     with open(snakemake.log[0], "w") as log_handle:
         LOG_HANDLE = log_handle
         sample_peptides(
             tax2acc_map_file=snakemake.input["tax2acc_map"],
             lineage_file=snakemake.input["lineage"],
-            output=snakemake.output[0]
+            output=snakemake.output[0],
+            noise_percentage=int(snakemake.wildcards["percentage"]),
         )

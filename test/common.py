@@ -19,29 +19,28 @@ def run_command(command: list[str]) -> None:
             text=True,
         )
     except subprocess.CalledProcessError as e:
-        print(f"Command failed with exit code {e.returncode}")
-        print("--- STDOUT ---")
-        print(e.stdout.strip())
-        print("--- STDERR ---")
-        print(e.stderr.strip())
-        raise
+        msg = (
+            f"Command failed with exit code {e.returncode}\n"
+            f"Command: {' '.join(command)}\n"
+            "--- STDOUT ---\n"
+            + e.stdout.strip() +
+            "\n--- STDERR ---\n"
+            + e.stderr.strip() + "\n"
+        )
+        raise RuntimeError(msg) from None
     else:
         print(result.stdout)
 
 
 class OutputChecker:
-    def __init__(self, data_path, expected_path, workdir, mode: Literal["binary", "text"] = "text"):
+    def __init__(self, data_path, expected_path, workdir, mode: Literal["binary", "text", "presence"] = "text"):
         self.data_path = data_path
         self.expected_path = expected_path
         self.workdir = workdir
         self.mode = mode
 
-    def check(self, compare_content=True):
-        """Check that all expected files are created.
-
-        Args:
-            compare_content: Compare content of expected files with created files, defaults to True
-        """
+    def check(self):
+        """Check that all expected files are created."""
         input_files = set(
             (Path(path) / f).relative_to(self.data_path)
             for path, subdirs, files in os.walk(self.data_path)
@@ -61,7 +60,7 @@ class OutputChecker:
                 if str(f).startswith((".snakemake", "log")):
                     continue
                 if f in expected_files:
-                    if compare_content:
+                    if self.mode != "presence":
                         self.compare_files(self.workdir / f, self.expected_path / f)
                 elif f in input_files:
                     # ignore input files
@@ -95,7 +94,7 @@ class OutputChecker:
                 f"Command: {' '.join(map(str, error.cmd))}\n"
                 "Output:\n" +
                 error.output.decode()
-            )
+            ) from None
 
 
 @dataclass
@@ -112,14 +111,14 @@ class StandardPaths:
     expected_path: Path
 
 
-def check_output(standard_paths: StandardPaths, mode: Literal["binary", "text"] = "text"):
+def check_output(standard_paths: StandardPaths, mode: Literal["binary", "text", "presence"] = "text"):
     OutputChecker(standard_paths.input_path, standard_paths.expected_path, standard_paths.workdir,
                   mode=mode).check()
 
 
 def snakemake_run(
     snakefile: Path,
-    target: str,
+    targets: list[str],
     workdir: Path,
     additional_arguments: Iterable[str] = None,
 ) -> None:
@@ -127,7 +126,7 @@ def snakemake_run(
 
     Args:
         snakefile: Path to the Snakemake workflow (.smk) file.
-        target: The Snakemake rule target to build.
+        targets: The Snakemake targets to build.
         workdir: Directory in which Snakemake will be executed.
         additional_arguments: Optional extra command-line
             arguments to append to the Snakemake invocation. Useful for passing
@@ -146,12 +145,12 @@ def snakemake_run(
         "-m",
         "snakemake",
         "-s",
-        snakefile,
-        target,
+        snakefile.as_posix(),
+        *targets,
         "-j1",
         "--keep-target-files",
         "--directory",
-        workdir,
+        workdir.as_posix(),
     ]
 
     if additional_arguments:

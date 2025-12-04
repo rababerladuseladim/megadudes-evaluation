@@ -23,17 +23,16 @@ rule plot_megadudes_qc_sample:
 rule plot_megadudes_qc_simulation:
     input:
         ground_truth="results/simulation/sample_taxons_lineage_{repeat}.tsv",
-        diamond_result="results/diamond/simulated_peptides_{repeat}-lineage.tsv",
-        unipept_result="results/unipept/simulated_peptides_{repeat}.csv",
+        unipept_result="results/unipept/simulated_peptides_{repeat}_with_{percentage}_percent_noise.csv",
         megadudes_results=expand(
-            "results/megadudes/{method}/simulated_peptides_{{repeat}}.out",
+            "results/megadudes/{method}/simulated_peptides_{{repeat}}_with_{{percentage}}_percent_noise.out",
             method=config["alignment_methods"],
         ),
     log:
-        "logs/megadudes/plot_megadudes_qc-simulated_peptides_{repeat}.txt",
+        "logs/megadudes/plot_megadudes_qc-simulated_peptides_{repeat}_with_{percentage}_percent_noise.txt",
     output:
         report(
-            "plots/megadudes/qc-simulated_peptides_{repeat}.svg",
+            "plots/megadudes/qc-simulated_peptides_{repeat}_with_{percentage}_percent_noise.svg",
             category="qc",
             subcategory="megadudes",
         ),

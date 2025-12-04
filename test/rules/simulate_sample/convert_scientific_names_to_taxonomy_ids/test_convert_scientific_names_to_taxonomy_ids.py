@@ -1,13 +1,13 @@
 from test.common import snakemake_run, check_output
 
 def test_convert_scientific_names_to_taxonomy_ids(tmpdir, workflow_path, prepared_workdir):
-    target = "results/simulation/human_microbiome_project_taxonomy_ids.txt"
+    targets = ["results/simulation/human_microbiome_project_taxonomy_ids.txt"]
     snakefile = workflow_path / "workflow/rules/simulate_sample.smk"
 
     # Run the test job.
     snakemake_run(
         snakefile,
-        target,
+        targets,
         prepared_workdir.workdir,
         additional_arguments=[
         "--use-conda",]

@@ -1,5 +1,6 @@
 import random
 import sys
+from hashlib import sha256
 
 LOG_HANDLE = sys.stderr
 
@@ -22,7 +23,9 @@ def sample_lines(input_file, output_file, count=50):
             file=LOG_HANDLE,
         )
         sys.exit(1)
-    random.seed(output_file)
+    salted_seed = str(output_file) + "sample_lines"
+    seed = sha256(salted_seed.encode("utf-8")).hexdigest()
+    random.seed(seed)
     sampled_lines = random.sample(lines, count)
     with open(output_file, "w") as output_handle:
         output_handle.writelines([headline, *sampled_lines])
