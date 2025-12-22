@@ -1,6 +1,7 @@
 rule plot_megadudes_qc_sample:
     input:
         ground_truth=lambda wc: samples.loc[wc.sample_name, "ground_truth"],
+        diamond_result="results/diamond/sample_{sample_name}.tsv",
         unipept_result="results/unipept/sample_{sample_name}.csv",
         megadudes_results=expand(
             "results/megadudes/{method}/sample_{{sample_name}}.out",
@@ -23,6 +24,7 @@ rule plot_megadudes_qc_sample:
 rule plot_megadudes_qc_simulation:
     input:
         ground_truth="results/simulation/sample_taxons_lineage_{repeat}.tsv",
+        diamond_result="results/diamond/simulated_peptides_{repeat}_with_{percentage}_percent_noise.tsv",
         unipept_result="results/unipept/simulated_peptides_{repeat}_with_{percentage}_percent_noise.csv",
         megadudes_results=expand(
             "results/megadudes/{method}/simulated_peptides_{{repeat}}_with_{{percentage}}_percent_noise.out",
