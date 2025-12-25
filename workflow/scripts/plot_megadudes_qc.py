@@ -217,13 +217,15 @@ def qc_plots(
     df_uni["method"] = "Unipept"
     hits.append(df_uni)
     # get megadudes hits
-    if len(megadudes_file_list) != 1:
-        raise ValueError("'megadudes_file_list' must contain exactly one file")
-    df_mega = get_megadudes_hit_counts(
-            megadudes_file_list[0], df_gt_taxids
-        )
-    df_mega["method"] = "DUDes"
-    hits.append(df_mega)
+    for megadudes_file in megadudes_file_list:
+        method_name = "DUDes"
+        if len(megadudes_file_list) > 1:
+            method_name += " on " + Path(megadudes_file).parent.name
+        df_mega = get_megadudes_hit_counts(
+                megadudes_file, df_gt_taxids
+            )
+        df_mega["method"] = method_name
+        hits.append(df_mega)
     # build TP/FP/FN dataframe
     df_hits = pd.concat(hits, ignore_index=True)
     # build evaluation dataframe, containing sensitivity, precision, f1-score, fdr
