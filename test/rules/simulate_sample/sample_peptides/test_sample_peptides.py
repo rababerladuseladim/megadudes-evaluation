@@ -7,7 +7,7 @@ def test_sample_peptides(tmpdir, workflow_path, prepared_workdir):
         "results/peptides/simulated_peptides_1_with_1_percent_noise.txt",
     ]
     snakefile = workflow_path / "workflow/rules/simulate_sample.smk"
-    conda_base_path = workflow_path / ".snakemake" / "conda"
+    conda_prefix = workflow_path / ".snakemake" / "conda"
 
     # Run the test job.
     snakemake_run(
@@ -16,8 +16,8 @@ def test_sample_peptides(tmpdir, workflow_path, prepared_workdir):
         prepared_workdir.workdir,
         additional_arguments=[
             "--use-conda",
-            "--conda-base-path",
-            conda_base_path.as_posix(),
+            "--conda-prefix",
+            conda_prefix.as_posix(),
         ],
     )
 

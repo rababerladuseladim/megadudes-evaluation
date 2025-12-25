@@ -1,4 +1,4 @@
-from workflow.scripts.plot_megadudes_qc import (
+from workflow.scripts.calculate_megadudes_qc_metrics import (
     calc_eval_metrics,
     read_ground_truth_file,
     get_diamond_hit_counts,
@@ -125,10 +125,10 @@ def test_get_megadudes_hit_counts(ground_truth_df: pd.DataFrame) -> None:
                 {
                     "method": {0: "megadudes"},
                     "taxon_level": {0: "superkingdom"},
-                    "sensitivity": {0: 50.0},
-                    "precision": {0: 50.0},
+                    "Sensitivity": {0: 50.0},
+                    "Precision": {0: 50.0},
                     "F1-score": {0: 50.0},
-                    "fdr": {0: 50.0},
+                    "FDR": {0: 50.0},
                 }
             ),
         ),
@@ -144,10 +144,10 @@ def test_get_megadudes_hit_counts(ground_truth_df: pd.DataFrame) -> None:
                 {
                     "method": {0: "megadudes", 1: "diamond"},
                     "taxon_level": {0: "superkingdom", 1: "superkingdom"},
-                    "sensitivity": {0: 50.0, 1: 75.0},
-                    "precision": {0: 50.0, 1: 75.0},
+                    "Sensitivity": {0: 50.0, 1: 75.0},
+                    "Precision": {0: 50.0, 1: 75.0},
                     "F1-score": {0: 50.0, 1: 75.0},
-                    "fdr": {0: 50.0, 1: 25.0},
+                    "FDR": {0: 50.0, 1: 25.0},
                 }
             ),
         ),
@@ -163,10 +163,10 @@ def test_get_megadudes_hit_counts(ground_truth_df: pd.DataFrame) -> None:
                 {
                     "method": {0: "megadudes"},
                     "taxon_level": {0: "superkingdom"},
-                    "sensitivity": {0: 0.0},
-                    "precision": {0: np.nan},
+                    "Sensitivity": {0: 0.0},
+                    "Precision": {0: np.nan},
                     "F1-score": {0: np.nan},
-                    "fdr": {0: np.nan},
+                    "FDR": {0: np.nan},
                 }
             ),
         ),
