@@ -20,9 +20,11 @@ def plot_qc(df_plt):
     sns.set_theme(
         context="paper",
         style="whitegrid",
-        rc={"axes.grid.axis": "y"},
+        rc={
+            "axes.grid.axis": "y",
+            "figure.figsize": [16 * 0.4, 9 * 0.4],
+        },
     )
-    plt.rcParams["figure.figsize"] = [16 * 0.4, 9 * 0.4]
     metrics = ["Sensitivity", "Precision", "F1-score"]
     f, axes = plt.subplots(ncols=3, sharex="all", sharey="all")
     for metric, ax in zip(metrics, axes):
