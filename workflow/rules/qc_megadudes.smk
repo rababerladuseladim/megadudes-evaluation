@@ -1,4 +1,4 @@
-rule plot_megadudes_qc_sample:
+rule calculate_megadudes_qc_metrics_sample:
     input:
         ground_truth=lambda wc: samples.loc[wc.sample_name, "ground_truth"],
         diamond_result="results/diamond/sample_{sample_name}-lineage.tsv",
@@ -8,20 +8,18 @@ rule plot_megadudes_qc_sample:
             method=config["alignment_methods"],
         ),
     log:
-        "logs/megadudes/plot_megadudes_qc-sample_{sample_name}.txt",
+        "logs/qc/calculate_megadudes_qc_metrics_sample-sample_{sample_name}.txt",
     output:
         report(
-            "plots/megadudes/qc-sample_{sample_name}.svg",
+            "results/qc/qc-sample_{sample_name}.tsv",
             category="qc",
             subcategory="megadudes",
         ),
-    conda:
-        "../envs/qc_plots.yaml"
     script:
-        "../scripts/plot_megadudes_qc.py"
+        "../scripts/calculate_megadudes_qc_metrics.py"
 
 
-rule plot_megadudes_qc_simulation:
+rule calculate_megadudes_qc_metrics_simulation:
     input:
         ground_truth="results/simulation/sample_taxons_lineage_{repeat}.tsv",
         diamond_result="results/diamond/simulated_peptides_{repeat}_with_{percentage}_percent_noise-lineage.tsv",
@@ -31,10 +29,25 @@ rule plot_megadudes_qc_simulation:
             method=config["alignment_methods"],
         ),
     log:
-        "logs/megadudes/plot_megadudes_qc-simulated_peptides_{repeat}_with_{percentage}_percent_noise.txt",
+        "logs/qc/calculate_megadudes_qc_metrics_simulation-simulated_peptides_{repeat}_with_{percentage}_percent_noise.txt",
     output:
         report(
-            "plots/megadudes/qc-simulated_peptides_{repeat}_with_{percentage}_percent_noise.svg",
+            "results/qc/qc-simulated_peptides_{repeat}_with_{percentage}_percent_noise.tsv",
+            category="qc",
+            subcategory="megadudes",
+        ),
+    script:
+        "../scripts/calculate_megadudes_qc_metrics.py"
+
+
+rule plot_megadudes_qc:
+    input:
+        qc_data="results/qc/qc-{sample_name}.tsv",
+    log:
+        "logs/megadudes/plot_megadudes_qc-{sample_name}.txt",
+    output:
+        report(
+            "plots/megadudes/qc-{sample_name}.svg",
             category="qc",
             subcategory="megadudes",
         ),

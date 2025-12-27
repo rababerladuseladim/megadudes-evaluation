@@ -1,0 +1,10 @@
+# Taxonomic Profiling Output
+@SampleID:None
+@Version:0.9.3
+@Ranks:superkingdom|phylum|class|order|family|genus|species
+@TaxonomyID:results/megadudes/proc/dudes_db.npz
+@@TAXID	RANK	TAXPATH	TAXPATHSN	PERCENTAGE
+2	superkingdom	2	Bacteria	100.000000
+1239	phylum	2|1239	Bacteria|Bacillota	30.826560
+976	phylum	2|976	Bacteria|Bacteroidota	25.013350
+201174	phylum	2|201174	Bacteria|Actinomycetota	24.027360
