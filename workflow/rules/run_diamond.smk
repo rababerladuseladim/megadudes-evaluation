@@ -24,6 +24,7 @@ rule run_diamond:
         "../envs/diamond.yaml"
     threads: 256
     shell:
+        # top 0: keep only hits with the same score as the top scoring one
         # output fields: (for a list of available options see https://github.com/bbuchfink/diamond/wiki/3.-Command-line-options#output-options)
         # qseqid: Query Seq - id
         # sseqid: Subject Seq - id
@@ -35,6 +36,7 @@ rule run_diamond:
         -d {input.dmnd_db} \
         --threads {threads}\
         --fast \
+        --top 0 \
         --outfmt 6 qseqid sseqid slen sstart evalue \
         -o {output} \
         > {log} 2>&1"
