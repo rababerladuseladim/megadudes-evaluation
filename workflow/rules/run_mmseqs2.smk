@@ -5,6 +5,8 @@ rule make_mmseqs2_db:
         "results/mmseqs2/proc/query_dbs",
     log:
         "logs/mmseqs2/make_mmseqs2_db-query_dbs.txt",
+    benchmark:
+        "benchmarks/make_mmseqs2_db-benchmark.txt"
     conda:
         "../envs/mmseqs2.yaml"
     threads: 256
@@ -24,6 +26,8 @@ rule run_mmseqs2:
         "results/mmseqs2/{sample}.tsv",
     log:
         "logs/mmseqs2/run_mmseqs2-{sample}.txt",
+    benchmark:
+        "benchmarks/run_mmseqs2-{sample}-benchmark.txt"
     conda:
         "../envs/mmseqs2.yaml"
     threads: 256

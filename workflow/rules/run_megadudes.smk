@@ -10,6 +10,8 @@ rule build_megadudes_db:
     log:
         stdout="logs/megadudes/build_megadudes_db-stdout.txt",
         stderr="logs/megadudes/build_megadudes_db-stderr.txt",
+    benchmark:
+        "benchmarks/build_megadudes_db-benchmark.txt"
     output:
         dudes_db="results/megadudes/proc/dudes_db.npz",
     conda:
@@ -36,6 +38,8 @@ rule run_megadudes:
     log:
         stdout="logs/megadudes/run_megadudes-{method}-{sample}-stdout.txt",
         stderr="logs/megadudes/run_megadudes-{method}-{sample}-stderr.txt",
+    benchmark:
+        "benchmarks/run_megadudes-{method}-{sample}-benchmark.txt"
     output:
         result=report("results/megadudes/{method}/{sample}.out", category="megadudes"),
     conda:
