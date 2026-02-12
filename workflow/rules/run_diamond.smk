@@ -5,9 +5,11 @@ rule make_diamond_db:
         "results/diamond/proc/query_dbs.dmnd",
     log:
         "logs/diamond/make_diamond_db-query_dbs.txt",
+    benchmark:
+        "benchmarks/make_diamond_db-benchmark.txt"
     conda:
         "../envs/diamond.yaml"
-    threads: 256
+    threads: 64
     shell:
         "zcat {input} | diamond makedb --threads {threads} --db {output} > {log} 2>&1"
 
@@ -20,9 +22,11 @@ rule run_diamond:
         "results/diamond/{sample}.tsv",
     log:
         "logs/diamond/run_diamond-{sample}.txt",
+    benchmark:
+        "benchmarks/run_diamond-{sample}-benchmark.txt"
     conda:
         "../envs/diamond.yaml"
-    threads: 256
+    threads: 64
     shell:
         # output fields: (for a list of available options see https://github.com/bbuchfink/diamond/wiki/3.-Command-line-options#output-options)
         # qseqid: Query Seq - id
