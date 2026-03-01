@@ -178,7 +178,7 @@ def calculate_metrics(
     hits.append(df_uni)
     # get megadudes hits
     for megadudes_file in megadudes_file_list:
-        method_name = "DUDes"
+        method_name = "ProteoDUDes"
         if len(megadudes_file_list) > 1:
             method_name += " on " + Path(megadudes_file).parent.name
         df_mega = get_megadudes_hit_counts(
